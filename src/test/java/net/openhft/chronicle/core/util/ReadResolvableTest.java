@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import java.io.Serializable;
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +48,7 @@ class ReadResolvableTest {
     // Hypothetical implementation of ReadResolvable
     static class ReadResolvableImpl implements ReadResolvable<ReadResolvableImpl> {
         @Override
-        public ReadResolvableImpl readResolve() {
+        public @NotNull ReadResolvableImpl readResolve() {
             return new ReadResolvableImpl(); // Return a new instance or a specific replacement object
         }
     }

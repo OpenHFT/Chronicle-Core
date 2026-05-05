@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ScopeConfinedTest extends CoreTestCommon {
 

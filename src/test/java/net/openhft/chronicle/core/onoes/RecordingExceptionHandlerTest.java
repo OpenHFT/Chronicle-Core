@@ -3,12 +3,12 @@
  */
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.test.RecordingLogger;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class RecordingExceptionHandlerTest {
 
@@ -37,8 +37,7 @@ class RecordingExceptionHandlerTest {
 
     @Test
     void testRecordExceptionWithLogger() {
-        Logger logger = mock(Logger.class);
-        when(logger.getName()).thenReturn("TestLogger");
+        Logger logger = new RecordingLogger("TestLogger").logger();
         Throwable throwable = new RuntimeException("Test exception");
         handler.on(logger, "Test message", throwable);
 

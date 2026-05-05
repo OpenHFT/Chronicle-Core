@@ -6,9 +6,9 @@ package net.openhft.chronicle.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class JvmMain {
+class JvmMain {
     static {
         System.setProperty("system.properties", "sample.system.properties");
         Jvm.init();

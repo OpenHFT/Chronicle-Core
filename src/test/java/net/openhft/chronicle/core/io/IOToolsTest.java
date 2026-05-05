@@ -8,13 +8,15 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.util.Time;
-import org.junit.Assume;
-import org.junit.Test;
+import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -25,15 +27,21 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
-public class IOToolsTest extends CoreTestCommon {
+class IOToolsTest extends CoreTestCommon {
 
     @Test
-    public void testIsClosedException() {
+    void testIsClosedException() {
         Exception closedConnectionException = new IOException("Connection reset by peer");
         assertTrue(IOTools.isClosedException(closedConnectionException));
 
@@ -42,7 +50,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testWriteFile() throws IOException {
+    void testWriteFile() throws IOException {
         String testFilename = "testFile.tmp";
         String testData = "Test Data";
 
@@ -57,7 +65,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testTempName() {
+    void testTempName() {
         String filename = "test.txt";
         String tempFilename = IOTools.tempName(filename);
 
@@ -67,7 +75,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testClean() {
+    void testClean() {
         ByteBuffer bb = ByteBuffer.allocateDirect(1024);
 
         IOTools.clean(bb);
@@ -75,7 +83,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testCreateDirectories() throws IOException {
+    void testCreateDirectories() throws IOException {
         Path tempDir = Paths.get("tempDir");
         IOTools.createDirectories(tempDir);
 
@@ -86,7 +94,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testIsDirectBuffer() {
+    void testIsDirectBuffer() {
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
         ByteBuffer nonDirectBuffer = ByteBuffer.allocate(1024);
 
@@ -95,7 +103,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testAddressFor() {
+    void testAddressFor() {
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
         long address = IOTools.addressFor(directBuffer);
 
@@ -103,7 +111,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testDeleteDirWithFiles() throws IOException {
+    void testDeleteDirWithFiles() throws IOException {
         Path tempDir = Files.createTempDirectory("testDir");
         File tempFile = Files.createTempFile(tempDir, "test", ".tmp").toFile();
 
@@ -115,7 +123,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testReadAsBytes() throws IOException {
+    void testReadAsBytes() throws IOException {
         String testData = "Test Data";
         ByteArrayInputStream bais = new ByteArrayInputStream(testData.getBytes());
 
@@ -125,7 +133,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void readFileManyTimesByPath() {
+    void readFileManyTimesByPath() {
         final int iterations = 3_000;
         final LongAccumulator accumulator = new LongAccumulator(Long::sum, 0);
 
@@ -136,7 +144,7 @@ public class IOToolsTest extends CoreTestCommon {
                         IOTools.readFile(IOToolsTest.class, "readFileManyTimes.txt");
                         accumulator.accumulate(1);
                     } catch (IOException ioe) {
-                        Jvm.rethrow(ioe);
+                        throw Jvm.rethrow(ioe);
                     }
                 });
 
@@ -144,7 +152,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void readFileManyTimesByFile() throws IOException {
+    void readFileManyTimesByFile() throws IOException {
         final int iterations = 3_000;
         final LongAccumulator accumulator = new LongAccumulator(Long::sum, 0);
 
@@ -160,7 +168,7 @@ public class IOToolsTest extends CoreTestCommon {
                         IOTools.readFile(IOToolsTest.class, file);
                         accumulator.accumulate(1);
                     } catch (IOException ioe) {
-                        Jvm.rethrow(ioe);
+                        throw Jvm.rethrow(ioe);
                     }
                 });
 
@@ -168,13 +176,13 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldCleanDirectBuffer() {
+    void shouldCleanDirectBuffer() {
         CleanerTestUtil.test(IOTools::clean);
     }
 
     @Test
-    public void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
-        Assume.assumeTrue(OS.isLinux());
+    void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
+        assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path link = Paths.get(path, "link2nowhere" + Time.uniqueId());
@@ -200,8 +208,8 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void createDirectoriesReadOnly() throws IOException, IllegalStateException {
-        Assume.assumeTrue(OS.isLinux());
+    void createDirectoriesReadOnly() throws IOException, IllegalStateException {
+        assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path ro = Paths.get(path, "read-only" + Time.uniqueId());
@@ -211,6 +219,7 @@ public class IOToolsTest extends CoreTestCommon {
         assertFalse(ro.toFile().canWrite());
         try {
             IOTools.createDirectories(Paths.get(ro.toString(), "subdir" + Time.uniqueId()));
+            fail("Expected an IOException when trying to create a directory inside a read-only directory");
         } catch (IOException ioe) {
             assertSame(IOException.class, ioe.getClass());
             assertTrue(ioe.getMessage().startsWith("Cannot write to "));
@@ -218,13 +227,12 @@ public class IOToolsTest extends CoreTestCommon {
             if (!ro.toFile().setWritable(true))
                 throw new IllegalStateException("Cannot make read-write");
             Files.delete(ro);
-
         }
     }
 
     @Test
-    public void cannotTurnAfileIntoADirectory() throws IOException {
-        Assume.assumeTrue(OS.isLinux());
+    void cannotTurnAfileIntoADirectory() throws IOException {
+        assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path file = Paths.get(path, "test-file" + Time.uniqueId());
@@ -233,6 +241,7 @@ public class IOToolsTest extends CoreTestCommon {
         assertTrue(file.toFile().createNewFile());
         try {
             IOTools.createDirectories(Paths.get(file.toString(), "subdir" + Time.uniqueId()));
+            fail("Expected an IOException when trying to create a directory with the same name as a file");
         } catch (IOException ioe) {
             assertSame(IOException.class, ioe.getClass());
             assertTrue(ioe.getMessage().startsWith("Cannot create a directory with the same name as a file "));
@@ -240,29 +249,29 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void isDirectBuffer() {
+    void isDirectBuffer() {
         assertTrue(IOTools.isDirectBuffer(ByteBuffer.allocateDirect(1)));
         assertFalse(IOTools.isDirectBuffer(ByteBuffer.allocate(1)));
     }
 
     @Test
-    public void addressFor() {
+    void addressFor() {
         assertNotEquals(0L, IOTools.addressFor(ByteBuffer.allocateDirect(1)));
     }
 
     @Test
-    public void addressFor2() {
+    void addressFor2() {
         final ByteBuffer bb = ByteBuffer.allocate(1);
         try {
             IOTools.addressFor(bb);
-            fail();
+            fail("Expected a ClassCastException when trying to get the address of a non-direct ByteBuffer");
         } catch (ClassCastException cce) {
             // expected
         }
     }
 
     @Test
-    public void normaliseIOStatus() {
+    void normaliseIOStatus() {
         final int actual = IOTools.IOSTATUS_INTERRUPTED;
         assertEquals(-3, actual);
 
@@ -270,13 +279,13 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void connectionClosed() throws IOException {
+    void connectionClosed() throws IOException {
         ServerSocket ss;
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
             // Some CI environments disallow socket operations; skip in that case.
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         Socket s = new Socket("localhost", ss.getLocalPort());
@@ -292,7 +301,7 @@ public class IOToolsTest extends CoreTestCommon {
             }
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             os.close();
         }
@@ -300,17 +309,17 @@ public class IOToolsTest extends CoreTestCommon {
             s2.getOutputStream().write(bytes);
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         }
     }
 
     @Test
-    public void connectionClosed2() throws IOException {
+    void connectionClosed2() throws IOException {
         ServerSocket ss;
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -323,7 +332,7 @@ public class IOToolsTest extends CoreTestCommon {
             os.write(1);
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         }
         ss.close();
         try {
@@ -334,19 +343,19 @@ public class IOToolsTest extends CoreTestCommon {
             }
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             sc.close();
         }
     }
 
     @Test
-    public void connectionClosed3() throws IOException {
+    void connectionClosed3() throws IOException {
         ServerSocket ss;
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -355,12 +364,8 @@ public class IOToolsTest extends CoreTestCommon {
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
         Thread t = new Thread(() -> {
             Jvm.pause(100);
-            try {
-                sc.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        },  "close~thread");
+            Closeable.closeQuietly(sc);
+        }, "close~thread");
         t.start();
         try {
             for (int i = 0; i < 10000; i++) {
@@ -371,7 +376,7 @@ public class IOToolsTest extends CoreTestCommon {
             }
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             s2.close();
             sc.close();
@@ -379,12 +384,12 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void connectionClosed4() throws IOException {
+    void connectionClosed4() throws IOException {
         ServerSocket ss;
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -396,11 +401,7 @@ public class IOToolsTest extends CoreTestCommon {
             Jvm.pause(100);
             main.interrupt();
             Jvm.pause(10);
-            try {
-                sc.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Closeable.closeQuietly(sc);
         }, "close~thread");
         t.setDaemon(true);
         t.start();
@@ -413,10 +414,217 @@ public class IOToolsTest extends CoreTestCommon {
             }
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             s2.close();
             sc.close();
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // IOTools.destroyProcess tests
+    // ---------------------------------------------------------------
+
+    @Test
+    void destroyProcessReturnsEarlyWhenChildExitsInsideWaitWindow() {
+        StubProcess process = new StubProcess(StubProcess.Mode.EXITED);
+
+        IOTools.destroyProcess(process);
+
+        // Child exited inside the first waitFor — no destroy needed.
+        assertEquals(Arrays.asList("waitFor(1, SECONDS)"), process.events);
+    }
+
+    @Test
+    void destroyProcessEscalatesToForciblyWhenChildIgnoresSigterm() {
+        StubProcess process = new StubProcess(StubProcess.Mode.TIMED_OUT);
+
+        IOTools.destroyProcess(process);
+
+        // Child never exits: wait, destroy, wait again, then destroyForcibly.
+        assertEquals(Arrays.asList(
+                "waitFor(1, SECONDS)",
+                "destroy",
+                "waitFor(1, SECONDS)",
+                "destroyForcibly"), process.events);
+    }
+
+    @Test
+    void destroyProcessRestoresInterruptStatusAndStillDestroys() {
+        StubProcess process = new StubProcess(StubProcess.Mode.INTERRUPTED);
+
+        assertFalse(Thread.currentThread().isInterrupted(),
+                "pre-condition: current thread is not already interrupted");
+        try {
+            IOTools.destroyProcess(process);
+
+            assertEquals(Arrays.asList(
+                    "waitFor(1, SECONDS)",
+                    "destroy",
+                    "waitFor(1, SECONDS)",
+                    "destroyForcibly"), process.events);
+            assertTrue(Thread.currentThread().isInterrupted(),
+                    "interrupt flag must be restored on return");
+        } finally {
+            // Clear the interrupt flag so it does not leak into later tests on
+            // this thread.
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void destroyProcessIsSafeToCallRepeatedly() {
+        StubProcess process = new StubProcess(StubProcess.Mode.EXITED);
+
+        IOTools.destroyProcess(process);
+        IOTools.destroyProcess(process);
+
+        assertEquals(Arrays.asList(
+                "waitFor(1, SECONDS)",
+                "waitFor(1, SECONDS)"), process.events);
+    }
+
+    @Test
+    void destroyProcessClosesPipeStreams() {
+        StubProcess process = new StubProcess(StubProcess.Mode.TIMED_OUT);
+
+        IOTools.destroyProcess(process);
+
+        assertTrue(process.outClosed.get(), "child stdin pipe must be closed");
+        assertTrue(process.inClosed.get(),  "child stdout pipe must be closed");
+        assertTrue(process.errClosed.get(), "child stderr pipe must be closed");
+    }
+
+    @Test
+    void destroyProcessTerminatesRealRunningChild() throws InterruptedException {
+        final Process child = JavaProcessBuilder.create(SleepForever.class).start();
+        try {
+            // Give the freshly-spawned JVM a brief window to reach main() so
+            // the test does not race against class init on a busy CI box.
+            assertFalse(child.waitFor(50, TimeUnit.MILLISECONDS),
+                    "sanity: child should still be alive before destroyProcess");
+
+            IOTools.destroyProcess(child);
+
+            // destroyProcess waits up to 1s for SIGTERM and another 1s after
+            // destroy(); allow extra slack on slow CI.
+            assertTrue(child.waitFor(5, TimeUnit.SECONDS),
+                    "child must exit within 5s of destroyProcess");
+        } finally {
+            if (child.isAlive())
+                child.destroyForcibly();
+        }
+    }
+
+    /**
+     * Entry point spawned by {@link #destroyProcessTerminatesRealRunningChild}.
+     * Blocks indefinitely so the child only exits when terminated by its
+     * parent. {@link Jvm#pause(long)} with {@link Long#MAX_VALUE} avoids any
+     * dependency on the parent's stdin handling (closing/inheriting/piping)
+     * which would otherwise let the child exit prematurely on EOF.
+     */
+    public static final class SleepForever {
+        public static void main(String[] args) {
+            Jvm.pause(Long.MAX_VALUE);
+        }
+    }
+
+    /**
+     * Recording fixture for {@link IOTools#destroyProcess(Process)} tests.
+     *
+     * <p>Captures every {@code waitFor}/{@code destroy}/{@code destroyForcibly}
+     * call (with arguments) into an ordered {@link #events} list and tracks
+     * whether each pipe stream was closed. The three {@link Mode}s cover the
+     * paths the helper must handle: a child that refuses to exit inside the
+     * wait window, a child that has already exited, and a wait that is
+     * interrupted before it can complete.</p>
+     */
+    private static final class StubProcess extends Process {
+
+        enum Mode {
+            /** {@code waitFor} returns {@code false} (wait window elapsed). */
+            TIMED_OUT,
+            /** {@code waitFor} returns {@code true} (child exited naturally). */
+            EXITED,
+            /** {@code waitFor} throws {@link InterruptedException} on first call. */
+            INTERRUPTED
+        }
+
+        private final Mode mode;
+        private final List<String> events = new ArrayList<>();
+        final AtomicBoolean outClosed = new AtomicBoolean();
+        final AtomicBoolean inClosed  = new AtomicBoolean();
+        final AtomicBoolean errClosed = new AtomicBoolean();
+        private boolean armedToInterrupt;
+
+        private StubProcess(Mode mode) {
+            this.mode = mode;
+            this.armedToInterrupt = (mode == Mode.INTERRUPTED);
+        }
+
+        @Override
+        public OutputStream getOutputStream() {
+            return new ByteArrayOutputStream() {
+                @Override
+                public void close() {
+                    outClosed.set(true);
+                }
+            };
+        }
+
+        @Override
+        public InputStream getInputStream() {
+            return new ByteArrayInputStream(new byte[0]) {
+                @Override
+                public void close() {
+                    inClosed.set(true);
+                }
+            };
+        }
+
+        @Override
+        public InputStream getErrorStream() {
+            return new ByteArrayInputStream(new byte[0]) {
+                @Override
+                public void close() {
+                    errClosed.set(true);
+                }
+            };
+        }
+
+        @Override
+        public int waitFor() {
+            // Recorded rather than thrown: future refactors may use either
+            // overload, and locking down the exact API would cause
+            // unnecessary test churn.
+            events.add("waitFor()");
+            return 0;
+        }
+
+        @Override
+        public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException {
+            events.add("waitFor(" + timeout + ", " + unit.name() + ")");
+            if (armedToInterrupt) {
+                armedToInterrupt = false;
+                throw new InterruptedException("interrupted for test");
+            }
+            return mode == Mode.EXITED;
+        }
+
+        @Override
+        public int exitValue() {
+            throw new IllegalThreadStateException("process still running");
+        }
+
+        @Override
+        public void destroy() {
+            events.add("destroy");
+        }
+
+        @Override
+        public Process destroyForcibly() {
+            events.add("destroyForcibly");
+            return this;
         }
     }
 }
