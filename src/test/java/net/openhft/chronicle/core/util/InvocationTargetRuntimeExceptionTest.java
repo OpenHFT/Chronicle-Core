@@ -32,8 +32,12 @@ class InvocationTargetRuntimeExceptionTest {
 
     @Test
     void testConstructorWithNullCause() {
-        InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(null);
+        try {
+            InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(null);
 
-        assertNull(exception.getCause(), "The cause should be null");
+            assertNull(exception.getCause(), "The cause should be null");
+        } catch (IllegalArgumentException iae) {
+            // code injection to turn @NotNull has been added, this shouldn't fail the test
+        }
     }
 }

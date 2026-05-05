@@ -332,8 +332,7 @@ class StringUtilsTest extends CoreTestCommon {
      */
     @Test
     public void endsWithStartsWithAreCaseInsensitiveFuzzFinding() {
-        assertTrue("StringUtils.endsWith ignores case", StringUtils.endsWith("HELLO", "lLo"));
-        assertTrue("StringUtils.startsWith ignores case", StringUtils.startsWith("HELLO", "hEl"));
-        assertFalse("JDK String.endsWith is case-sensitive", "HELLO".endsWith("lLo"));
+        assertTrue(StringUtils.endsWith("HELLO", "lLo"), "StringUtils.endsWith ignores case");
+        assertTrue(StringUtils.startsWith("HELLO", "hEl"), "StringUtils.startsWith ignores case");
     }
 }

@@ -23,8 +23,6 @@ class JvmParseSizeTest extends CoreTestCommon {
     private static final long MIB = 1L << 20;
     private static final long GIB = 1L << 30;
     private static final long TIB = 1L << 40;
-    private final String text;
-    private final long value;
 
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{

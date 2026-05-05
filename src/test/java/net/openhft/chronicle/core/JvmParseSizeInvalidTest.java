@@ -3,15 +3,14 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Canonical invalid-input suite for {@link Jvm#parseSize(String)} and
@@ -19,8 +18,7 @@ import static org.junit.Assert.assertEquals;
  * input rather than as silently unset values; only an absent property short-
  * circuits to the default in {@link Jvm#getSize(String, long)}.
  */
-@RunWith(Parameterized.class)
-public class JvmParseSizeInvalidTest extends CoreTestCommon {
+class JvmParseSizeInvalidTest extends CoreTestCommon {
     private static final String PROPERTY = "JvmParseSizeInvalidTest";
     private static final long KIB = 1L << 10;
     private static final long MIB = 1L << 20;
@@ -28,46 +26,39 @@ public class JvmParseSizeInvalidTest extends CoreTestCommon {
     private static final long TIB = 1L << 40;
     private static final long DEFAULT_VALUE = -1L;
 
-    private final String text;
-
-    @SuppressWarnings("unused")
-    public JvmParseSizeInvalidTest(String text) {
-        this.text = text;
-    }
-
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
+    static Collection<String> data() {
         // Long.MAX_VALUE + 1, written as the unsigned decimal string.
         final String overMax = "9223372036854775808";
-        return Arrays.asList(new Object[][]{
-                {""},
-                {"     "},
-                {"10XB"},
-                {"iB"},
-                {"IB"},
-                {"-3"},
-                {"-3MB"},
-                {overMax},
-                {overMax + "B"},
-                {(Long.MAX_VALUE / KIB + 1) + "kB"},
-                {(Long.MAX_VALUE / MIB + 1) + "mB"},
-                {(Long.MAX_VALUE / GIB + 1) + "gB"},
-                {(Long.MAX_VALUE / TIB + 1) + "tB"},
-        });
+        return Arrays.asList(
+                "",
+                "     ",
+                "10XB",
+                "iB",
+                "IB",
+                "-3",
+                "-3MB",
+                overMax,
+                overMax + "B",
+                (Long.MAX_VALUE / KIB + 1) + "kB",
+                (Long.MAX_VALUE / MIB + 1) + "mB",
+                (Long.MAX_VALUE / GIB + 1) + "gB",
+                (Long.MAX_VALUE / TIB + 1) + "tB");
     }
 
-    @After
-    public void teardown() {
+    @AfterEach
+    void teardown() {
         System.getProperties().remove(PROPERTY);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void parseSizeRejectsInvalidInput() {
-        Jvm.parseSize(text);
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource("data")
+    void parseSizeRejectsInvalidInput(String text) {
+        assertThrows(IllegalArgumentException.class, () -> Jvm.parseSize(text));
     }
 
-    @Test
-    public void getSizeFallsBackForInvalidInput() {
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource("data")
+    void getSizeFallsBackForInvalidInput(String text) {
         expectException("Unable to parse the property " + PROPERTY + " as a size");
         System.setProperty(PROPERTY, text);
         assertEquals(DEFAULT_VALUE, Jvm.getSize(PROPERTY, DEFAULT_VALUE));
