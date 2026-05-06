@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.annotation.NonNegative;
 import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
@@ -28,6 +29,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
@@ -529,7 +531,8 @@ public final class Jvm {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
-    @SuppressWarnings("java:S3011") // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
+    @SuppressWarnings("java:S3011")
+    // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         ClassUtil.setAccessible(accessibleObject);
     }
@@ -1081,7 +1084,7 @@ public final class Jvm {
 
     /**
      * Parse a string as a decimal memory size with an optional scale.
-     * K/k = * 2<sup>10</sup>, M/m = 2<sup>20</sup>, G/g = 2<sup>10</sup>, T/t = 2<sup>40</sup>
+     * K/k = * 2<sup>10</sup>, M/m = 2<sup>20</sup>, G/g = 2<sup>30</sup>, T/t = 2<sup>40</sup>
      *
      * <p>
      * trailing B/b/iB/ib are ignored.
@@ -1097,25 +1100,42 @@ public final class Jvm {
      *     <tr><td>0.125MB</td><td>128 KiB</td></tr>
      *     <tr><td>2M</td><td>2 MiB</td></tr>
      *     <tr><td>0.75GiB</td><td>768 MiB</td></tr>
-     *     <tr><td>0.001TiB</td><td>1.024 GiB</td></tr>
+     *     <tr><td>0.25TiB</td><td>256 GiB</td></tr>
      * </table>
+     *
+     * <p>The numeric part may be fractional, but only values that resolve to an
+     * exact byte count are accepted. For example, {@code 0.5kb} is valid
+     * because it resolves to exactly {@code 512} bytes, whereas {@code 0.1MB}
+     * is rejected because it does not map to an exact whole-byte value when
+     * multiplied by the binary unit factor.</p>
+     *
+     * <p>The input is trimmed before parsing. Empty or blank strings are
+     * rejected rather than treated as zero or as an unset value.</p>
      *
      * @param value size to parse
      * @return the size
-     * @throws IllegalArgumentException if the string could not be parsed
+     * @throws IllegalArgumentException if the string could not be parsed; this includes
+     *                                  {@link NumberFormatException} from the numeric part
      */
+    @NonNegative
     public static long parseSize(@NotNull String value) throws IllegalArgumentException {
+        final String orig = value;
+        value = value.trim();
+        if (value.isEmpty())
+            throw new IllegalArgumentException("Unable to parse empty string '" + orig + "'");
         long factor = 1;
 
         if (value.length() > 1) {
             char last = value.charAt(value.length() - 1);
             // assume we meant bytes, not bits
             if (last == 'b' || last == 'B') {
-                value = value.substring(0, value.length() - 1);
+                value = value.substring(0, value.length() - 1).trim();
                 last = value.charAt(value.length() - 1);
             }
-            if (last == 'i') {
-                value = value.substring(0, value.length() - 1);
+            if (last == 'i' || last == 'I') {
+                if (value.length() <= 1)
+                    throw new IllegalArgumentException("No numeric value: " + orig);
+                value = value.substring(0, value.length() - 1).trim();
                 last = value.charAt(value.length() - 1);
             }
             if (Character.isLetter(last)) {
@@ -1137,17 +1157,28 @@ public final class Jvm {
                         factor = 1L << 10;
                         break;
                     default:
-                        throw new IllegalArgumentException("Unrecognised suffix for size " + value);
+                        throw new IllegalArgumentException("Unrecognised suffix for size " + orig);
                 }
-                value = value.substring(0, value.length() - 1);
+                value = value.substring(0, value.length() - 1).trim();
             }
         }
-        double number = Double.parseDouble(value.trim());
-        return Math.round(factor * number);
+        BigDecimal number = new BigDecimal(value).multiply(BigDecimal.valueOf(factor));
+        long asLong = number.longValue();
+        if (number.compareTo(BigDecimal.valueOf(asLong)) != 0)
+            throw new IllegalArgumentException("Size could not be represented accurately: " + orig);
+        if (asLong < 0)
+            throw new IllegalArgumentException("Negative sizes not allowed: " + orig);
+        return asLong;
     }
 
     /**
-     * Uses Jvm.parseSize to parse a system property or returns defaultValue if not present, empty or unparseable.
+     * Uses Jvm.parseSize to parse a system property or returns defaultValue if
+     * not present or unparseable.
+     *
+     * <p>An empty or blank property value is forwarded to
+     * {@link #parseSize(String)}, logged as invalid input, and then falls back
+     * to {@code defaultValue}. Only an absent (null) property is treated as
+     * silently unset.</p>
      *
      * @param property     to look up
      * @param defaultValue to use otherwise
@@ -1155,7 +1186,7 @@ public final class Jvm {
      */
     public static long getSize(final String property, final long defaultValue) {
         final String value = Jvm.getProperty(property);
-        if (value == null || value.length() <= 0)
+        if (value == null)
             return defaultValue;
         try {
             return parseSize(value);
@@ -1648,7 +1679,9 @@ public final class Jvm {
     static class ReserveMemoryHolder {
         private ReserveMemoryHolder() {
         }
+
         static final Supplier<Long> reservedMemory;
+
         static {
             Supplier<Long> reservedMemoryGetter;
             try {
@@ -1669,9 +1702,11 @@ public final class Jvm {
             reservedMemory = reservedMemoryGetter;
         }
     }
+
     static class MaxMemoryHolder {
         private MaxMemoryHolder() {
         }
+
         static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         private static long maxDirectMemory0() {
