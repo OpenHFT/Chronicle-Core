@@ -139,12 +139,17 @@ public enum CpuCoolers implements CpuCooler {
     SERIALIZATION {
         @Override
         public void disturb() {
+            // ByteArrayOutputStream holds no native resources and its close() is
+            // a no-op, so wrapping `out` in a try-with-resources adds boilerplate
+            // (a forced try-block scope plus a dead catch path that cannot be
+            // exercised in tests) without any cleanup benefit. Leave it un-wrapped.
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            XMLEncoder oos = new XMLEncoder(out);
-            oos.writeObject(System.getProperties());
-            oos.close();
-            XMLDecoder ois = new XMLDecoder(new ByteArrayInputStream(out.toByteArray()));
-            blackhole = ois.readObject();
+            try (XMLEncoder oos = new XMLEncoder(out)) {
+                oos.writeObject(System.getProperties());
+            }
+            try (XMLDecoder ois = new XMLDecoder(new ByteArrayInputStream(out.toByteArray()))) {
+                blackhole = ois.readObject();
+            }
         }
     },
     MEMORY_COPY {

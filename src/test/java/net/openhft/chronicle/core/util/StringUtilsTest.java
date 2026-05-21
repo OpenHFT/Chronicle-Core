@@ -292,4 +292,47 @@ class StringUtilsTest extends CoreTestCommon {
         // Empty strings
         assertTrue(StringUtils.isEqual(new StringBuilder(), ""));
     }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#parseDouble(CharSequence)} returns 0.
+     * That lenient behaviour is relied on by Chronicle-Bytes when empty YAML or
+     * JSON numeric scalars are normalised through the shared parser. The JDK
+     * {@link Double#parseDouble(String)} throws
+     * {@link NumberFormatException} in the same situation.
+     */
+    @Test
+    public void parseDoubleEmptyStringFuzzFinding() {
+        assertEquals(0, StringUtils.parseDouble(""), 0.0);
+    }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#toTitleCase(String)} remains idempotent
+     * for inputs that contain a case-stable letter next to a lower-case run.
+     * Input {@code "_ii\u02C1_"} (U+02C1 "MODIFIER LETTER
+     * REVERSED GLOTTAL STOP") is lower-case according to
+     * {@link Character#isLowerCase(char)}, but its simple upper-case,
+     * lower-case, and title-case mappings all return the same code point.
+     * The word-boundary detector therefore uses effective case conversion
+     * rather than {@code isLowerCase} alone, so the first and second passes both
+     * produce {@code "_II\u02C1_"}.
+     */
+    @Test
+    public void toTitleCaseIdempotenceWithCaselessLetterFuzzFinding() {
+        String once = StringUtils.toTitleCase("_ii\u02C1_");
+        assertEquals("_II\u02C1_", once);
+        String twice = StringUtils.toTitleCase(once);
+        assertEquals("_II\u02C1_", twice);
+    }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#endsWith(CharSequence, String)} and
+     * {@link StringUtils#startsWith(CharSequence, String)}.
+     * A caller porting from {@link String#endsWith(String)} might be
+     * surprised. Pinned here so the contract is explicit in the test suite.
+     */
+    @Test
+    public void endsWithStartsWithAreCaseInsensitiveFuzzFinding() {
+        assertTrue(StringUtils.endsWith("HELLO", "lLo"), "StringUtils.endsWith ignores case");
+        assertTrue(StringUtils.startsWith("HELLO", "hEl"), "StringUtils.startsWith ignores case");
+    }
 }

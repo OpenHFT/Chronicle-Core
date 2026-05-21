@@ -5,6 +5,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.io.IORuntimeException;
+import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
@@ -20,12 +21,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
 import static net.openhft.chronicle.core.util.Longs.requireNonNegative;
 import static net.openhft.chronicle.core.util.Longs.requirePositive;
 
@@ -623,14 +628,20 @@ public final class OS {
         @NotNull ProcessBuilder pb = new ProcessBuilder(cmds);
         pb.redirectErrorStream(true);
         Process process = pb.start();
-        @NotNull StringWriter sw = new StringWriter();
-        char @NotNull [] chars = new char[1024];
-        try (@NotNull Reader r = new InputStreamReader(process.getInputStream())) {
-            for (int len; (len = r.read(chars)) > 0; ) {
-                sw.write(chars, 0, len);
+        // Some commands deadlock if their stdin remains open while the parent waits on stdout.
+        closeQuietly(process.getOutputStream());
+        try {
+            @NotNull StringWriter sw = new StringWriter();
+            char @NotNull [] chars = new char[1024];
+            try (@NotNull Reader r = new InputStreamReader(process.getInputStream())) {
+                for (int len; (len = r.read(chars)) > 0; ) {
+                    sw.write(chars, 0, len);
+                }
             }
+            return sw.toString();
+        } finally {
+            IOTools.destroyProcess(process);
         }
-        return sw.toString();
     }
 
     /**
@@ -743,22 +754,30 @@ public final class OS {
             }
             try {
                 return InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException e) {
+            } catch (Throwable e) {
+                // Worst-case fallback: read /etc/hostname directly. This is Linux-only
+                // (macOS uses scutil, other Unixes vary) and is reached only after
+                // InetAddress.getLocalHost() has already failed. Spawning the
+                // `hostname` command would cover more platforms but exec'ing a
+                // child process from a static initialiser is a security concern
+                // (PATH injection, sandbox escape surface) that is not worth the
+                // marginal portability gain — callers fall through to "localhost".
                 try {
-                    return execHostname();
+                    String s = new String(
+                            Files.readAllBytes(Paths.get("/etc/hostname")),
+                            StandardCharsets.US_ASCII);
+                    // /etc/hostname may carry comments or stray newlines; take the
+                    // first non-blank line and trim it. An empty file yields
+                    // "localhost" rather than an empty string.
+                    for (String line : s.split("\\R")) {
+                        String trimmed = line.trim();
+                        if (!trimmed.isEmpty())
+                            return trimmed;
+                    }
+                    return "localhost";
                 } catch (IOException ioe) {
                     return "localhost";
                 }
-            }
-        }
-
-        @SuppressWarnings({"deprecation", "RedundantSuppression"})
-        static String execHostname() throws IOException {
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                            Runtime.getRuntime().exec("hostname") // NOSONAR
-                                    .getInputStream()))) {
-                return br.readLine();
             }
         }
 
