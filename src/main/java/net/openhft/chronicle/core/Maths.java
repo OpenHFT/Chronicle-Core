@@ -871,13 +871,38 @@ public final class Maths {
     }
 
     /**
-     * Convert components to a double value
+     * Convert the components {@code (-1)^negative * value * 2^exponent * 10^-decimalPlaces} to a double.
+     * <p>
+     * <b>Accuracy.</b> Within the Clinger fast-path domain this returns the <em>correctly-rounded</em>
+     * result &mdash; bit-identical to {@link Double#parseDouble(String)} of the same decimal. The
+     * domain is:
+     * <ul>
+     *     <li>{@code exponent == 0} (the mantissa was accumulated without binary shedding), and</li>
+     *     <li>{@code value <= 2^53} (the mantissa is exactly representable &mdash; i.e. up to 15
+     *         significant decimal digits), and</li>
+     *     <li>{@code -22 <= decimalPlaces <= 22} ({@code 10^22} is the largest exactly-representable
+     *         power of ten).</li>
+     * </ul>
+     * This covers essentially all realistic data: every finite magnitude in {@code [1e-8, 1e15)}
+     * carrying up to 15 significant digits, and modest-precision values up to {@code 1e22}. For such
+     * inputs the result is guaranteed exact (0 ULP).
+     * <p>
+     * <b>Deviation (extreme cases only).</b> Outside that domain &mdash; a full-precision mantissa of
+     * 16&ndash;17 significant digits ({@code value > 2^53}), or {@code |decimalPlaces| > 22}
+     * (magnitudes below ~{@code 1e-8} or very large values written to full precision) &mdash; the
+     * result is produced by an approximate reconstruction and may differ from the correctly-rounded
+     * value by <b>up to 1 ULP</b> (up to 2 ULP at the most extreme exponents). Round-half-to-even is
+     * not guaranteed there, so the error rate skews with the trailing decimal digit (odd last digits,
+     * which sit nearer a rounding boundary, miss more often). These cases do not arise on the common
+     * realistic data path; closing the gap fully would require a correctly-rounded big-integer /
+     * Eisel-Lemire step, traded off here against speed and code size.
      *
-     * @param value         The integer value
-     * @param exponent      The exponent
-     * @param negative      Whether it is negative or not
-     * @param decimalPlaces The number of decimal places
-     * @return The value as a double
+     * @param value         The integer value (mantissa), {@code >= 0}
+     * @param exponent      The binary exponent (non-zero only when the mantissa overflowed a long)
+     * @param negative      Whether the result is negative
+     * @param decimalPlaces The number of decimal places (net of any explicit power-of-ten exponent)
+     * @return The value as a double; correctly-rounded within the fast-path domain above, otherwise
+     * within 1 ULP (2 ULP at extreme exponents) of correctly-rounded
      */
     @SuppressWarnings("java:S3776")
     public static double asDouble(@NonNegative long value, int exponent, boolean negative, int decimalPlaces) {
