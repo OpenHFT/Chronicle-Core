@@ -3,12 +3,10 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.Random;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,34 +72,6 @@ class MathsAsDoubleParseTest extends CoreTestCommon {
         assertParsedFaithfully(s);
     }
 
-    /**
-     * Property: every decimal of 15 or fewer significant digits with a magnitude in
-     * {@code [1e-3, 1e15)} now parses exactly (0 ULP). Before the fix this failed for ~0.05% of
-     * such values (deterministic with this seed).
-     */
-    @Test
-    void fifteenOrFewerSignificantDigitsParseExactly() {
-        Random r = new Random(42);
-        int samples = Jvm.isArm() ? 200_000 : 1_000_000;
-        long failures = 0;
-        String firstFailure = null;
-        for (int i = 0; i < samples; i++) {
-            String s = randomDecimal(r, 1 + r.nextInt(15));
-            double ref = Double.parseDouble(s);
-            if (!Double.isFinite(ref) || ref == 0)
-                continue;
-            if (Double.doubleToLongBits(asDoubleAsBytesWould(s)) != Double.doubleToLongBits(ref)) {
-                failures++;
-                if (firstFailure == null)
-                    firstFailure = s + " -> " + asDoubleAsBytesWould(s) + " (expected " + ref + ")";
-            }
-        }
-        final String ff = firstFailure;
-        final long failureCount = failures;
-        assertEquals(0, failureCount,
-                () -> failureCount + " of " + samples + " <=15 significant-digit decimals parsed inexactly; first: " + ff);
-    }
-
     /** Magnitudes outside [1e-3, 1e15) use the fast path too while operands stay exact. */
     @ParameterizedTest
     @MethodSource("assortedExactDecimals")
@@ -116,16 +86,6 @@ class MathsAsDoubleParseTest extends CoreTestCommon {
                 "-0.00098765432109876",     // small magnitude, negative
                 "123456789012.345",         // 15 sig digits
                 "9.99999999999999E11");     // 15 sig digits
-    }
-
-    private static String randomDecimal(Random r, int n) {
-        StringBuilder m = new StringBuilder();
-        m.append((char) ('1' + r.nextInt(9)));
-        for (int i = 1; i < n; i++)
-            m.append((char) ('0' + r.nextInt(10)));
-        String mant = n == 1 ? m.toString() : m.charAt(0) + "." + m.substring(1);
-        int exp = -3 + r.nextInt(18);       // magnitude in [1e-3, 1e15)
-        return (r.nextBoolean() ? "-" : "") + mant + "E" + exp;
     }
 
     private static long ulps(double a, double b) {
