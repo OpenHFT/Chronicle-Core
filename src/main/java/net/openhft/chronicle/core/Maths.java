@@ -26,6 +26,8 @@ public final class Maths {
     private static final int M1 = 0xea7585d7;
     private static final long[] TENS = new long[19];
     private static final long[] FIVES = new long[28];
+    // 10^0 .. 10^22 are all exactly representable as a double (Clinger fast-path table).
+    private static final double[] POWERS_OF_TEN = new double[23];
     private static final String OUT_OF_RANGE = " out of range";
 
     static {
@@ -34,6 +36,9 @@ public final class Maths {
             TENS[i] = 10 * TENS[i - 1];
         for (int i = 1; i < FIVES.length; i++)
             FIVES[i] = 5 * FIVES[i - 1];
+        POWERS_OF_TEN[0] = 1;
+        for (int i = 1; i < POWERS_OF_TEN.length; i++)
+            POWERS_OF_TEN[i] = 10 * POWERS_OF_TEN[i - 1];
     }
 
     /**
@@ -877,6 +882,18 @@ public final class Maths {
     @SuppressWarnings("java:S3776")
     public static double asDouble(@NonNegative long value, int exponent, boolean negative, int decimalPlaces) {
         assert AssertUtil.SKIP_ASSERTIONS || value >= 0;
+
+        // Clinger fast path: when the mantissa is exactly representable (<= 2^53) and the power of
+        // ten is exact (|decimalPlaces| <= 22), a single IEEE multiply or divide is correctly
+        // rounded -- faithful, and faster than the reconstruction below. Only valid with no binary
+        // shedding of the mantissa (exponent == 0).
+        if (exponent == 0 && value <= (1L << 53) && decimalPlaces >= -22 && decimalPlaces <= 22) {
+            double result = decimalPlaces >= 0
+                    ? value / POWERS_OF_TEN[decimalPlaces]
+                    : value * POWERS_OF_TEN[-decimalPlaces];
+            return negative ? -result : result;
+        }
+
         // these numbers were determined empirically.
         int leading =
                 Long.numberOfLeadingZeros(value) - 1;
