@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class StringUtilsTest extends CoreTestCommon {
 
@@ -29,6 +31,27 @@ class StringUtilsTest extends CoreTestCommon {
         StringUtils.setLength(sb, 2);
 
         assertEquals("te", sb.toString());
+    }
+
+    /**
+     * Reproducer: after {@code setLength}, the 8-bit fast-fill pattern (write raw bytes into
+     * {@link StringUtils#extractBytes(StringBuilder)}) must address the right bytes even when the
+     * StringBuilder was previously left in UTF-16 storage (e.g. a pooled builder reused after holding
+     * a non-latin1 char). Without a coder-aware setLength this corrupts the result.
+     */
+    @Test
+    void setLengthPreparesLatin1BufferForReusedUtf16Builder() {
+        assumeTrue(Jvm.isJava9Plus() && Jvm.maxDirectMemory() > 0);
+        StringBuilder sb = new StringBuilder("√"); // '√' forces UTF-16 storage
+        sb.setLength(0);                                // reused: UTF-16 coder retained
+
+        StringUtils.setLength(sb, 3);
+        byte[] bytes = StringUtils.extractBytes(sb);
+        bytes[0] = 'a';
+        bytes[1] = 'b';
+        bytes[2] = 'c';
+
+        assertEquals("abc", sb.toString());
     }
 
     @Test

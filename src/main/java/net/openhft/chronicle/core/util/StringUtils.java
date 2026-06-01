@@ -42,6 +42,7 @@ public final class StringUtils {
     private static final String VALUE_FIELD_NAME = "value";
     private static final String COUNT_FIELD_NAME = "count";
     private static final String CODER_FIELD_NAME = "coder";
+    private static final byte LATIN1_CODER = 0; // java.lang.String.LATIN1
 
     private static final Field S_VALUE;
     private static final Field SB_COUNT;
@@ -127,12 +128,27 @@ public final class StringUtils {
      * @throws AssertionError if there is an IllegalAccessException or IllegalArgumentException.
      */
     public static void setLength(@NotNull StringBuilder sb, int length) {
-        if (Jvm.maxDirectMemory() == 0) {
+        if (SB_CODER == null || Jvm.maxDirectMemory() == 0) {
             sb.setLength(length);
             return;
         }
+        // A StringBuilder reused after holding a non-latin1 char keeps UTF-16 storage (2 bytes/char)
+        // filling that as 8-bit would otherwise corrupt the result (see StringUtilsTest).
+        forceLatin1Coder(sb);
+        sb.ensureCapacity(length);
         try {
             SB_COUNT.set(sb, length);
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private static void forceLatin1Coder(@NotNull StringBuilder sb) {
+        if (SB_CODER == null)
+            return; // pre-Java 9: no compact-string coder
+        try {
+            if (SB_CODER.getByte(sb) != LATIN1_CODER)
+                SB_CODER.setByte(sb, LATIN1_CODER);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
