@@ -129,9 +129,8 @@ public final class CleanerServiceLocator {
             } else {
                 warnLeakingCleaner(name);
             }
-        } catch (Throwable t) {
-            // diagnostic only — must not affect selection
-            Jvm.debug().on(CleanerServiceLocator.class, "Could not verify ByteBuffer cleaner " + name, t);
+        } catch (Throwable t) { // NOSONAR — diagnostic probe must never destabilise selection, incl. Errors
+            Jvm.error().on(CleanerServiceLocator.class, "Could not verify ByteBuffer cleaner " + name, t);
         }
     }
 
