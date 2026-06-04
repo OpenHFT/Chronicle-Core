@@ -58,7 +58,7 @@ class CleanerServiceLocatorTest {
         // Should be our test implementation from META-INF/services
         assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svc.getClass().getName());
         assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, svc.impact());
-        assertTrue(countFrom(recorded, LogLevel.WARN, "leak") >= 1,
+        assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
                 "expected a leak warning for the no-op AllowedCleaner; recorded=" + recorded.keySet());
     }
 
@@ -68,7 +68,7 @@ class CleanerServiceLocatorTest {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();
         assertNotNull(svc);
-        assertTrue(countFrom(recorded, LogLevel.WARN, "leak") >= 1,
+        assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
                 "expected a leak warning naming the no-op cleaner; recorded=" + recorded.keySet());
         assertTrue(recorded.keySet().stream()
                         .anyMatch(k -> k.level == LogLevel.WARN && k.message != null
@@ -80,7 +80,7 @@ class CleanerServiceLocatorTest {
     void verifiedWorkingCleanerLogsAtDebugAndDoesNotWarn() {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         CleanerServiceLocator.verifySelectedCleaner(new WorkingCleaner(), Jvm::usedDirectMemory);
-        assertEquals(0, countFrom(recorded, LogLevel.WARN, "leak"),
+        assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
                 "a cleaner that genuinely frees memory must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
                 "expected a debug line naming the verified cleaner; recorded=" + recorded.keySet());
@@ -90,7 +90,7 @@ class CleanerServiceLocatorTest {
     void cleanerReportingUnavailableWarnsWithoutProbe() {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         CleanerServiceLocator.verifySelectedCleaner(new UnavailableCleaner());
-        assertTrue(countFrom(recorded, LogLevel.WARN, "leak") >= 1,
+        assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
                 "an UNAVAILABLE cleaner must warn via the short-circuit; recorded=" + recorded.keySet());
     }
 
@@ -105,7 +105,7 @@ class CleanerServiceLocatorTest {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         final LongSupplier accountingOff = () -> 0L; // 0 == direct-memory accounting unavailable
         CleanerServiceLocator.verifySelectedCleaner(new AllowedCleaner(), accountingOff);
-        assertEquals(0, countFrom(recorded, LogLevel.WARN, "leak"),
+        assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
                 "must not warn when accounting is unavailable; recorded=" + recorded.keySet());
     }
 
@@ -113,7 +113,7 @@ class CleanerServiceLocatorTest {
     void allowedCleanerProbedDirectlyWarns() {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         CleanerServiceLocator.verifySelectedCleaner(new AllowedCleaner(), Jvm::usedDirectMemory);
-        assertTrue(countFrom(recorded, LogLevel.WARN, "leak") >= 1,
+        assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
                 "AllowedCleaner (NO_IMPACT, no-op) must be detected as leaking; recorded=" + recorded.keySet());
     }
 
@@ -122,7 +122,7 @@ class CleanerServiceLocatorTest {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         // the probe ignores self-reported impact, so a SOME_IMPACT no-op is still caught
         CleanerServiceLocator.verifySelectedCleaner(new SomeImpactCleaner(), Jvm::usedDirectMemory);
-        assertTrue(countFrom(recorded, LogLevel.WARN, "leak") >= 1,
+        assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
                 "a SOME_IMPACT cleaner that frees nothing must still warn; recorded=" + recorded.keySet());
     }
 
@@ -130,7 +130,7 @@ class CleanerServiceLocatorTest {
     void someImpactWorkingCleanerDoesNotWarn() {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         CleanerServiceLocator.verifySelectedCleaner(new SomeImpactWorkingCleaner(), Jvm::usedDirectMemory);
-        assertEquals(0, countFrom(recorded, LogLevel.WARN, "leak"),
+        assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
                 "a working SOME_IMPACT cleaner must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
                 "expected a debug line naming the verified cleaner; recorded=" + recorded.keySet());
@@ -141,7 +141,7 @@ class CleanerServiceLocatorTest {
         assumeTrue(Jvm.isJava9Plus()); // Jdk9 cleaner only frees on Java 9+
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         CleanerServiceLocator.verifySelectedCleaner(new Jdk9ByteBufferCleanerService(), Jvm::usedDirectMemory);
-        assertEquals(0, countFrom(recorded, LogLevel.WARN, "leak"),
+        assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
                 "the real JDK9 cleaner must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
                 "expected a debug line for the verified JDK9 cleaner; recorded=" + recorded.keySet());

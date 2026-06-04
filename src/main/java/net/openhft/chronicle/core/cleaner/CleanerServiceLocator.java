@@ -136,6 +136,6 @@ public final class CleanerServiceLocator {
 
     private static void warnLeakingCleaner(final String name) {
         Jvm.warn().on(CleanerServiceLocator.class, "Selected ByteBuffer cleaner " + name +
-                " does not free direct memory; direct ByteBuffers will leak until GC.");
+                " does not free direct memory.");
     }
 }
