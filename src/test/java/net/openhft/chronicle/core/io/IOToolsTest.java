@@ -9,6 +9,7 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.util.Time;
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -39,6 +40,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
 class IOToolsTest extends CoreTestCommon {
+
+    @BeforeEach
+    void ignoreCleanerLeakWarning() {
+        // IOTools.clean() selects the test classpath's no-op AllowedCleaner, so the probe warns of a leak
+        ignoreException("does not free direct memory");
+    }
 
     @Test
     void testIsClosedException() {
