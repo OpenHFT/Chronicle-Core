@@ -19,10 +19,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -122,7 +119,7 @@ public final class OS {
         String target = Jvm.getProperty("project.build.directory");
         if (target != null) {
             final File tmp = new File(target, "tmp");
-            tmp.mkdir();
+            tmp.mkdirs();
             return tmp.getPath();
         }
         final String tmp = Jvm.getProperty("java.io.tmpdir");
@@ -130,7 +127,7 @@ public final class OS {
                 && new File(tmp).isDirectory()
                 && new File(tmp).canWrite())
             return tmp;
-        new File("tmp").mkdirs();
+        new File("tmp").mkdir();
         return "tmp";
     }
 
@@ -713,7 +710,7 @@ public final class OS {
         static String getIpAddressByLocalHost() {
             try {
                 return InetAddress.getLocalHost().getHostAddress();
-            } catch (Throwable e) {
+            } catch (UnknownHostException e) {
                 return "";
             }
         }
@@ -725,7 +722,7 @@ public final class OS {
                     socket.connect(new InetSocketAddress("google.com", 80));
                     return socket.getLocalAddress().getHostAddress();
                 }
-            } catch (Throwable e) {
+            } catch (IOException e) {
                 return "";
             }
         }
@@ -737,7 +734,7 @@ public final class OS {
                     socket.connect(InetAddress.getByName(GOOGLE_DNS), 10002);
                     return socket.getLocalAddress().getHostAddress();
                 }
-            } catch (Throwable e) {
+            } catch (IOException e) {
                 return null;
             }
         }

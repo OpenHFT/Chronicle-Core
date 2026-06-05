@@ -123,11 +123,13 @@ public final class Bootstrap {
             // ignore and fall back to pre-jdk9
         }
         try {
-            return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
-        } catch (Exception e) {
-            System.err.println("Unable to get the major version, defaulting to 8 " + e);
-            return 8;
+            String specificationVersion = Runtime.class.getPackage().getSpecificationVersion();
+            if (specificationVersion != null)
+                return Integer.parseInt(specificationVersion.split("\\.")[1]);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            System.err.println(Bootstrap.class.getName() + ": Unable to get the major version, defaulting to 8 " + e);
         }
+        return 8;
     }
 
     public static boolean is64bit0() {

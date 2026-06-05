@@ -76,7 +76,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             final Field field = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
             ClassUtil.setAccessible(field);
             return (MethodHandles.Lookup) field.get(null);
-        } catch (Exception e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             // use the default to produce an error message.
             return MethodHandles.lookup();
         }

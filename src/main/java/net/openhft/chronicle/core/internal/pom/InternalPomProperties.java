@@ -3,9 +3,11 @@
  */
 package net.openhft.chronicle.core.internal.pom;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
@@ -24,15 +26,15 @@ public final class InternalPomProperties {
         ObjectUtils.requireNonNull(groupId);
         ObjectUtils.requireNonNull(artifactId);
         final Properties properties = new Properties();
+        final String resourceName = resourceName(groupId, artifactId);
         try {
-            final String resourceName = resourceName(groupId, artifactId);
             try (InputStream inputStream = InternalPomProperties.class.getResourceAsStream(resourceName)) {
                 if (inputStream != null) {
                     properties.load(inputStream);
                 }
             }
-        } catch (Exception ignore) {
-            ignore.printStackTrace();
+        } catch (IOException | IllegalArgumentException e) {
+            Jvm.debug().on(InternalPomProperties.class, "Error reading " + resourceName, e);
             // Returns an empty set of properties if we fail.
         }
         return properties;

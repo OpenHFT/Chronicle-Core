@@ -29,6 +29,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
+import java.net.URISyntaxException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -162,12 +163,12 @@ public final class Jvm {
             if (isJava9Plus())
                 //noinspection JavaLangInvokeHandleSignature
                 return lookup.findStatic(Thread.class, "onSpinWait", voidType);
-        } catch (Exception ignored) {
+        } catch (NoSuchMethodException | IllegalAccessException ignored) {
             // ignore
         }
         try {
             return lookup.findStatic(Safepoint.class, "force", voidType);
-        } catch (Exception ignored) {
+        } catch (NoSuchMethodException | IllegalAccessException ignored) {
             // ignore
         }
         return null;
@@ -1256,7 +1257,7 @@ public final class Jvm {
                     // added in Java 23+
                 }
             });
-        } catch (Throwable e) {
+        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException | AssertionError e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
     }
@@ -1279,7 +1280,7 @@ public final class Jvm {
                             ci.interrupt();
                         return ObjectUtils.defaultValue(m.getReturnType());
                     }));
-        } catch (Throwable e) {
+        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException | AssertionError e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
     }
@@ -1311,7 +1312,7 @@ public final class Jvm {
                         debug().on(Jvm.class, "Adding " + path + " to the classpath");
                     classpath.append(File.pathSeparator).append(path);
                 }
-            } catch (Throwable e) {
+            } catch (URISyntaxException | IllegalArgumentException e) {
                 debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
             }
         }
@@ -1694,7 +1695,8 @@ public final class Jvm {
                 } else {
                     reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
                 }
-            } catch (Exception e) {
+                // CSWarnAndContinue keep this degraded fallback because reserved-memory introspection is optional and callers accept reporting zero when the platform does not expose it.
+            } catch (ClassNotFoundException | IllegalAccessException e) {
                 if (MAX_DIRECT_MEMORY > 0)
                     System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
                 reservedMemoryGetter = () -> 0L;
@@ -1720,10 +1722,9 @@ public final class Jvm {
 
                 final Field f = getField(clz, "directMemory");
                 return f.getLong(null);
-            } catch (Exception e) {
-                // ignore
+            } catch (Throwable e) {
+                System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0, " + e);
             }
-            System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");
             return 0L;
         }
     }

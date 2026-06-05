@@ -59,7 +59,7 @@ public class AnnotationFinder {
                 return annotation;
             }
 
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             return null; // Opt to return null on any exception during retrieval.
         }
         return null;
