@@ -1312,7 +1312,11 @@ public final class Jvm {
                         debug().on(Jvm.class, "Adding " + path + " to the classpath");
                     classpath.append(File.pathSeparator).append(path);
                 }
-            } catch (URISyntaxException | IllegalArgumentException e) {
+            } catch (URISyntaxException | IllegalArgumentException |
+                     java.nio.file.FileSystemNotFoundException e) {
+                // FileSystemNotFoundException: a classloader with a non-file URL scheme
+                // (e.g. the OTEL javaagent's ExtensionClassLoader uses "otel:") - that
+                // entry simply cannot join the compiler classpath; skip, never fail
                 debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
             }
         }
