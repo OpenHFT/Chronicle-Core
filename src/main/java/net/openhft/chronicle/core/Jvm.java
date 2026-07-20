@@ -36,6 +36,7 @@ import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
@@ -1173,6 +1174,45 @@ public final class Jvm {
     }
 
     /**
+     * Formats a byte count as a compact size string using binary units ({@code K} = 1024,
+     * {@code M}, {@code G}, {@code T}) - the exact inverse of {@link #parseSize(String)}.
+     * <p>
+     * The largest unit that divides {@code size} <em>exactly</em> is used, so the result always
+     * round-trips: {@code parseSize(formatSize(size)) == size} for every {@code size >= 0}. A value
+     * that is not a whole multiple of 1024 is written as a plain byte count, and {@code 0} as
+     * {@code "0"}. This favours an exactly-parseable form over a rounded approximation, so an odd
+     * value renders as bytes (or a large {@code K}/{@code M}) rather than as, say, {@code "1.7G"}.
+     * <p>
+     * {@code T} is the largest unit emitted (as in {@link #parseSize(String)}); a larger exact
+     * multiple is still expressed in {@code T} - for example 1 PiB renders as {@code "1024T"}.
+     * <p>
+     * Examples: {@code formatSize(1024)} is {@code "1K"}, {@code formatSize(1536L << 20)} is
+     * {@code "1536M"}, {@code formatSize(5L << 30)} is {@code "5G"}, and {@code formatSize(500)} is
+     * {@code "500"}.
+     *
+     * @param size the number of bytes, must be &gt;= 0
+     * @return a size string parseable by {@link #parseSize(String)}
+     * @throws IllegalArgumentException if {@code size} is negative
+     * @see #parseSize(String)
+     */
+    public static String formatSize(long size) {
+        if (size < 0)
+            throw new IllegalArgumentException("Negative sizes not allowed: " + size);
+        if (size == 0)
+            return "0";
+        // Leading '.' is an unused placeholder so charAt(i / 10) maps 10 -> K, 20 -> M, 30 -> G, 40 -> T.
+        final String suffixes = ".KMGT";
+        // Largest unit first: (size >>> i) << i == size holds when size is an exact multiple of 2^i,
+        // so that unit divides it without remainder and the result round-trips through parseSize.
+        for (int i = 40; i >= 10; i -= 10)
+            if ((size >>> i) << i == size)
+                // String.valueOf forces string concatenation; (size >>> i) + a char would add as longs.
+                return (size >>> i) + String.valueOf(suffixes.charAt(i / 10));
+        // Not a whole multiple of 1024 - the exact byte count is itself parseable by parseSize.
+        return Long.toString(size);
+    }
+
+    /**
      * Uses Jvm.parseSize to parse a system property or returns defaultValue if
      * not present or unparseable.
      *
@@ -1312,7 +1352,7 @@ public final class Jvm {
                         debug().on(Jvm.class, "Adding " + path + " to the classpath");
                     classpath.append(File.pathSeparator).append(path);
                 }
-            } catch (URISyntaxException | IllegalArgumentException e) {
+            } catch (URISyntaxException | IllegalArgumentException | FileSystemNotFoundException e) {
                 debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
             }
         }
