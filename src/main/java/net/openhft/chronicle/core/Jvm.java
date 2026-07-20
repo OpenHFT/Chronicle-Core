@@ -1173,6 +1173,31 @@ public final class Jvm {
     }
 
     /**
+     * Renders a byte count as a compact human-readable size, the inverse of
+     * {@link #parseSize(String)}. Binary units are used ({@code K} = 1024, {@code M}, {@code G},
+     * {@code T}), and the largest unit that divides the value <em>exactly</em> is chosen so the
+     * result always round-trips: for any {@code size >= 0}, {@code parseSize(formatSize(size))}
+     * equals {@code size}. A value that is not a whole multiple of 1024 is rendered as a plain byte
+     * count (e.g. {@code 500}); {@code 0} renders as {@code "0"}.
+     *
+     * @param size the number of bytes, must be &gt;= 0
+     * @return a size string parseable by {@link #parseSize(String)}
+     * @throws IllegalArgumentException if {@code size} is negative
+     */
+    public static String formatSize(long size) {
+        if (size < 0)
+            throw new IllegalArgumentException("Negative sizes not allowed: " + size);
+        if (size == 0)
+            return "0";
+        final long[] factors = {1L << 40, 1L << 30, 1L << 20, 1L << 10};
+        final String suffixes = "TGMK";
+        for (int i = 0; i < factors.length; i++)
+            if (size % factors[i] == 0)
+                return (size / factors[i]) + String.valueOf(suffixes.charAt(i));
+        return Long.toString(size);
+    }
+
+    /**
      * Uses Jvm.parseSize to parse a system property or returns defaultValue if
      * not present or unparseable.
      *
