@@ -1,0 +1,94 @@
+/*
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
+ */
+package net.openhft.chronicle.core;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Canonical test suite for size parsing and retrieval via {@link Jvm#parseSize(String)} and
+ * {@link Jvm#getSize(String, long)}. Keep related assertions here to avoid duplication.
+ */
+class JvmParseSizeTest extends CoreTestCommon {
+    private static final String PROPERTY = "JvmParseSizeTest";
+    private static final long KIB = 1L << 10;
+    private static final long MIB = 1L << 20;
+    private static final long GIB = 1L << 30;
+    private static final long TIB = 1L << 40;
+
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {"100", 100L},
+                {"  100  ", 100L},
+                {"100b", 100L},
+                {"100B", 100L},
+                {" 100B ", 100L},
+                {"0.5kb", 512L},
+                {"0.5KiB", 512L},
+                {"0.125MB", 128L << 10},
+                {"2M", 2L << 20},
+                {" 2 M", 2L << 20},
+                {"0.75GiB", 768L << 20},
+                {"1.5 GiB", 1536L << 20},
+                {"0.25TiB", Math.round((1L << 40) / 4.0)},
+                {"0", 0},
+                {"-0.0GB", 0}, // BigDecimal("-0.0").longValue() == 0, so the negative-size guard is not triggered
+                {Long.MAX_VALUE + "", Long.MAX_VALUE},
+                {Long.MAX_VALUE / KIB + "kb", Long.MAX_VALUE / KIB * KIB},
+                {Long.MAX_VALUE / MIB + "mb", Long.MAX_VALUE / MIB * MIB},
+                {Long.MAX_VALUE / GIB + "gb", Long.MAX_VALUE / GIB * GIB},
+                {Long.MAX_VALUE / TIB + "tb", Long.MAX_VALUE / TIB * TIB},
+        });
+    }
+
+    @AfterEach
+    void teardown() {
+        System.getProperties().remove(PROPERTY);
+    }
+
+    @ParameterizedTest(name = "{0} => {1}")
+    @MethodSource("data")
+    void parseSize(String text, long value) throws IllegalArgumentException {
+        assertEquals(value, Jvm.parseSize(text));
+    }
+
+    @ParameterizedTest(name = "{0} => {1}")
+    @MethodSource("data")
+    void getSize(String text, long value) {
+        System.setProperty(PROPERTY, text);
+        assertEquals(value, Jvm.getSize(PROPERTY, -1));
+    }
+
+    @Test
+    void formatSizeRenders() {
+        assertEquals("0", Jvm.formatSize(0));
+        assertEquals("500", Jvm.formatSize(500));      // not a whole 1024 multiple -> raw bytes
+        assertEquals("1K", Jvm.formatSize(KIB));
+        assertEquals("512M", Jvm.formatSize(512 * MIB));
+        assertEquals("1536M", Jvm.formatSize(1536 * MIB)); // 1.5 GiB is not a whole GiB
+        assertEquals("5G", Jvm.formatSize(5 * GIB));
+        assertEquals("3T", Jvm.formatSize(3 * TIB));
+    }
+
+    @Test
+    void formatSizeRoundTripsThroughParseSize() {
+        final long[] sizes = {0, 1, 1023, KIB, 1025, 500, MIB, 1536 * MIB, 5 * GIB, 3 * TIB,
+                123_456_789L, Long.MAX_VALUE, Long.MAX_VALUE - 1023};
+        for (long size : sizes)
+            assertEquals(size, Jvm.parseSize(Jvm.formatSize(size)),
+                    "round-trip failed for " + size + " (formatted as " + Jvm.formatSize(size) + ")");
+    }
+
+    @Test
+    void formatSizeRejectsNegative() {
+        assertThrows(IllegalArgumentException.class, () -> Jvm.formatSize(-1));
+    }
+}
