@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class JvmParseSizeTest extends CoreTestCommon {
     private static final String PROPERTY = "JvmParseSizeTest";
-    private static final long KIB = 1L << 10;
-    private static final long MIB = 1L << 20;
-    private static final long GIB = 1L << 30;
-    private static final long TIB = 1L << 40;
+     static final long KIB = 1L << 10;
+     static final long MIB = 1L << 20;
+     static final long GIB = 1L << 30;
+     static final long TIB = 1L << 40;
 
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
