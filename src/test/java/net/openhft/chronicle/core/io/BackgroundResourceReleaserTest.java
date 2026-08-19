@@ -19,6 +19,33 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
     private final AtomicLong closed = new AtomicLong();
     private final AtomicLong released = new AtomicLong();
 
+    // Regression test for issue #344: the releaser thread name should carry the
+    // application's main class so a thread dump identifies who started it.
+    @Test
+    void threadNameCarriesMainClassContext() {
+        final String saved = System.getProperty("sun.java.command");
+        try {
+            System.setProperty("sun.java.command", "com.example.MyApp --port 1234");
+            assertEquals("com.example.MyApp/" + BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER,
+                    BackgroundResourceReleaser.backgroundReleaserThreadName());
+
+            // Bare command (no arguments) still yields a prefixed name.
+            System.setProperty("sun.java.command", "com.example.MyApp");
+            assertEquals("com.example.MyApp/" + BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER,
+                    BackgroundResourceReleaser.backgroundReleaserThreadName());
+
+            // When the property is unavailable, fall back to the plain constant.
+            System.clearProperty("sun.java.command");
+            assertEquals(BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER,
+                    BackgroundResourceReleaser.backgroundReleaserThreadName());
+        } finally {
+            if (saved == null)
+                System.clearProperty("sun.java.command");
+            else
+                System.setProperty("sun.java.command", saved);
+        }
+    }
+
     @Test
     void testResourcesCleanedUp() throws IllegalStateException {
         int count = 20;

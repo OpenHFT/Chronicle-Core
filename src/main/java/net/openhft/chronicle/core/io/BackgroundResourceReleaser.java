@@ -54,11 +54,53 @@ public final class BackgroundResourceReleaser {
     }
 
     private static Thread runBackgroundReleaserThread() {
-        Thread thread = new Thread(BackgroundResourceReleaser::runReleaseResources, BACKGROUND_RESOURCE_RELEASER);
+        Thread thread = new Thread(BackgroundResourceReleaser::runReleaseResources, backgroundReleaserThreadName());
         thread.setDaemon(true);
         thread.start();
 
         return thread;
+    }
+
+    /**
+     * Builds the name for the background releaser thread, prefixing it with the
+     * application's main class where that can be determined. This lets an operator
+     * reading a thread dump attribute the releaser to the application that started
+     * it (issue #344) rather than seeing a bare {@code background~resource~releaser}.
+     * <p>
+     * The main class is read from the {@code sun.java.command} system property. When
+     * that property is unavailable (for example, some non-HotSpot JVMs or a security
+     * manager that hides it) the plain {@link #BACKGROUND_RESOURCE_RELEASER} name is
+     * used unchanged.
+     *
+     * @return the thread name, e.g. {@code com.example.MyApp/background~resource~releaser}
+     */
+    static String backgroundReleaserThreadName() {
+        String mainClass = mainClassContext();
+        return mainClass == null
+                ? BACKGROUND_RESOURCE_RELEASER
+                : mainClass + '/' + BACKGROUND_RESOURCE_RELEASER;
+    }
+
+    /**
+     * Derives the application's main class (or launching jar) from the
+     * {@code sun.java.command} system property.
+     *
+     * @return the first whitespace-delimited token of {@code sun.java.command},
+     * or {@code null} when it is absent or blank
+     */
+    private static String mainClassContext() {
+        try {
+            String command = System.getProperty("sun.java.command");
+            if (command == null)
+                return null;
+            command = command.trim();
+            if (command.isEmpty())
+                return null;
+            int sp = command.indexOf(' ');
+            return sp < 0 ? command : command.substring(0, sp);
+        } catch (SecurityException e) {
+            return null;
+        }
     }
 
     private static void runReleaseResources() {
