@@ -59,6 +59,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * The migrated classes should additionally be verified under a JVM run with
  * finalisation disabled (e.g. {@code --finalization=disabled} on JDK&nbsp;18+), so the
  * reference-based cleanup is exercised as the sole path.
+ *
+ * <h2>Measured detection run ({@code --finalization=disabled}, JDK&nbsp;21)</h2>
+ * A detection pass under JEP&nbsp;421 (raw evidence in
+ * {@code needs-info-research/Chronicle-Core-331/}) found exactly one <em>hard</em> runtime
+ * dependency on {@code finalize()}: {@code gcAndWaitForCloseablesToClose()} returns in ~50&nbsp;ms
+ * normally but throws {@code AssertionError: Timed out waiting for the Finalizer} after ~5&nbsp;s
+ * when finalisation is disabled — its private {@code new Object(){ finalize() }} detector never
+ * fires. The other two overrides (items&nbsp;1&ndash;2 above) are <em>safety nets</em> that simply
+ * stop running: no existing test fails when they do, so each conversion must ship with a test
+ * that asserts the resource is actually released (a fail-before/pass-after guard). This class's
+ * own {@code ReferenceCleanerTest} already passes with finalisation disabled, confirming the
+ * migration target is itself finalisation-independent.
  */
 public final class ReferenceCleaner {
 
