@@ -424,9 +424,19 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     @SuppressWarnings("RedundantSuppression")
     class Finalizer {
         /**
-         * Called by the garbage collector when the enclosing AbstractCloseable instance is
-         * being finalized. This method ensures that if the enclosing instance is not closed,
-         * a warning is issued and the close method is called.
+         * Retained safety net: called by the garbage collector when the enclosing
+         * {@link AbstractCloseable} is finalized; if it was never closed, a warning is issued and
+         * {@link #close()} is invoked.
+         * <p>
+         * <b>Why this is deliberately kept</b> despite {@code finalize()} being deprecated for removal
+         * (JEP&nbsp;421): resources here are expected to be closed explicitly, and every passing test
+         * does so &mdash; but this net exists for the <em>un-happy</em> path, a caller in production that
+         * forgot to close. Its only job is to catch that leak, so removing it would silently lose real
+         * value even though the happy-path tests stay green without it. {@code finalize()} is
+         * unreliable and cannot be guaranteed to run; it is retained as best-effort leak protection for
+         * as long as the supported JDKs still honour it. When it is finally dropped, this behaviour must
+         * be <b>preserved</b> (e.g. via {@link java.lang.ref.Cleaner}), not deleted &mdash; the only
+         * production impact of losing it is a potential resource leak.
          *
          * @throws Throwable if an error occurs during finalization.
          */

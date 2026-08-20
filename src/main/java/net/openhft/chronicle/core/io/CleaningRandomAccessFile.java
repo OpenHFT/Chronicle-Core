@@ -25,10 +25,21 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
         super(file, mode);
     }
 
+    /**
+     * Retained safety net: a best-effort attempt to close the file if the owner forgot to.
+     * <p>
+     * Kept deliberately even though {@code finalize()} is deprecated for removal (JEP&nbsp;421) and is
+     * never guaranteed to run: an unclosed {@code RandomAccessFile} leaks a file descriptor, and this
+     * net is the last line of defence against that leak in production code paths that skipped an
+     * explicit close. Happy-path tests close explicitly and pass without it, but the leak it guards is
+     * exactly the case tests do not exercise. When {@code finalize()} is finally removed this must be
+     * re-homed on {@link java.lang.ref.Cleaner} to keep the descriptor-leak protection, not dropped.
+     *
+     * @throws Throwable if an error occurs during finalization.
+     */
     @SuppressWarnings({"deprecation", "removal", "java:S1113"})
     @Override
     protected void finalize() throws Throwable {
-        // best-efforts attempt to close the file if the owner forgot
         super.finalize();
         Closeable.closeQuietly(this);
     }
