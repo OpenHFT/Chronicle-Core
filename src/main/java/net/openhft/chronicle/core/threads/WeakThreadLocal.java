@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -34,6 +35,10 @@ import java.util.function.Supplier;
  * to let the value be collected as soon as it is otherwise unreachable, or
  * {@link ReferenceType#SOFT} to keep it until the JVM is under memory pressure, which
  * can be preferable for expensive-to-rebuild values.
+ * <p>
+ * The supplier is retained strongly for the lifetime of this {@code WeakThreadLocal}.
+ * A supplier that captures an owner therefore also retains that owner and its class
+ * loader for the same lifetime.
  *
  * @param <T> the type of value held
  */
@@ -58,8 +63,8 @@ public final class WeakThreadLocal<T> {
      * {@link WeakReference}.
      *
      * @param supplier used to create the value on first access per thread, and again
-     *                 whenever the previous value has been reclaimed; must not return
-     *                 {@code null}
+     *                 whenever the previous value has been reclaimed; retained strongly
+     *                 by this object and must not return {@code null}
      */
     public WeakThreadLocal(@NotNull Supplier<T> supplier) {
         this(supplier, ReferenceType.WEAK);
@@ -69,17 +74,13 @@ public final class WeakThreadLocal<T> {
      * Creates a {@code WeakThreadLocal} with the given reference strength.
      *
      * @param supplier      used to create the value on first access per thread, and
-     *                      again whenever the previous value has been reclaimed; must
-     *                      not return {@code null}
+     *                      again whenever the previous value has been reclaimed; retained
+     *                      strongly by this object and must not return {@code null}
      * @param referenceType the strength of the reference used to hold the value
      */
     public WeakThreadLocal(@NotNull Supplier<T> supplier, @NotNull ReferenceType referenceType) {
-        if (supplier == null)
-            throw new NullPointerException("supplier");
-        if (referenceType == null)
-            throw new NullPointerException("referenceType");
-        this.supplier = supplier;
-        this.referenceType = referenceType;
+        this.supplier = Objects.requireNonNull(supplier, "supplier");
+        this.referenceType = Objects.requireNonNull(referenceType, "referenceType");
     }
 
     /**
@@ -93,7 +94,7 @@ public final class WeakThreadLocal<T> {
         final Reference<T> ref = threadLocal.get();
         T value = ref == null ? null : ref.get();
         if (value == null) {
-            value = supplier.get();
+            value = Objects.requireNonNull(supplier.get(), "supplier returned null");
             threadLocal.set(newReference(value));
         }
         return value;

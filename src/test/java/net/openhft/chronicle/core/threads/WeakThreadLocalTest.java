@@ -74,4 +74,13 @@ class WeakThreadLocalTest extends CoreTestCommon {
     void nullSupplierIsRejected() {
         assertThrows(NullPointerException.class, () -> new WeakThreadLocal<>(null));
     }
+
+    @Test
+    void nullSupplierResultIsRejectedForBothReferenceTypes() {
+        for (WeakThreadLocal.ReferenceType referenceType : WeakThreadLocal.ReferenceType.values()) {
+            final WeakThreadLocal<Object> tl = new WeakThreadLocal<>(() -> null, referenceType);
+            final NullPointerException exception = assertThrows(NullPointerException.class, tl::get);
+            assertEquals("supplier returned null", exception.getMessage());
+        }
+    }
 }
