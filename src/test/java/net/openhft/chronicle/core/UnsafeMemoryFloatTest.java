@@ -9,6 +9,8 @@ import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Exercises the {@code float} accessors of {@link UnsafeMemory} (including the
  * {@link UnsafeMemory.ARMMemory} unaligned volatile paths) by analogy with
@@ -37,11 +39,31 @@ final class UnsafeMemoryFloatTest implements UnsafeMemoryTestMixin<Float> {
     }
 
     @Override
+    public Stream<Float> readWriteValues() {
+        return Stream.of(
+                Float.intBitsToFloat(0x80000000),
+                Float.POSITIVE_INFINITY,
+                Float.NEGATIVE_INFINITY,
+                Float.intBitsToFloat(0x7fc01234),
+                -123.5f);
+    }
+
+    @Override
+    public void assertValueEquals(Float expected, Float actual) {
+        assertEquals(Float.floatToRawIntBits(expected), Float.floatToRawIntBits(actual));
+    }
+
+    @Override
     public Stream<Float> sequence() {
         // Distinct, strictly increasing, non-zero values so the reader threads
         // always observe a change between successive writes.
         return IntStream.rangeClosed(1, 40)
                 .mapToObj(i -> i * 1.5f);
+    }
+
+    @Override
+    public IntStream misalignedVolatileOffsets() {
+        return candidateOffsets().filter(alignedToType().negate());
     }
 
     @Override
