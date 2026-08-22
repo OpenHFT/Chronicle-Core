@@ -15,6 +15,7 @@ Identifiers follow the
 * link:#CORE-RISK-003[CORE-RISK-003 Guard Native-Memory Mapping with Directory Whitelist]
 * link:#CORE-NF-O-004[CORE-NF-O-004 Background Resource Releaser Thread (Opt-In)]
 * link:#CORE-FN-005[CORE-FN-005 ChronicleInit for Pre/Post Application Hooks]
+* link:#CORE-RISK-331[CORE-RISK-331 Stage Finaliser Replacement Behind a Private Migration]
 
 [[CORE-DOC-001]]
 == CORE-DOC-001 Adopt Nine-Box Requirement & Decision Taxonomy
@@ -123,3 +124,32 @@ Impact & Consequences::
 Notes/Links::
 * link:functional-requirements.adoc#CORE-FN-015[CORE-FN-015]
 * link:functional-requirements.adoc#CORE-FN-016[CORE-FN-016]
+
+[[CORE-RISK-331]]
+== CORE-RISK-331 Stage Finaliser Replacement Behind a Private Migration
+
+Date:: 2026-08-22
+Context::
+* Chronicle Core contains two production safety-net finalisers and one finalisation-based test barrier.
+* Removing a safety net without a replacement can turn a forgotten close into a descriptor or resource leak.
+* Chronicle Core still supports Java 8, where `java.lang.ref.Cleaner` is unavailable.
+* A bespoke public cleaner would create a permanent compatibility commitment before its worker, class-loader and registration lifecycle had been proven.
+Decision Statement::
+* This increment records the inventory and evidence only; it does not introduce a cleaner API or remove a finaliser.
+* A migration must keep the reference implementation private and expose only an idempotent cleanup handle.
+* The first migration must replace one production finaliser and include a fail-before/pass-after release test under `--finalization=disabled`.
+* Queue processing must have deterministic tests. A GC-driven test may supplement them but cannot be the principal correctness test.
+* Worker context-class-loader, interruption, termination and registration reachability must be designed before automatic cleanup is enabled.
+Alternatives Considered::
+* *Publish a Java 8 cleaner before migrating a finaliser* - rejected because it exposes unused API and unresolved lifecycle hazards.
+* *Delete the finalisers now* - rejected because that removes leak protection without replacement evidence.
+* *Wait without recording evidence* - rejected because the inventory and disabled-finalisation behaviour would remain implicit.
+Rationale for Decision::
+* A private, concrete migration is reversible and proves resource release before an API commitment is made.
+* The current decision separates research from production lifecycle code.
+Impact & Consequences::
+* Issue #331 remains open.
+* Existing finaliser behaviour remains unchanged in this increment.
+* The follow-up migration can be validated on current JDKs without waiting for finalisation to be physically removed.
+Notes/Links::
+* link:finalisation-migration.adoc[Finalisation migration inventory and evidence]
