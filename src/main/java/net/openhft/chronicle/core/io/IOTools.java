@@ -26,6 +26,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -97,9 +98,7 @@ public final class IOTools {
                 || e.getClass().getName().contains("Close"));
     }
 
-
     // File operations
-
 
     /**
      * Attempts to delete a directory with its files. If the directory or any
@@ -360,6 +359,14 @@ public final class IOTools {
      * Creates and returns a new InputStream from the provided {@code url}.
      * <p>
      * It is up to the caller to close the returned InputStream after being used.
+     * If this method throws, no resources remain open.
+     *
+     * <p>Gzip detection uses {@link URL#getPath()} so that a query string
+     * (for example, {@code .../foo.gz?token=abc}) does not defeat the suffix
+     * match. Unexpected throwables from {@link GZIPInputStream}'s constructor
+     * (for example, {@link OutOfMemoryError}) are deliberately allowed to
+     * propagate after the underlying stream has been closed; they are not
+     * silently swallowed.
      *
      * @param url to create an InputStream from
      * @return an InputStream
@@ -368,13 +375,16 @@ public final class IOTools {
     @SuppressWarnings("java:S2095")
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();
-        if (url.getFile().endsWith(".gz")) {
-            // CSCompressionUncompress keep GZIPInputStream here because open(URL) intentionally auto-decompresses '.gz' resources for callers.
+        if (url.getPath().endsWith(".gz")) {
             try {
                 return new GZIPInputStream(in);
-            } catch (IOException ioe) {
-                in.close();
-                throw ioe;
+            } catch (IOException | RuntimeException | Error t) {
+                try {
+                    in.close();
+                } catch (IOException ioe2) {
+                    t.addSuppressed(ioe2);
+                }
+                throw t;
             }
         }
         return in;
@@ -394,9 +404,10 @@ public final class IOTools {
      */
     public static byte[] readFile(Class<?> clazz, @NotNull String name) throws IOException {
         URL url = urlFor(clazz, name);
-        try (InputStream is = open(url)) {
-            return readAsBytes(is);
-        }
+        // readAsBytes closes the stream
+        InputStream is = open(url);
+
+        return readAsBytes(is);
     }
 
     /**
@@ -425,6 +436,7 @@ public final class IOTools {
             closeQuietly(is);
         }
     }
+
     /**
      * Creates a temporary name for a file by appending the system's current
      * nanosecond time to the file name.
@@ -527,9 +539,7 @@ public final class IOTools {
         Monitorable.unmonitor(t);
     }
 
-
     // Buffer handling
-
 
     /**
      * Calls the system's Cleaner Service to clean the given ByteBuffer.
@@ -591,6 +601,40 @@ public final class IOTools {
             closeQuietly(sc);
             closeQuietly(s2);
         };
+    }
+
+    /**
+     * Best-effort cleanup of a child {@link Process}: waits up to one second
+     * for the process to exit, calls {@link Process#destroy()}, waits up to
+     * another second, and finally escalates to {@link Process#destroyForcibly()}
+     * if the child is still alive. When destruction is needed the pipe streams
+     * are closed so file descriptors are not held until the {@link Process}
+     * object is reaped. If the current thread is interrupted while waiting,
+     * the interrupt flag is restored before destruction is attempted.
+     *
+     * @param process the child process to tear down; must not be {@code null}
+     */
+    public static void destroyProcess(@NotNull Process process) {
+        Objects.requireNonNull(process, "process");
+        if (waitForProcess(process))
+            return;
+        closeQuietly(
+                process.getOutputStream(),
+                process.getInputStream(),
+                process.getErrorStream());
+        process.destroy();
+        if (!waitForProcess(process))
+            process.destroyForcibly();
+    }
+
+    private static boolean waitForProcess(@NotNull Process process) {
+        try {
+            if (process.waitFor(1, TimeUnit.SECONDS))
+                return true;
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+        return false;
     }
 
     private static final class Language {

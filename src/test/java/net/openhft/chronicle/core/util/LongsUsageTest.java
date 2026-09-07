@@ -4,21 +4,21 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.internal.invariant.longs.LongCondition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongPredicate;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * These tests mirror the guard patterns used in peer Chronicle modules (e.g. Chronicle-Bytes)
  * to validate offsets, lengths and alignment before calling into native memory code paths.
  */
-public class LongsUsageTest {
+class LongsUsageTest {
 
     @Test
-    public void requireNonNegativeMatchesBytesStores() {
+    void requireNonNegativeMatchesBytesStores() {
         // Chronicle-Bytes calls Longs.requireNonNegative before copying into native stores
         assertEquals(128L, Longs.requireNonNegative(128L));
 
@@ -27,7 +27,7 @@ public class LongsUsageTest {
     }
 
     @Test
-    public void requirePositiveReflectsOSGuards() {
+    void requirePositiveReflectsOSGuards() {
         // OS.map* methods demand strictly positive lengths
         assertEquals(4096L, Longs.requirePositive(4096L));
 
@@ -36,7 +36,7 @@ public class LongsUsageTest {
     }
 
     @Test
-    public void alignmentChecksMirrorNativeAccess() {
+    void alignmentChecksMirrorNativeAccess() {
         long address = 1L << 16; // naturally aligned
         assertEquals(address, Longs.require(LongCondition.LONG_ALIGNED, address, IllegalArgumentException::new));
 
@@ -46,7 +46,7 @@ public class LongsUsageTest {
     }
 
     @Test
-    public void requireAppliesPredicateForByteConvertibleValues() {
+    void requireAppliesPredicateForByteConvertibleValues() {
         long withinByte = 120L;
         assertEquals(withinByte, Longs.require(LongCondition.BYTE_CONVERTIBLE, withinByte, IllegalArgumentException::new));
 
@@ -56,7 +56,7 @@ public class LongsUsageTest {
     }
 
     @Test
-    public void negateBehaviourMatchesDownstreamExpectations() {
+    void negateBehaviourMatchesDownstreamExpectations() {
         LongPredicate notNonPositive = LongCondition.NON_POSITIVE.negate();
         assertTrue(notNonPositive.test(7));
         assertFalse(notNonPositive.test(-1));
@@ -67,7 +67,7 @@ public class LongsUsageTest {
     }
 
     @Test
-    public void nonNegativePredicateCachesForRepeatedChecks() {
+    void nonNegativePredicateCachesForRepeatedChecks() {
         AtomicLong counter = new AtomicLong();
         LongPredicate guard = Longs.nonNegative();
 

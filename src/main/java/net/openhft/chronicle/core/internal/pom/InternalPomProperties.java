@@ -29,13 +29,11 @@ public final class InternalPomProperties {
         final Properties properties = new Properties();
         final String resourceName = resourceName(groupId, artifactId);
         try {
-            // CSConvenienceFileOrStreamLoad keep this classpath resource load here because version lookup intentionally reads the bundled pom.properties metadata when it is present.
             try (InputStream inputStream = InternalPomProperties.class.getResourceAsStream(resourceName)) {
                 if (inputStream != null) {
                     properties.load(inputStream);
                 }
             }
-            // CSWarnAndContinue keep this degraded fallback because missing or malformed pom.properties should leave version metadata empty rather than abort class loading.
         } catch (IOException | IllegalArgumentException e) {
             Jvm.debug().on(InternalPomProperties.class, "Error reading " + resourceName, e);
             // Returns an empty set of properties if we fail.

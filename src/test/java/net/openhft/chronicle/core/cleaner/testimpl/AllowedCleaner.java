@@ -3,7 +3,6 @@
  */
 package net.openhft.chronicle.core.cleaner.testimpl;
 
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.annotation.TargetMajorVersion;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 

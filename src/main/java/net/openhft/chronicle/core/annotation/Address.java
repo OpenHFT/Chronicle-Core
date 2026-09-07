@@ -16,19 +16,18 @@ import java.lang.annotation.Target;
  * <p><b>Retention and effect:</b> Stored in the class file but ignored by the
  * runtime unless Chronicle tooling checks it.</p>
  *
- * {@code @Address long address;}
- *
  * <p>This annotation is semantic only. Use it alongside explicit range guards
- * such as {@code MemoryAegis.assertAddressRange(...)} or
- * {@code MemoryGuards.requireRange(...)} when a concrete access width or slice
- * length is known.</p>
+ * such as {@code MemoryAegis.assertAddressRange(...)} when a concrete access
+ * width or slice length is known.</p>
  *
- * <pre>{@code
- * int readInt(@Address long address) {
- *     assert MemoryAegis.assertAddressRange(address, Integer.BYTES);
- *     return ...
+ * <pre>
+ * {@code @Address} long address;
+ *
+ * int readInt({@code @Address} long address) {
+ *     assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Integer.BYTES);
+ *     return ...;
  * }
- * }</pre>
+ * </pre>
  *
  * @see NonNegative
  */

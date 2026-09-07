@@ -3,19 +3,20 @@
  */
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.test.RecordingEventLoop;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import static org.mockito.Mockito.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class DelegatingEventLoopTest {
 
-    private EventLoop innerEventLoop;
+    private RecordingEventLoop innerEventLoop;
     private DelegatingEventLoop delegatingEventLoop;
 
     @BeforeEach
     void setUp() {
-        innerEventLoop = mock(EventLoop.class);
+        innerEventLoop = new RecordingEventLoop();
         delegatingEventLoop = new DelegatingEventLoop(innerEventLoop);
     }
 
@@ -27,67 +28,68 @@ class DelegatingEventLoopTest {
     @Test
     void nameShouldDelegateToInner() {
         delegatingEventLoop.name();
-        verify(innerEventLoop).name();
+        assertEquals(1, innerEventLoop.nameCalls());
     }
 
     @Test
     void startShouldDelegateToInner() {
         delegatingEventLoop.start();
-        verify(innerEventLoop).start();
+        assertEquals(1, innerEventLoop.startCalls());
     }
 
     @Test
     void unpauseShouldDelegateToInner() {
         delegatingEventLoop.unpause();
-        verify(innerEventLoop).unpause();
+        assertEquals(1, innerEventLoop.unpauseCalls());
     }
 
     @Test
     void stopShouldDelegateToInner() {
         delegatingEventLoop.stop();
-        verify(innerEventLoop).stop();
+        assertEquals(1, innerEventLoop.stopCalls());
     }
 
     @Test
     void isClosedShouldDelegateToInner() {
         delegatingEventLoop.isClosed();
-        verify(innerEventLoop).isClosed();
+        assertEquals(1, innerEventLoop.isClosedCalls());
     }
 
     @Test
     void isStoppedShouldDelegateToInner() {
         delegatingEventLoop.isStopped();
-        verify(innerEventLoop).isStopped();
+        assertEquals(1, innerEventLoop.isStoppedCalls());
     }
 
     @Test
     void isClosingShouldDelegateToInner() {
         delegatingEventLoop.isClosing();
-        verify(innerEventLoop).isClosing();
+        assertEquals(1, innerEventLoop.isClosingCalls());
     }
 
     @Test
     void isAliveShouldDelegateToInner() {
         delegatingEventLoop.isAlive();
-        verify(innerEventLoop).isAlive();
+        assertEquals(1, innerEventLoop.isAliveCalls());
     }
 
     @Test
     void closeShouldDelegateToInner() {
         delegatingEventLoop.close();
-        verify(innerEventLoop).close();
+        assertEquals(1, innerEventLoop.closeCalls());
     }
 
     @Test
     void addHandlerShouldDelegateToInner() {
-        EventHandler handler = mock(EventHandler.class);
+        EventHandler handler = () -> false;
         delegatingEventLoop.addHandler(handler);
-        verify(innerEventLoop).addHandler(handler);
+        assertSame(handler, innerEventLoop.lastHandler());
+        assertEquals(1, innerEventLoop.addHandlerCalls());
     }
 
     @Test
     void runsInsideCoreLoopShouldDelegateToInner() {
         delegatingEventLoop.runsInsideCoreLoop();
-        verify(innerEventLoop).runsInsideCoreLoop();
+        assertEquals(1, innerEventLoop.runsInsideCoreLoopCalls());
     }
 }

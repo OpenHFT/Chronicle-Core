@@ -69,7 +69,6 @@ class ReferenceCountingFuzzTest {
 
     private static final class TestReference extends AbstractReferenceCounted {
         private final boolean background;
-        private final AtomicReference<Thread> releaseThread = new AtomicReference<>();
         private final AtomicInteger releaseCount = new AtomicInteger();
         private final AtomicReference<Boolean> releasedOnBackgroundThread = new AtomicReference<>();
 
@@ -85,7 +84,6 @@ class ReferenceCountingFuzzTest {
 
         @Override
         protected void performRelease() {
-            releaseThread.set(Thread.currentThread());
             releaseCount.incrementAndGet();
             releasedOnBackgroundThread.set(BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread());
         }

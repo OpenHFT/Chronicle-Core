@@ -4,33 +4,33 @@
 package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class MuteBuilderApiNoopsTest {
+class MuteBuilderApiNoopsTest {
 
     private String prev;
 
-    @Before
-    public void disableAnalytics() {
+    @BeforeEach
+    void disableAnalytics() {
         prev = System.getProperty("chronicle.analytics.disable");
         System.setProperty("chronicle.analytics.disable", "true");
     }
 
-    @After
-    public void restoreProperty() {
+    @AfterEach
+    void restoreProperty() {
         if (prev == null) System.clearProperty("chronicle.analytics.disable");
         else System.setProperty("chronicle.analytics.disable", prev);
     }
 
     @Test
-    public void builderMethodsAreNoOpsAndBuildsMuteAnalytics() {
+    void builderMethodsAreNoOpsAndBuildsMuteAnalytics() {
         AtomicBoolean called = new AtomicBoolean(false);
         AnalyticsFacade.Builder b = AnalyticsFacade.builder("mid", "sec")
                 .putUserProperty("k1", "v1")
@@ -39,11 +39,12 @@ public class MuteBuilderApiNoopsTest {
                 .withClientIdFileName("cid")
                 .withUrl("http://example.invalid")
                 .withErrorLogger(s -> called.set(true))
-                .withDebugLogger(s -> {})
+                .withDebugLogger(s -> {
+                })
                 .withReportDespiteJUnit();
 
         AnalyticsFacade facade = b.build();
-        assertTrue(facade instanceof MuteAnalytics);
+        assertInstanceOf(MuteAnalytics.class, facade);
 
         // Should not throw
         facade.sendEvent("startup");

@@ -3,18 +3,19 @@
  */
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.test.RecordingExceptionHandlerStub;
 import org.junit.jupiter.api.*;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class ThreadLocalisedExceptionHandlerTest {
 
-    private ExceptionHandler defaultHandler;
+    private RecordingExceptionHandlerStub defaultHandler;
     private ThreadLocalisedExceptionHandler tlExceptionHandler;
 
     @BeforeEach
     void setUp() {
-        defaultHandler = mock(ExceptionHandler.class);
+        defaultHandler = new RecordingExceptionHandlerStub();
         tlExceptionHandler = new ThreadLocalisedExceptionHandler(defaultHandler);
     }
 
@@ -25,7 +26,7 @@ class ThreadLocalisedExceptionHandlerTest {
 
     @Test
     void testIsEnabled() {
-        when(defaultHandler.isEnabled(Exception.class)).thenReturn(true);
+        defaultHandler.enabled(true);
         assertTrue(tlExceptionHandler.isEnabled(Exception.class));
     }
 

@@ -9,6 +9,7 @@ import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.internal.util.MapUtil;
+import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ClassMetrics;
 import net.openhft.chronicle.core.util.ObjectUtils;
@@ -29,11 +30,13 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.net.URISyntaxException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -547,7 +550,7 @@ public final class Jvm {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
-    @SuppressWarnings({"java:S3011", "CSSetAccessibleEscalation"})
+    @SuppressWarnings("java:S3011")
     // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         ClassUtil.setAccessible(accessibleObject);
@@ -1107,7 +1110,7 @@ public final class Jvm {
 
     /**
      * Parse a string as a decimal memory size with an optional scale.
-     * K/k = * 2<sup>10</sup>, M/m = 2<sup>20</sup>, G/g = 2<sup>10</sup>, T/t = 2<sup>40</sup>
+     * K/k = * 2<sup>10</sup>, M/m = 2<sup>20</sup>, G/g = 2<sup>30</sup>, T/t = 2<sup>40</sup>
      *
      * <p>
      * trailing B/b/iB/ib are ignored.
@@ -1123,25 +1126,42 @@ public final class Jvm {
      *     <tr><td>0.125MB</td><td>128 KiB</td></tr>
      *     <tr><td>2M</td><td>2 MiB</td></tr>
      *     <tr><td>0.75GiB</td><td>768 MiB</td></tr>
-     *     <tr><td>0.001TiB</td><td>1.024 GiB</td></tr>
+     *     <tr><td>0.25TiB</td><td>256 GiB</td></tr>
      * </table>
+     *
+     * <p>The numeric part may be fractional, but only values that resolve to an
+     * exact byte count are accepted. For example, {@code 0.5kb} is valid
+     * because it resolves to exactly {@code 512} bytes, whereas {@code 0.1MB}
+     * is rejected because it does not map to an exact whole-byte value when
+     * multiplied by the binary unit factor.</p>
+     *
+     * <p>The input is trimmed before parsing. Empty or blank strings are
+     * rejected rather than treated as zero or as an unset value.</p>
      *
      * @param value size to parse
      * @return the size
-     * @throws IllegalArgumentException if the string could not be parsed
+     * @throws IllegalArgumentException if the string could not be parsed; this includes
+     *                                  {@link NumberFormatException} from the numeric part
      */
+    @NonNegative
     public static long parseSize(@NotNull String value) throws IllegalArgumentException {
+        final String orig = value;
+        value = value.trim();
+        if (value.isEmpty())
+            throw new IllegalArgumentException("Unable to parse empty string '" + orig + "'");
         long factor = 1;
 
         if (value.length() > 1) {
             char last = value.charAt(value.length() - 1);
             // assume we meant bytes, not bits
             if (last == 'b' || last == 'B') {
-                value = value.substring(0, value.length() - 1);
+                value = value.substring(0, value.length() - 1).trim();
                 last = value.charAt(value.length() - 1);
             }
-            if (last == 'i') {
-                value = value.substring(0, value.length() - 1);
+            if (last == 'i' || last == 'I') {
+                if (value.length() <= 1)
+                    throw new IllegalArgumentException("No numeric value: " + orig);
+                value = value.substring(0, value.length() - 1).trim();
                 last = value.charAt(value.length() - 1);
             }
             if (Character.isLetter(last)) {
@@ -1163,17 +1183,67 @@ public final class Jvm {
                         factor = 1L << 10;
                         break;
                     default:
-                        throw new IllegalArgumentException("Unrecognised suffix for size " + value);
+                        throw new IllegalArgumentException("Unrecognised suffix for size " + orig);
                 }
-                value = value.substring(0, value.length() - 1);
+                value = value.substring(0, value.length() - 1).trim();
             }
         }
-        double number = Double.parseDouble(value.trim());
-        return Math.round(factor * number);
+        BigDecimal number = new BigDecimal(value).multiply(BigDecimal.valueOf(factor));
+        long asLong = number.longValue();
+        if (number.compareTo(BigDecimal.valueOf(asLong)) != 0)
+            throw new IllegalArgumentException("Size could not be represented accurately: " + orig);
+        if (asLong < 0)
+            throw new IllegalArgumentException("Negative sizes not allowed: " + orig);
+        return asLong;
     }
 
     /**
-     * Uses Jvm.parseSize to parse a system property or returns defaultValue if not present, empty or unparseable.
+     * Formats a byte count as a compact size string using binary units ({@code K} = 1024,
+     * {@code M}, {@code G}, {@code T}) - the exact inverse of {@link #parseSize(String)}.
+     * <p>
+     * The largest unit that divides {@code size} <em>exactly</em> is used, so the result always
+     * round-trips: {@code parseSize(formatSize(size)) == size} for every {@code size >= 0}. A value
+     * that is not a whole multiple of 1024 is written as a plain byte count, and {@code 0} as
+     * {@code "0"}. This favours an exactly-parseable form over a rounded approximation, so an odd
+     * value renders as bytes (or a large {@code K}/{@code M}) rather than as, say, {@code "1.7G"}.
+     * <p>
+     * {@code T} is the largest unit emitted (as in {@link #parseSize(String)}); a larger exact
+     * multiple is still expressed in {@code T} - for example 1 PiB renders as {@code "1024T"}.
+     * <p>
+     * Examples: {@code formatSize(1024)} is {@code "1K"}, {@code formatSize(1536L << 20)} is
+     * {@code "1536M"}, {@code formatSize(5L << 30)} is {@code "5G"}, and {@code formatSize(500)} is
+     * {@code "500"}.
+     *
+     * @param size the number of bytes, must be &gt;= 0
+     * @return a size string parseable by {@link #parseSize(String)}
+     * @throws IllegalArgumentException if {@code size} is negative
+     * @see #parseSize(String)
+     */
+    public static String formatSize(long size) {
+        if (size < 0)
+            throw new IllegalArgumentException("Negative sizes not allowed: " + size);
+        if (size == 0)
+            return "0";
+        // Leading '.' is an unused placeholder so charAt(i / 10) maps 10 -> K, 20 -> M, 30 -> G, 40 -> T.
+        final String suffixes = ".KMGT";
+        // Largest unit first: (size >>> i) << i == size holds when size is an exact multiple of 2^i,
+        // so that unit divides it without remainder and the result round-trips through parseSize.
+        for (int i = 40; i >= 10; i -= 10)
+            if ((size >>> i) << i == size)
+                // String.valueOf forces string concatenation; (size >>> i) + a char would add as longs.
+                return (size >>> i) + String.valueOf(suffixes.charAt(i / 10));
+        // Not a whole multiple of 1024 - the exact byte count is itself parseable by parseSize.
+        return Long.toString(size);
+    }
+
+    /**
+     * Uses Jvm.parseSize to parse a system property or returns defaultValue if
+     * not present or unparseable.
+     *
+     * <p>An empty or blank property value is forwarded to
+     * {@link #parseSize(String)}, logged as invalid input, and then falls back
+     * to {@code defaultValue}. Only an absent (null) property is treated as
+     * silently unset.</p>
      *
      * @param property     to look up
      * @param defaultValue to use otherwise
@@ -1181,7 +1251,7 @@ public final class Jvm {
      */
     public static long getSize(final String property, final long defaultValue) {
         final String value = Jvm.getProperty(property);
-        if (value == null || value.length() <= 0)
+        if (value == null)
             return defaultValue;
         try {
             return parseSize(value);
@@ -1263,8 +1333,7 @@ public final class Jvm {
                     // added in Java 23+
                 }
             });
-            // CSWarnAndContinue could disable because this is a best effort approach.
-        } catch (IllegalArgumentException | IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | AssertionError e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
     }
@@ -1289,8 +1358,7 @@ public final class Jvm {
                             ci.interrupt();
                         return ObjectUtils.defaultValue(m.getReturnType());
                     }));
-            // CSWarnAndContinue could disable because this is a best effort approach.
-        } catch (IllegalArgumentException | IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | AssertionError e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
     }
@@ -1324,8 +1392,7 @@ public final class Jvm {
                         debug().on(Jvm.class, "Adding " + path + " to the classpath");
                     classpath.append(File.pathSeparator).append(path);
                 }
-                // CSWarnAndContinue keep this degraded fallback because one malformed URL entry should not stop rebuilding the effective classpath from the remaining URLs.
-            } catch (URISyntaxException e) {
+            } catch (URISyntaxException | IllegalArgumentException | FileSystemNotFoundException e) {
                 debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
             }
         }
@@ -1363,27 +1430,23 @@ public final class Jvm {
      * @return if a process with the provided {@code pid} process id is alive
      */
     public static boolean isProcessAlive(long pid) {
-        if (isWindows()) {
-            final String command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
-            return isProcessAlive0(pid, command);
-        }
-        if (isLinux() && PROC_EXISTS) {
-            // CSProcfsOrRealPathInference keep this procfs lookup here because Linux process-liveness checks intentionally probe the fixed /proc/<pid> entry.
+        if (isWindows())
+            return isProcessAlive0(pid, "cmd", "/c", "tasklist", "/NH", "/FI", "PID eq " + pid);
+        if (isLinux() && PROC_EXISTS)
             return new File("/proc/" + pid).exists();
-        }
-        if (isMacOSX() || isLinux()) {
-            final String command = "ps -p " + pid;
-            return isProcessAlive0(pid, command);
-        }
+        if (isMacOSX() || isLinux())
+            return isProcessAlive0(pid, "ps", "-p", Long.toString(pid));
 
         throw new UnsupportedOperationException("Not supported on this OS");
     }
 
-    @SuppressWarnings("deprecation")
-    private static boolean isProcessAlive0(final long pid, final String command) {
-
+    private static boolean isProcessAlive0(final long pid, final String... argv) {
         try {
-            Process exec = getRuntime().exec(command);
+            // Merge stderr into stdout so a stderr-heavy child cannot deadlock
+            // on a full pipe while the parent reads stdout.
+            Process exec = new ProcessBuilder(argv)
+                    .redirectErrorStream(true)
+                    .start();
             try (InputStreamReader isReader = new InputStreamReader(exec.getInputStream());
                  BufferedReader bReader = new BufferedReader(isReader)) {
                 String strLine;
@@ -1395,11 +1458,13 @@ public final class Jvm {
 
                 return false;
             } finally {
-                exec.destroy();
+                IOTools.destroyProcess(exec);
             }
         } catch (IOException ex) {
+            // Fail-open: child could not be started or its output could not be read.
             return true;
         }
+        // Other exceptions propagate so sandbox / configuration issues are not masked.
     }
 
     public static boolean isAzulZing() {
@@ -1743,11 +1808,9 @@ public final class Jvm {
 
                 final Field f = getField(clz, "directMemory");
                 return f.getLong(null);
-            } catch (ClassNotFoundException | IllegalAccessException e) {
-                // ignore
+            } catch (Throwable e) {
+                System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0, " + e);
             }
-            // CQJvmLogOverSystemErr keep System.err output here because max-direct-memory discovery can fail during bootstrap before Chronicle logging is fully available.
-            System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");
             return 0L;
         }
     }

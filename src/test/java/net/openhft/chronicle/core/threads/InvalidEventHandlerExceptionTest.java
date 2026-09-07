@@ -4,8 +4,8 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,13 +13,11 @@ import java.io.PrintStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
+class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
     @Test
-    public void testStandardConstructors() {
+    void testStandardConstructors() {
         String message = "Error occurred";
         Throwable cause = new RuntimeException("Cause of error");
 
@@ -34,7 +32,7 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
     }
 
     @Test
-    public void testReusableInstance() {
+    void testReusableInstance() {
         InvalidEventHandlerException reusableInstance = InvalidEventHandlerException.reusable();
         assertNotNull(reusableInstance);
         assertEquals(0, reusableInstance.getStackTrace().length);
@@ -48,15 +46,16 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         reusableInstance.setStackTrace(new StackTraceElement[]{});
         assertEquals(0, reusableInstance.getStackTrace().length);
     }
+
     private InvalidEventHandlerException e;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         e = InvalidEventHandlerException.reusable();
     }
 
     @Test
-    public void stacktrace() {
+    void stacktrace() {
         assertEquals(0, e.getStackTrace().length);
 
         StackTraceElement[] newStackTrace = Stream.of(new StackTraceElement("A", "foo", "A.java", 42))
@@ -67,12 +66,12 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
     }
 
     @Test
-    public void printStackTrace() throws IOException {
+    void printStackTrace() throws IOException {
         final StringBuilder sb = new StringBuilder();
 
         try (OutputStream os = new OutputStream() {
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 sb.append((char) b);
             }
         };
@@ -85,7 +84,7 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
     }
 
     @Test
-    public void toStringTest() {
+    void toStringTest() {
         assertTrue(e.toString().contains("Reusable"));
         assertTrue(e.toString().contains("no stack trace"));
     }

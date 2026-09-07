@@ -125,12 +125,13 @@ public final class Bootstrap {
             // ignore and fall back to pre-jdk9
         }
         try {
-            return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
-        } catch (NumberFormatException e) {
-            // CQJvmLogOverSystemErr keep System.err output here because major-version discovery can fail before Chronicle logging is fully bootstrapped.
+            String specificationVersion = Runtime.class.getPackage().getSpecificationVersion();
+            if (specificationVersion != null)
+                return Integer.parseInt(specificationVersion.split("\\.")[1]);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             System.err.println(Bootstrap.class.getName() + ": Unable to get the major version, defaulting to 8 " + e);
-            return 8;
         }
+        return 8;
     }
 
     public static boolean is64bit0() {

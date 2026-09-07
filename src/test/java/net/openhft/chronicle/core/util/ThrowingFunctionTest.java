@@ -5,18 +5,18 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.function.Function;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ThrowingFunctionTest extends CoreTestCommon {
+class ThrowingFunctionTest extends CoreTestCommon {
     @Test
-    public void asFunction() throws Exception {
+    void asFunction() {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {
             try (@NotNull BufferedReader br = new BufferedReader(new FileReader(s))) {
                 return br.readLine();

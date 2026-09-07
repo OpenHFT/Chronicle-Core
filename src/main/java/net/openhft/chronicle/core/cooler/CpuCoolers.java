@@ -139,12 +139,14 @@ public enum CpuCoolers implements CpuCooler {
     SERIALIZATION {
         @Override
         public void disturb() {
-            // ByteArrayOutputStream.close declares that it throws IOException which you must handle even though the method is empty, so don't call close on it
+            // ByteArrayOutputStream holds no native resources and its close() is
+            // a no-op, so wrapping `out` in a try-with-resources adds boilerplate
+            // (a forced try-block scope plus a dead catch path that cannot be
+            // exercised in tests) without any cleanup benefit. Leave it un-wrapped.
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try (XMLEncoder oos = new XMLEncoder(out)) {
                 oos.writeObject(System.getProperties());
             }
-            // CSXmlTransformerExternalAccess keep XMLDecoder here because this cooler deliberately stress-tests XML decode paths on trusted data it just encoded itself.
             try (XMLDecoder ois = new XMLDecoder(new ByteArrayInputStream(out.toByteArray()))) {
                 blackhole = ois.readObject();
             }

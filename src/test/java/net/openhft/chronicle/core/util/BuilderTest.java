@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +45,7 @@ class BuilderTest {
 // Hypothetical implementations of Builder
 class MyClassBuilder implements Builder<MyClass> {
     @Override
-    public MyClass build() {
+    public @NotNull MyClass build() {
         return new MyClass(); // Assuming MyClass is a mutable type
     }
 }
@@ -53,7 +54,7 @@ class OneTimeUseMyClassBuilder implements Builder<MyClass> {
     private boolean built = false;
 
     @Override
-    public MyClass build() {
+    public @NotNull MyClass build() {
         if (built) {
             throw new IllegalStateException("Builder can only be used once");
         }

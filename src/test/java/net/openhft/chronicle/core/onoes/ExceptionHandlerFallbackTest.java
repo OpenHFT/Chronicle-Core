@@ -4,13 +4,13 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.AssumptionViolatedException;
+import org.opentest4j.TestAbortedException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test for {@link Slf4jExceptionHandler} to ensure that it falls back to the default
@@ -29,7 +29,7 @@ class ExceptionHandlerFallbackTest {
             state = initializationState.getInt(null);
             initializationState.setInt(null, FAILED_INITIALIZATION);
         } catch (IllegalAccessException e) {
-            throw new AssumptionViolatedException(e.toString());
+            throw new TestAbortedException(e.toString());
         }
         try {
             Slf4jExceptionHandler.WARN.on(

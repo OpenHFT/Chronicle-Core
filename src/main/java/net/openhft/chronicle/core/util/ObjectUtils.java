@@ -619,10 +619,8 @@ public final class ObjectUtils {
         try {
             // CSResolvedTypeInstantiation REVIEW keep newInstance here because this type-materialization path still needs an explicit reviewed type-resolution contract.
             return newInstance(type);
-            // CSWarnAndContinue keep this degraded fallback because a resolved supplier may produce a value that cannot be cast to the requested type after alias rewiring, and the caller accepts null in that single case.
-        } catch (ClassCastException e) {
-            Jvm.warn().on(ObjectUtils.class, "Failed to create type", e);
-            // CSWarnReturnNull REVIEW keep /** here because this fallback still needs an explicit reviewed degraded-outcome contract.
+        } catch (Exception e) {
+            Jvm.debug().on(ObjectUtils.class, "Failed to create type", e);
             return null;
         }
     }

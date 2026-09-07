@@ -100,6 +100,7 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(LocalTime.class, "Time, LocalTime");
         addAlias(ZonedDateTime.class, "ZonedDateTime");
         addAlias(TimeUnit.class, "TimeUnit");
+        addAlias(TimeZone.class, "TimeZone, sun.util.calendar.ZoneInfo");
         addAlias(String[].class, "String[]");
         Class<?>[] classes = {boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class};
         for (@NotNull Class<?> prim : classes)
