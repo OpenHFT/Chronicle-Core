@@ -109,8 +109,6 @@ public final class ObjectUtils {
             return m;
         } catch (NoSuchMethodException expected) {
             return null;
-        } catch (Exception e) {
-            throw new AssertionError(e);
         }
     });
     private static final Map<Class<?>, Immutability> IMMUTABILITY_MAP = new ConcurrentHashMap<>();
@@ -193,7 +191,8 @@ public final class ObjectUtils {
             ClassUtil.setAccessible(constructor);
             return ThrowingSupplier.asSupplier(constructor::newInstance);
 
-        } catch (Exception e) {
+            // RuntimeException required to catch InaccessibleObjectException not present in JDK 8, but can be thrown in JDK 9+
+        } catch (NoSuchMethodException | RuntimeException e) {
             return () -> {
                 try {
                     return OS.memory().allocateInstance(c);
@@ -605,6 +604,7 @@ public final class ObjectUtils {
         try {
             return newInstance(type);
         } catch (Exception e) {
+            Jvm.debug().on(ObjectUtils.class, "Failed to create type", e);
             return null;
         }
     }
@@ -893,7 +893,7 @@ public final class ObjectUtils {
                 final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
                 ClassUtil.setAccessible(constructor);
                 return constructor::newInstance;
-            } catch (Exception e) {
+            } catch (NoSuchMethodException e) {
                 return new ThrowsCCE(e);
             }
         }

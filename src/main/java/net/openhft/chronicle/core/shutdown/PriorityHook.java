@@ -91,7 +91,7 @@ public class PriorityHook {
      * Execute registered hooklets in priority order.
      */
     public void onShutdown() {
-        for (Hooklet hooklet : hookletPool.keySet())
+        for (Hooklet hooklet : new ArrayList<>(hookletPool.keySet()))
             hooklet.onShutdown();
     }
 

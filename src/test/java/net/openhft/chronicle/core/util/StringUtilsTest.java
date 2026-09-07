@@ -4,19 +4,20 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.function.BiFunction;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class StringUtilsTest extends CoreTestCommon {
+class StringUtilsTest extends CoreTestCommon {
 
     @Test
-    public void testIsEqualWithStringBuilderAndCharSequence() {
+    void testIsEqualWithStringBuilderAndCharSequence() {
         StringBuilder sb = new StringBuilder("test");
         CharSequence cs = "test";
 
@@ -25,15 +26,36 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testSetLengthOfStringBuilder() {
+    void testSetLengthOfStringBuilder() {
         StringBuilder sb = new StringBuilder("test");
         StringUtils.setLength(sb, 2);
 
         assertEquals("te", sb.toString());
     }
 
+    /**
+     * Reproducer: after {@code setLength}, the 8-bit fast-fill pattern (write raw bytes into
+     * {@link StringUtils#extractBytes(StringBuilder)}) must address the right bytes even when the
+     * StringBuilder was previously left in UTF-16 storage (e.g. a pooled builder reused after holding
+     * a non-latin1 char). Without a coder-aware setLength this corrupts the result.
+     */
     @Test
-    public void testSetStringBuilderContent() {
+    void setLengthPreparesLatin1BufferForReusedUtf16Builder() {
+        assumeTrue(Jvm.isJava9Plus() && Jvm.maxDirectMemory() > 0);
+        StringBuilder sb = new StringBuilder("√"); // '√' forces UTF-16 storage
+        sb.setLength(0);                                // reused: UTF-16 coder retained
+
+        StringUtils.setLength(sb, 3);
+        byte[] bytes = StringUtils.extractBytes(sb);
+        bytes[0] = 'a';
+        bytes[1] = 'b';
+        bytes[2] = 'c';
+
+        assertEquals("abc", sb.toString());
+    }
+
+    @Test
+    void testSetStringBuilderContent() {
         StringBuilder sb = new StringBuilder("original");
         StringUtils.set(sb, "updated");
 
@@ -41,21 +63,21 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testEndsWith() {
+    void testEndsWith() {
         CharSequence cs = "testString";
         assertTrue(StringUtils.endsWith(cs, "String"));
         assertTrue(StringUtils.endsWith(cs, "string")); // case-insensitive
     }
 
     @Test
-    public void testStartsWith() {
+    void testStartsWith() {
         CharSequence cs = "testString";
         assertTrue(StringUtils.startsWith(cs, "test"));
         assertFalse(StringUtils.startsWith(cs, "String"));
     }
 
     @Test
-    public void testIsEqualWithCharSequences() {
+    void testIsEqualWithCharSequences() {
         CharSequence cs1 = "test";
         CharSequence cs2 = "test";
         CharSequence cs3 = "different";
@@ -65,7 +87,7 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testEqualsCaseIgnore() {
+    void testEqualsCaseIgnore() {
         CharSequence cs1 = "TestString";
         CharSequence cs2 = "teststring";
 
@@ -74,33 +96,33 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testToStringMethod() {
+    void testToStringMethod() {
         Object obj = "test";
         assertNull(StringUtils.toString(null));
         assertEquals("test", StringUtils.toString(obj));
     }
 
     @Test
-    public void testExtractBytesString() {
+    void testExtractBytesString() {
         String str = "test";
         byte[] expectedBytes = str.getBytes(StandardCharsets.ISO_8859_1);
         assertArrayEquals(expectedBytes, StringUtils.extractBytes(str));
     }
 
     @Test
-    public void testNewStringFromChars() {
+    void testNewStringFromChars() {
         char[] chars = {'t', 'e', 's', 't'};
         assertEquals("test", StringUtils.newString(chars));
     }
 
     @Test
-    public void testNewStringFromBytes() {
+    void testNewStringFromBytes() {
         byte[] bytes = "test".getBytes(StandardCharsets.ISO_8859_1);
         assertEquals("test", StringUtils.newStringFromBytes(bytes));
     }
 
     @Test
-    public void testFirstLowerCase() {
+    void testFirstLowerCase() {
         assertEquals("", StringUtils.firstLowerCase(""));
         assertEquals("99", StringUtils.firstLowerCase("99"));
         assertEquals("a", StringUtils.firstLowerCase("A"));
@@ -110,7 +132,7 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testToTitleCase() {
+    void testToTitleCase() {
         assertEquals("", StringUtils.toTitleCase(""));
         assertEquals("99", StringUtils.toTitleCase("99"));
         assertEquals("A", StringUtils.toTitleCase("A"));
@@ -133,50 +155,46 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldGetCharsOfStringBuilder() {
+    void shouldGetCharsOfStringBuilder() {
         final StringBuilder sb = new StringBuilder(11).append("foobar_nine");
         final char[] chars = StringUtils.extractChars(sb);
         assertEquals(sb.toString(), new String(chars));
     }
 
     @Test
-    public void shouldGetCharsOfString() {
+    void shouldGetCharsOfString() {
         final String s = "foobar_nine";
         final char[] chars = StringUtils.extractChars(s);
         assertEquals(s, new String(chars));
     }
 
     @Test
-    public void shouldExtractBytesFromString() {
-        assertTrue(
-                Arrays.equals(
-                    "foobar".getBytes(StandardCharsets.US_ASCII),
-                    StringUtils.extractBytes("foobar")));
+    void shouldExtractBytesFromString() {
+        assertArrayEquals("foobar".getBytes(StandardCharsets.US_ASCII), StringUtils.extractBytes("foobar"));
     }
 
     @Test
-    public void shouldExtractBytesFromStringBuilder() {
+    void shouldExtractBytesFromStringBuilder() {
         // uses StringUtils.extractBytes/extractChars as appropriate
-        assertEquals(0xdf8d42fa7e05af8aL,
-                Maths.hash64(new StringBuilder("foobar")));
+        assertEquals(0xdf8d42fa7e05af8aL, Maths.hash64(new StringBuilder("foobar")));
     }
 
     @Test
-    public void shouldCreateNewStringFromChars() {
+    void shouldCreateNewStringFromChars() {
         final char[] chars = {'A', 'B', 'C'};
         assertEquals(new String(chars), StringUtils.newString(chars));
     }
 
     @Test
-    public void shouldCreateNewStringFromBytes() {
+    void shouldCreateNewStringFromBytes() {
         final byte[] bytes = {'A', 'B', 'C'};
-        String expected = new String(bytes,StandardCharsets.ISO_8859_1);
+        String expected = new String(bytes, StandardCharsets.ISO_8859_1);
         String actual = StringUtils.newStringFromBytes(bytes);
         assertEquals(expected, actual);
     }
 
     @Test
-    public void testParseDouble() {
+    void testParseDouble() {
         for (double d : new double[]{Double.NaN, Double.NEGATIVE_INFINITY, Double
                 .POSITIVE_INFINITY, 0.0, -1.0, 1.0, 9999.0}) {
             assertEquals(d, StringUtils.parseDouble(Double.toString(d)), 0);
@@ -189,7 +207,7 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testParseDoubleEdgeCases() {
+    void testParseDoubleEdgeCases() {
         // Trailing dot
         assertEquals(123.0, StringUtils.parseDouble("123."), 0);
         // Leading dot
@@ -203,12 +221,12 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testParseInt() {
+    void testParseInt() {
         validate((s, integer) -> (long) StringUtils.parseInt(s, integer));
     }
 
     @Test
-    public void testParseLong() {
+    void testParseLong() {
         validate(StringUtils::parseLong);
     }
 
@@ -234,43 +252,43 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void reverse() {
+    void reverse() {
         StringBuilder stringBuilder = new StringBuilder("test");
         StringUtils.reverse(stringBuilder, 0);
         assertEquals("tset", stringBuilder.toString());
     }
 
     @Test
-    public void equalsCaseIgnore_equals() {
+    void equalsCaseIgnore_equals() {
         assertTrue(StringUtils.equalsCaseIgnore("aaa", "AAA"));
         assertFalse(StringUtils.equalsCaseIgnore("aaa", "AAAA"));
         assertFalse(StringUtils.equalsCaseIgnore("aaa", "AA_"));
     }
 
     @Test
-    public void startsWith_isValidPrefix() {
+    void startsWith_isValidPrefix() {
         assertTrue(StringUtils.startsWith("abcd", "ab"));
         assertFalse(StringUtils.startsWith("abcd", "abe"));
     }
 
     @Test
-    public void startsWith_searchStringTooLong() {
+    void startsWith_searchStringTooLong() {
         assertFalse(StringUtils.startsWith("a", "ab"));
     }
 
     @Test
-    public void endsWith_isValidSuffix() {
+    void endsWith_isValidSuffix() {
         assertTrue(StringUtils.endsWith("abcd", "cd"));
         assertFalse(StringUtils.endsWith("abcd", "ed"));
     }
 
     @Test
-    public void endsWith_searchStringIsTooLong() {
+    void endsWith_searchStringIsTooLong() {
         assertFalse(StringUtils.endsWith("abcd", "aaabcd"));
     }
 
     @Test
-    public void testIsEqual() {
+    void testIsEqual() {
 
         // The same instances
         StringBuilder emptySb = new StringBuilder();
@@ -296,5 +314,48 @@ public class StringUtilsTest extends CoreTestCommon {
 
         // Empty strings
         assertTrue(StringUtils.isEqual(new StringBuilder(), ""));
+    }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#parseDouble(CharSequence)} returns 0.
+     * That lenient behaviour is relied on by Chronicle-Bytes when empty YAML or
+     * JSON numeric scalars are normalised through the shared parser. The JDK
+     * {@link Double#parseDouble(String)} throws
+     * {@link NumberFormatException} in the same situation.
+     */
+    @Test
+    public void parseDoubleEmptyStringFuzzFinding() {
+        assertEquals(0, StringUtils.parseDouble(""), 0.0);
+    }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#toTitleCase(String)} remains idempotent
+     * for inputs that contain a case-stable letter next to a lower-case run.
+     * Input {@code "_ii\u02C1_"} (U+02C1 "MODIFIER LETTER
+     * REVERSED GLOTTAL STOP") is lower-case according to
+     * {@link Character#isLowerCase(char)}, but its simple upper-case,
+     * lower-case, and title-case mappings all return the same code point.
+     * The word-boundary detector therefore uses effective case conversion
+     * rather than {@code isLowerCase} alone, so the first and second passes both
+     * produce {@code "_II\u02C1_"}.
+     */
+    @Test
+    public void toTitleCaseIdempotenceWithCaselessLetterFuzzFinding() {
+        String once = StringUtils.toTitleCase("_ii\u02C1_");
+        assertEquals("_II\u02C1_", once);
+        String twice = StringUtils.toTitleCase(once);
+        assertEquals("_II\u02C1_", twice);
+    }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#endsWith(CharSequence, String)} and
+     * {@link StringUtils#startsWith(CharSequence, String)}.
+     * A caller porting from {@link String#endsWith(String)} might be
+     * surprised. Pinned here so the contract is explicit in the test suite.
+     */
+    @Test
+    public void endsWithStartsWithAreCaseInsensitiveFuzzFinding() {
+        assertTrue(StringUtils.endsWith("HELLO", "lLo"), "StringUtils.endsWith ignores case");
+        assertTrue(StringUtils.startsWith("HELLO", "hEl"), "StringUtils.startsWith ignores case");
     }
 }

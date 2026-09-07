@@ -4,16 +4,15 @@
 package net.openhft.chronicle.core;
 
 import org.jetbrains.annotations.Nullable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import sun.misc.Unsafe;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class MemoryTest extends CoreTestCommon {
+class MemoryTest extends CoreTestCommon {
 
     @Test
-    public void testReadme() {
+    void testReadme() {
         @Nullable Memory memory = OS.memory();
         long address = memory.allocate(1024);
         try {
@@ -28,7 +27,7 @@ public class MemoryTest extends CoreTestCommon {
     }
 
     @Test
-    public void sizeOf() {
+    void sizeOf() {
         assertEquals(Unsafe.ARRAY_BOOLEAN_INDEX_SCALE, Memory.sizeOf(boolean.class));
         assertEquals(Unsafe.ARRAY_BYTE_INDEX_SCALE, Memory.sizeOf(byte.class));
         assertEquals(Unsafe.ARRAY_CHAR_INDEX_SCALE, Memory.sizeOf(char.class));

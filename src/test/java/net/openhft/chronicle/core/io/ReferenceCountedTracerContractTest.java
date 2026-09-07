@@ -3,22 +3,21 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Any implementor of {@link ReferenceCountedTracer} should implement a test class
  * that extends this or one of its more specific children
  */
-public abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContractTest {
+abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContractTest {
 
     @Override
     protected abstract ReferenceCountedTracer createReferenceCounted();
 
     @Test
-    public void throwIfReleasedWillThrowIfResourceIsReleased() {
+    void throwIfReleasedWillThrowIfResourceIsReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -26,7 +25,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
     }
 
     @Test
-    public void throwIfReleasedWillNotThrowIfResourceIsNotReleased() {
+    void throwIfReleasedWillNotThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
         try {
             referenceCounted.throwExceptionIfReleased();
@@ -36,18 +35,18 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         }
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
+    @Test
+    void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
         try {
-            referenceCounted.throwExceptionIfNotReleased();
+            assertThrows(IllegalStateException.class, referenceCounted::throwExceptionIfNotReleased);
         } finally {
             referenceCounted.releaseLast();
         }
     }
 
     @Test
-    public void throwIfNotReleasedWillNotThrowIfResourceIsReleased() {
+    void throwIfNotReleasedWillNotThrowIfResourceIsReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -56,7 +55,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
     }
 
     @Test
-    public void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
+    void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
         ReferenceCountedTracer rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");

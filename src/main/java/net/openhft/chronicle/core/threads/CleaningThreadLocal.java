@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -216,15 +217,39 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      *
      * <p>Call at whatever cadence suits your application (e.g.&nbsp;every few
      * seconds, once a minute, or only at JVM shutdown).</p>
+     *
+     * <p>Liveness is sampled once per distinct thread during each sweep. If a
+     * thread terminates after being observed alive, its remaining values are
+     * retained until the next sweep.</p>
      */
-    public static synchronized void cleanupNonCleaningThreads() {
-        if (cleaningThreadLocals.isEmpty())
-            return;
-
-        cleaningThreadLocals.removeIf(CleaningThreadLocal::doCleanupNonCleaningThreads);
+    public static void cleanupNonCleaningThreads() {
+        cleanupNonCleaningThreads(Thread::isAlive);
     }
 
-    private boolean doCleanupNonCleaningThreads() {
+    static void cleanupNonCleaningThreads(Predicate<Thread> isThreadAlive) {
+        // Drain stale entries under the lock, then run user cleanup
+        // callbacks outside it so slow cleanup code never blocks
+        // set()/remove()/initialValue() across the JVM.
+        List<Runnable> pendingCleanups;
+        synchronized (cleaningThreadLocals) {
+            if (cleaningThreadLocals.isEmpty())
+                return;
+            pendingCleanups = new ArrayList<>();
+            //! Cache across all locals because thread keys are unique within each local map.
+            //! Keep the cache per sweep so a later sweep always refreshes liveness.
+            Map<Thread, Boolean> livenessByThread = new IdentityHashMap<>();
+            cleaningThreadLocals.removeIf(ctl ->
+                    ctl.drainStaleInto(pendingCleanups, livenessByThread, isThreadAlive));
+        }
+
+        for (Runnable r : pendingCleanups)
+            r.run();
+    }
+
+    // holds lock on cleaningThreadLocals
+    private boolean drainStaleInto(List<Runnable> sink,
+                                   Map<Thread, Boolean> livenessByThread,
+                                   Predicate<Thread> isThreadAlive) {
         if (!trackNonCleaningThreads)
             return true;
 
@@ -233,8 +258,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
              mapIt.hasNext(); ) {
 
             Map.Entry<Thread, Object> e = mapIt.next();
-            if (!e.getKey().isAlive()) {
-                cleanup(uncheckedCast(e.getValue()));
+            boolean isAlive = livenessByThread.computeIfAbsent(e.getKey(), isThreadAlive::test);
+            if (!isAlive) {
+                Object staleValue = e.getValue();
+                sink.add(() -> cleanup(uncheckedCast(staleValue)));
                 mapIt.remove();
             }
         }
@@ -250,7 +277,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         T value = supplier.get();
         if (trackNonCleaningThreads &&
                 !(Thread.currentThread() instanceof CleaningThread)) {
-            nonCleaningThreadValues.put(Thread.currentThread(), value);
+            putTrackedValue(Thread.currentThread(), value);
         }
         return value;
     }
@@ -276,8 +303,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
-            @SuppressWarnings("unchecked")
-            T previous = (T) nonCleaningThreadValues.put(thread, value);
+            T previous = putTrackedValue(thread, value);
             cleanup(previous);
         }
         super.set(value);
@@ -292,8 +318,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
-            @SuppressWarnings("unchecked")
-            T previous = (T) nonCleaningThreadValues.remove(thread);
+            T previous = removeTrackedValue(thread);
             cleanup(previous);
         }
         super.remove();
@@ -311,9 +336,28 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         // prune any stale CTLs before adding a new one
         cleanupNonCleaningThreads();
 
-        cleaningThreadLocals.add(this);
-        nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+        synchronized (cleaningThreadLocals) {
+            cleaningThreadLocals.add(this);
+            nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+        }
         return true;
+    }
+
+    private T putTrackedValue(Thread thread, T value) {
+        synchronized (cleaningThreadLocals) {
+            cleaningThreadLocals.add(this);
+            Object previous = nonCleaningThreadValues.put(thread, value);
+            return uncheckedCast(previous);
+        }
+    }
+
+    private T removeTrackedValue(Thread thread) {
+        synchronized (cleaningThreadLocals) {
+            Object previous = nonCleaningThreadValues.remove(thread);
+            if (nonCleaningThreadValues.isEmpty())
+                cleaningThreadLocals.remove(this);
+            return uncheckedCast(previous);
+        }
     }
 
     /**
@@ -325,9 +369,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (value == null) return;
         try {
             cleanup.accept(value);
-        } catch (Exception ex) {
+            // CSCatchThrowable keep this catch-all cleanup boundary because this is the last attempt to clean up resources when a cleaning thread dies or when a test finishes and cleanup tracking must continue
+        } catch (Throwable ex) {
             Jvm.warn().on(getClass(),
-                    "Exception during cleanup of " + value.getClass(), ex);
+                    "Throwable during cleanup of " + value.getClass(), ex);
         }
     }
 

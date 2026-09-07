@@ -15,7 +15,7 @@
     </parent>
 
     <artifactId>chronicle-core</artifactId>
-    <version>2026.4-SNAPSHOT</version>
+    <version>2026.7-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
@@ -32,7 +32,6 @@
         <!-- Define the target coverage thresholds as properties -->
         <jacoco.line.coverage>0.771</jacoco.line.coverage>
         <jacoco.branch.coverage>0.673</jacoco.branch.coverage>
-        <mockito.version>4.9.0</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -116,20 +115,6 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

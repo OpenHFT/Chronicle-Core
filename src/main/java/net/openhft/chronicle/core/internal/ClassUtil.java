@@ -104,14 +104,11 @@ public final class ClassUtil {
 
         } catch (NoSuchMethodException e) {
             final Class<?> superclass = clazz.getSuperclass();
-            if (superclass != null)
-                try {
-                    final Method m = getMethod0(superclass, name, args, false);
-                    if (m != null)
-                        return m;
-                } catch (Exception ignored) {
-                    // Ignore
-                }
+            if (superclass != null) {
+                final Method m = getMethod0(superclass, name, args, false);
+                if (m != null)
+                    return m;
+            }
             if (first)
                 throw new AssertionError(e);
             return null;

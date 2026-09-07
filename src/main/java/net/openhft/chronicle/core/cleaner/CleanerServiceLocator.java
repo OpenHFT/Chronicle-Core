@@ -8,8 +8,10 @@ import net.openhft.chronicle.core.annotation.TargetMajorVersion;
 import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 
+import java.nio.ByteBuffer;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
+import java.util.function.LongSupplier;
 
 /**
  * A utility class to locate the appropriate {@link ByteBufferCleanerService} implementation.
@@ -65,6 +67,8 @@ public final class CleanerServiceLocator {
                 Jvm.warn().on(CleanerServiceLocator.class, "Unable to find suitable cleaner service, falling back to using reflection");
             }
 
+            verifySelectedCleaner(cleanerService);
+
             instance = cleanerService;
             initialised = true;
         }
@@ -86,5 +90,52 @@ public final class CleanerServiceLocator {
                 version.majorVersion() == Jvm.majorVersion() ||
                 (version.includeNewer() && Jvm.majorVersion() > version.majorVersion()) ||
                 (version.includeOlder() && Jvm.majorVersion() < version.majorVersion());
+    }
+
+    /**
+     * Logs the selected cleaner and warns if it cannot actually free direct memory, surfacing a
+     * silent off-heap leak. Diagnostic only: it never changes the selected service.
+     */
+    static void verifySelectedCleaner(final ByteBufferCleanerService svc) {
+        verifySelectedCleaner(svc, Jvm::usedDirectMemory);
+    }
+
+    // usedDirectMemory is injectable so the accounting-unavailable path is testable.
+    static void verifySelectedCleaner(final ByteBufferCleanerService svc, final LongSupplier usedDirectMemory) {
+        final String name = svc.getClass().getName();
+        try {
+            if (svc.impact() == ByteBufferCleanerService.Impact.UNAVAILABLE) {
+                warnLeakingCleaner(name);
+                return;
+            }
+
+            final int probeSize = 1 << 12;
+            final long before = usedDirectMemory.getAsLong();
+            final ByteBuffer buffer = ByteBuffer.allocateDirect(probeSize);
+            final long afterAllocation = usedDirectMemory.getAsLong();
+            svc.clean(buffer);
+            final long afterClean = usedDirectMemory.getAsLong();
+
+            if (afterAllocation <= before) {
+                // accounting unavailable: can't prove a leak, so stay quiet
+                Jvm.debug().on(CleanerServiceLocator.class, "Selected ByteBuffer cleaner: " + name +
+                        " (impact=" + svc.impact() + "); effectiveness unverified as direct-memory accounting is unavailable");
+                return;
+            }
+
+            if (afterClean < afterAllocation) {
+                Jvm.debug().on(CleanerServiceLocator.class, "Selected ByteBuffer cleaner: " + name +
+                        " (impact=" + svc.impact() + ", verified to free direct memory)");
+            } else {
+                warnLeakingCleaner(name);
+            }
+        } catch (Throwable t) { // NOSONAR — diagnostic probe must never destabilise selection, incl. Errors
+            Jvm.error().on(CleanerServiceLocator.class, "Could not verify ByteBuffer cleaner " + name, t);
+        }
+    }
+
+    private static void warnLeakingCleaner(final String name) {
+        Jvm.warn().on(CleanerServiceLocator.class, "Selected ByteBuffer cleaner " + name +
+                " does not free direct memory.");
     }
 }

@@ -112,7 +112,7 @@ public interface ClassLookup {
     default CharSequence applyAlias(CharSequence name) {
         try {
             return nameFor(forName(name));
-        } catch (Exception cnfe) {
+        } catch (ClassNotFoundRuntimeException cnfe) {
             return name;
         }
     }

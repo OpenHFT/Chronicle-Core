@@ -74,5 +74,4 @@ public class StringUtilsEqualsCaseIgnoreBaseJLBH implements JLBHTask {
         }
         return buffer.toString();
     }
-
 }

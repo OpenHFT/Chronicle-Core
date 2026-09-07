@@ -6,19 +6,21 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import net.openhft.chronicle.core.OS;
+import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class CleaningThreadTest extends CoreTestCommon {
+class CleaningThreadTest extends CoreTestCommon {
     @Test
-    public void cleanupThreadLocal() throws InterruptedException {
+    void cleanupThreadLocal() throws InterruptedException {
         String threadName = "ctl-test";
         BlockingQueue<String> ints = new LinkedBlockingQueue<>();
         CleaningThreadLocal<String> counter = CleaningThreadLocal.withCleanup(() -> Thread.currentThread().getName(), ints::add);
@@ -29,7 +31,7 @@ public class CleaningThreadTest extends CoreTestCommon {
     }
 
     @Test
-    public void testRemove() {
+    void testRemove() {
         int[] counter = {0};
         CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCloseQuietly(() -> counter[0]++);
         assertEquals(0, (int) ctl.get());
@@ -38,17 +40,19 @@ public class CleaningThreadTest extends CoreTestCommon {
     }
 
     @Test
-    public void resetThreadAffinity() throws InterruptedException {
+    void resetThreadAffinity() throws InterruptedException {
+        assumeFalse(OS.isMacOSX(), "macOS does not support thread affinity");
         final BitSet affinity = Affinity.getAffinity();
-        assumeTrue(affinity.cardinality() > 2);
-        assumeTrue(AffinityLock.BASE_AFFINITY.cardinality() > 2);
+        final BitSet baseAffinity = AffinityLock.BASE_AFFINITY;
+        int cpu = baseAffinity.nextSetBit(0);
+        assumeTrue(cpu >= 0, "Base affinity must expose at least one CPU");
         try {
-            Affinity.setAffinity(1);
+            Affinity.setAffinity(cpu);
             BitSet[] nestedAffinity = {null};
             CleaningThread ct = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity());
             ct.start();
             ct.join();
-            assertEquals(AffinityLock.BASE_AFFINITY, nestedAffinity[0]);
+            assertEquals(baseAffinity, nestedAffinity[0]);
         } finally {
             Affinity.setAffinity(affinity);
         }

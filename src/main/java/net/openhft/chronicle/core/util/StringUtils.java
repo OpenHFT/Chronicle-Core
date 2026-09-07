@@ -42,6 +42,7 @@ public final class StringUtils {
     private static final String VALUE_FIELD_NAME = "value";
     private static final String COUNT_FIELD_NAME = "count";
     private static final String CODER_FIELD_NAME = "coder";
+    private static final byte LATIN1_CODER = 0; // java.lang.String.LATIN1
 
     private static final Field S_VALUE;
     private static final Field SB_COUNT;
@@ -127,12 +128,27 @@ public final class StringUtils {
      * @throws AssertionError if there is an IllegalAccessException or IllegalArgumentException.
      */
     public static void setLength(@NotNull StringBuilder sb, int length) {
-        if (Jvm.maxDirectMemory() == 0) {
+        if (SB_CODER == null || Jvm.maxDirectMemory() == 0) {
             sb.setLength(length);
             return;
         }
+        // A StringBuilder reused after holding a non-latin1 char keeps UTF-16 storage (2 bytes/char)
+        // filling that as 8-bit would otherwise corrupt the result (see StringUtilsTest).
+        forceLatin1Coder(sb);
+        sb.ensureCapacity(length);
         try {
             SB_COUNT.set(sb, length);
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private static void forceLatin1Coder(@NotNull StringBuilder sb) {
+        if (SB_CODER == null)
+            return; // pre-Java 9: no compact-string coder
+        try {
+            if (SB_CODER.getByte(sb) != LATIN1_CODER)
+                SB_CODER.setByte(sb, LATIN1_CODER);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
@@ -170,7 +186,7 @@ public final class StringUtils {
     }
 
     /**
-     * Checks if the given {@link CharSequence} starts with the specified string.
+     * Checks if the given {@link CharSequence} starts with the specified string, in a case-insensitive way.
      *
      * @param source     the {@link CharSequence} to be checked.
      * @param startsWith the string to check if the {@link CharSequence} starts with.
@@ -377,12 +393,25 @@ public final class StringUtils {
         return ch == c2 ? str : c2 + str.substring(1);
     }
 
+    /**
+     * Parses a decimal number from a character sequence.
+     *
+     * <p>This parser is intentionally lenient for empty input and returns
+     * {@code 0}. Downstream callers in Chronicle-Bytes rely on that behaviour
+     * when handling optional or empty numeric scalars in YAML and JSON
+     * materialisation paths.</p>
+     *
+     * @param in the characters to parse
+     * @return the parsed value, or {@code 0} for an empty input
+     */
     public static double parseDouble(@NotNull CharSequence in) {
         long value = 0;
         int exp = 0;
         boolean negative = false;
         int decimalPlaces = Integer.MIN_VALUE;
 
+        if (in.length() == 0)
+            return 0;
         int ch = charAt(in, 0);
         int pos = 1;
         switch (ch) {
@@ -473,8 +502,15 @@ public final class StringUtils {
     }
 
     /**
-     * Converts the given string to title case. It will capitalize the first letter
-     * of the string and then replace spaces with underscores and adjust casing for subsequent characters.
+     * Converts the given string to title case. It will capitalise the first
+     * letter of the string and then replace spaces with underscores and adjust
+     * casing for subsequent characters.
+     *
+     * <p>Case-stable letters are treated as neutral boundary followers. Some
+     * Unicode letters, such as U+02C1, are lower-case according to
+     * {@link Character#isLowerCase(char)} but have no distinct simple
+     * upper-case, lower-case, or title-case mapping. Treating those letters as
+     * neutral avoids inserting extra underscores on a second title-case pass.</p>
      *
      * @param name the input string to be converted.
      * @return the converted string in title case with underscores, or null if the input is null.
@@ -489,16 +525,18 @@ public final class StringUtils {
         for (int i = 1; i < name.length(); i++) {
             char ch0 = name.charAt(i);
             char ch1 = i + 1 < name.length() ? name.charAt(i + 1) : ' ';
-            if (Character.isLowerCase(ch0)) {
-                sb.append(Character.toUpperCase(ch0));
-                if (Character.isUpperCase(ch1)) {
+            char uch0 = Character.toUpperCase(ch0);
+            if (ch0 != uch0) {
+                sb.append(uch0);
+                char lch1 = Character.toLowerCase(ch1);
+                if (lch1 != ch1) {
                     sb.append('_');
                     wasUnder = true;
                 } else {
                     wasUnder = false;
                 }
-            } else if (Character.isUpperCase(ch0)) {
-                if (!wasUnder && Character.isLowerCase(ch1)) {
+            } else if (Character.toLowerCase(ch0) != ch0) {
+                if (!wasUnder && Character.toUpperCase(ch1) != ch1) {
                     sb.append('_');
                 }
                 sb.append(ch0);

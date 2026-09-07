@@ -4,27 +4,27 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Verifies behaviour of StringUtils when reflective optimisation flags are disabled.
  */
-public class StringUtilsFlagsTest extends CoreTestCommon {
+class StringUtilsFlagsTest extends CoreTestCommon {
 
     private String oldFlag;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         oldFlag = System.getProperty("chronicle.core.allow.reflection.string");
         System.setProperty("chronicle.core.allow.reflection.string", "false");
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         if (oldFlag == null)
             System.clearProperty("chronicle.core.allow.reflection.string");
         else
@@ -32,7 +32,7 @@ public class StringUtilsFlagsTest extends CoreTestCommon {
     }
 
     @Test
-    public void newStringFallsBackToSafeConstructor() {
+    void newStringFallsBackToSafeConstructor() {
         char[] chars = {'C', 'o', 'r', 'e'};
         assertEquals(new String(chars), StringUtils.newString(chars));
     }

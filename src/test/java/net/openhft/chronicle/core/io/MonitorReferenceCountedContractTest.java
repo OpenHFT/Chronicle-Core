@@ -3,21 +3,21 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Any implementation of {@link ReferenceCountedTracer} should implement a test class
  * that extends this class
  */
-public abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTracerContractTest {
+abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTracerContractTest {
 
     @Override
     protected abstract MonitorReferenceCounted createReferenceCounted();
 
     @Test
-    public void warnAndReleaseWillLogAWarningAndReleaseWhenMonitored() {
+    void warnAndReleaseWillLogAWarningAndReleaseWhenMonitored() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(false);
         referenceCounted.warnAndReleaseIfNotReleased();
@@ -26,7 +26,7 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
     }
 
     @Test
-    public void warnAndReleaseWillJustReleaseWhenMonitored() {
+    void warnAndReleaseWillJustReleaseWhenMonitored() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(true);
         referenceCounted.warnAndReleaseIfNotReleased();
@@ -34,7 +34,7 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
     }
 
     @Test
-    public void warnAndReleaseWillDoNothingIfTheResourceIsAlreadyReleased() {
+    void warnAndReleaseWillDoNothingIfTheResourceIsAlreadyReleased() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(false);
         referenceCounted.releaseLast();

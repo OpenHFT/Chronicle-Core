@@ -137,7 +137,8 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     void inThreadPerformRelease() {
         try {
             performRelease();
-        } catch (Exception e) {
+            // CSCatchThrowable keep this catch-all boundary because this is the last-resort containment point before the background release task ends
+        } catch (Throwable e) {
             Jvm.warn().on(getClass(), e);
         }
     }

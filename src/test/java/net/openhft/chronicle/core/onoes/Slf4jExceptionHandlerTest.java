@@ -3,50 +3,50 @@
  */
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.test.RecordingLogger;
 import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
-import static org.mockito.Mockito.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class Slf4jExceptionHandlerTest {
 
-    private Logger logger;
+    private RecordingLogger logger;
 
     @BeforeEach
     void setUp() {
-        logger = mock(Logger.class);
+        logger = new RecordingLogger("Slf4jExceptionHandlerTest");
     }
 
     @Test
     void testErrorLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
-        Slf4jExceptionHandler.ERROR.on(logger, "Error message", throwable);
+        Slf4jExceptionHandler.ERROR.on(logger.logger(), "Error message", throwable);
 
-        verify(logger).error("Error message", throwable);
+        assertEquals(1, logger.callCount("error"));
     }
 
     @Test
     void testWarnLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
-        Slf4jExceptionHandler.WARN.on(logger, "Warn message", throwable);
+        Slf4jExceptionHandler.WARN.on(logger.logger(), "Warn message", throwable);
 
-        verify(logger).warn("Warn message", throwable);
+        assertEquals(1, logger.callCount("warn"));
     }
 
     @Test
     void testPerfLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
-        Slf4jExceptionHandler.PERF.on(logger, "Perf message", throwable);
+        Slf4jExceptionHandler.PERF.on(logger.logger(), "Perf message", throwable);
 
-        verify(logger).info("Perf message", throwable);
+        assertEquals(1, logger.callCount("info"));
     }
 
     @Test
     void testDebugLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
-        Slf4jExceptionHandler.DEBUG.on(logger, "Debug message", throwable);
+        Slf4jExceptionHandler.DEBUG.on(logger.logger(), "Debug message", throwable);
 
-        verify(logger).debug("Debug message", throwable);
+        assertEquals(1, logger.callCount("debug"));
     }
 
     @Test
@@ -63,14 +63,12 @@ class Slf4jExceptionHandlerTest {
         RuntimeException boom = new RuntimeException("boom");
 
         // 2. Make a logger that throws when error(String, Throwable) is invoked
-        Logger bad = mock(Logger.class);
-        doThrow(boom)
-                .when(bad)
-                .error(anyString(), same(boom));
+        RecordingLogger bad = new RecordingLogger("bad");
+        bad.throwFrom("error", boom);
 
         // 3. Writes to stderr, but doesn't throw an exception
-        Slf4jExceptionHandler.ERROR.on(bad, "msg", boom);
-        assertTrue(true); // if we reach here, the test passes
+        assertDoesNotThrow(() -> Slf4jExceptionHandler.ERROR.on(bad.logger(), "msg", boom));
+        assertEquals(1, bad.callCount("error"));
     }
 
     @Test
