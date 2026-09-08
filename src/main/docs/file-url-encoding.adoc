@@ -1,0 +1,20 @@
+= Filesystem URL Encoding
+:lang: en-GB
+:sectnums:
+
+== Contract and decision
+
+When `IOTools.urlFor` falls back from classpath lookup to an existing filesystem path, it must encode
+that path as a file URI before creating the URL. A literal `#` in a filename is part of the path, not
+a fragment; spaces and percent signs must also retain their filename meaning when the URL is opened.
+
+Use `toAbsolutePath().toUri().toURL()`. Do not introduce `toRealPath()` or a canonical-path policy:
+the URL must retain a symlink's path rather than substitute its target. Resource lookup order,
+the `.gz` resource fallback, and missing-file exceptions remain unchanged.
+
+== Evidence
+
+`IOToolsFileUrlTest` opens actual files containing reserved filename characters, checks link-path
+preservation, and covers resource precedence and missing files. `TempDir` provides failure-path cleanup.
+This one-line behavioural fix is extracted from https://github.com/OpenHFT/Chronicle-Core/pull/846[PR #846]
+without its separate real-path policy or scanner annotations.
