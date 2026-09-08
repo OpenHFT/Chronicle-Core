@@ -14,9 +14,11 @@ interrupt during a blocked operation does. Clearing the probe's own flag before
 resource cleanup removes the need for a delayed interrupter worker. There is no
 worker that can deliver an interrupt after the lookup returns.
 
-The separate asynchronous-close probe remains. Its worker stays outside the
+The separate asynchronous-close probe remains. Its descriptively named helper stays outside the
 `Language` class to avoid blocking on the class initialiser that is waiting for
-its socket operation. It no longer writes an unsolicited message to standard output.
+its socket operation. Preserve the worker name `close~3`: the `~` marker is used
+by Core's thread-dump teardown filtering. The helper no longer writes an unsolicited
+message to standard output.
 
 `IOToolsLocaleInterruptionTest` invokes the real public lookup in separate French
 locale JVMs for both entry states. It checks message collection, status on return

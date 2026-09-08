@@ -632,7 +632,7 @@ public final class IOTools {
                 }
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
-                    Thread t = new Thread(closeSocketChannelsInBackground(sc, s2), "socket-probe-close");
+                    Thread t = new Thread(closeSocketChannelsInBackground(sc, s2), "close~3");
                     t.setDaemon(true);
                     t.start();
                     try {
