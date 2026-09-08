@@ -285,7 +285,8 @@ public final class IOTools {
             url = classLoader.getResource(name + ".gz");
         if (url == null && new File(name).exists())
             try {
-                url = new URL("file", "", new File(name).getAbsolutePath());
+                //! URI encoding keeps filename characters such as '#' out of the URL fragment without resolving links.
+                url = Paths.get(name).toAbsolutePath().toUri().toURL();
             } catch (MalformedURLException e) {
                 FileNotFoundException fnfe = new FileNotFoundException(name);
                 fnfe.initCause(e);
