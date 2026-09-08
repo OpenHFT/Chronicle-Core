@@ -161,17 +161,28 @@ public final class IOTools {
     }
 
     /**
-     * Attempts to delete directories and their files. If any directory is not
-     * deleted successfully, throws an {@link AssertionError}.
+     * Attempts to delete a directory and its files without traversing symbolic links.
+     * Links, including a root link, are deleted as entries; their targets are preserved.
      *
-     * @param dir      The directories to be deleted
-     * @param maxDepth The maximum depth of directories to be deleted
+     * @param dir      The directory or symbolic link to be deleted
+     * @param maxDepth The maximum number of directory levels below the root
+     * @return true if deletion is successful, false otherwise
+     * @throws AssertionError if a real directory is encountered below the permitted depth
      * @throws IORuntimeException if an I/O error occurs
      */
     public static boolean deleteDirWithFiles(@NotNull File dir, int maxDepth) throws IORuntimeException {
+        //! A root link must be removed before listFiles can enumerate its target, including for dangling links.
+        if (Files.isSymbolicLink(dir.toPath())) {
+            try {
+                return Files.deleteIfExists(dir.toPath());
+            } catch (IOException e) {
+                throw new IORuntimeException(e);
+            }
+        }
         final File[] entries = dir.listFiles();
         if (entries == null) return false;
-        Stream.of(entries).filter(File::isDirectory).forEach(f -> {
+        //! Keep the existing depth check for real directories; a link is a leaf even when its target is a directory.
+        Stream.of(entries).filter(f -> Files.isDirectory(f.toPath(), LinkOption.NOFOLLOW_LINKS)).forEach(f -> {
             if (maxDepth < 1) {
                 throw new AssertionError("Contains directory " + f);
             } else {
