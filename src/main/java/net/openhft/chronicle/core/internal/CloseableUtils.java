@@ -163,6 +163,7 @@ public final class CloseableUtils {
      * Asserts that all closeable resources are closed.
      * This method checks if there are any remaining open closeable resources.
      * If any resources are found to be open, an AssertionError is thrown.
+     * The existing grace period is not cancelled by interruption; interrupt status is restored on exit.
      *
      * @see #waitForCloseablesToClose(long)
      */
@@ -172,23 +173,30 @@ public final class CloseableUtils {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
         }
-        if (Thread.interrupted())
-            System.err.println("Interrupted in assertCloseablesClosed!");
+        //! Temporarily clear an entry interrupt so the grace-period sleeps can block; preserve it on every exit.
+        boolean interrupted = Thread.interrupted();
+        try {
+            if (interrupted)
+                System.err.println("Interrupted in assertCloseablesClosed!");
 
-        BackgroundResourceReleaser.releasePendingResources();
+            BackgroundResourceReleaser.releasePendingResources();
 
-        AssertionError openFiles = new AssertionError("Closeables still open");
+            AssertionError openFiles = new AssertionError("Closeables still open");
 
-        synchronized (traceSet) {
-            Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
-            if (waitForTraceSet(traceSet, traceSet2))
-                return;
+            synchronized (traceSet) {
+                Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
+                if (waitForTraceSet(traceSet, traceSet2))
+                    return;
 
-            captureTheUnclosed(openFiles, traceSet2);
-        }
+                captureTheUnclosed(openFiles, traceSet2);
+            }
 
-        if (openFiles.getSuppressed().length > 0) {
-            throw openFiles;
+            if (openFiles.getSuppressed().length > 0) {
+                throw openFiles;
+            }
+        } finally {
+            if (interrupted)
+                Thread.currentThread().interrupt();
         }
     }
 
@@ -201,13 +209,24 @@ public final class CloseableUtils {
         traceSet2.addAll(traceSet);
         traceSet2.removeAll(nested);
 
-        // wait up to 250 ms for resources to be closed in the background.
-        for (int i = 0; i < 250; i++) {
-            if (traceSet2.stream().allMatch(Closeable::isClosing))
-                return true;
-            Jvm.pause(1);
+        //! An interrupt during a sleep must not make every following poll spin with the flag still set.
+        boolean interrupted = false;
+        try {
+            // wait up to 250 ms for resources to be closed in the background.
+            for (int i = 0; i < 250; i++) {
+                if (traceSet2.stream().allMatch(Closeable::isClosing))
+                    return true;
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+            return false;
+        } finally {
+            if (interrupted)
+                Thread.currentThread().interrupt();
         }
-        return false;
     }
 
     private static void captureTheUnclosed(AssertionError openFiles, Set<Closeable> traceSet2) {
