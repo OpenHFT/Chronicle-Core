@@ -1,0 +1,30 @@
+= Unsafe Array Copy Bounds
+:lang: en-GB
+:sectnums:
+
+== Contract and decision
+
+`UnsafeMemory.readBytes` and `writeBytes` must reject negative array offsets and lengths,
+and slices beyond the array, before calling Unsafe, whether Java assertions are enabled or disabled.
+The read offset remains a `long`; it must not be narrowed before validation.
+An empty slice at the array end, including an empty array, is valid with a caller-owned valid native address.
+Null arrays produce `NullPointerException`.
+Invalid non-null slices produce `IllegalArgumentException` with either assertion mode.
+
+Compare the offset with `array.length - (long) length` after rejecting negative inputs.
+An addition-based test can wrap and accept an invalid range.
+Keep the public signatures and native-address ownership contract unchanged: these checks establish
+the array bounds, not native allocation bounds or lifetime. No contract annotations are added.
+
+== Evidence
+
+`UnsafeMemoryCopyBoundsTest` runs both memory implementations in bounded child JVMs with `-ea` and `-da`.
+It checks negative, overflowing and long-offset inputs, exact-end and empty slices, and unchanged
+array/native data after rejection. Seeded valid slices compare the complete output and surrounding bytes.
+Forking contains a native crash if a future regression reaches Unsafe with invalid inputs.
+
+The `assertions` Maven profile can additionally compile the existing guarded assertions into the module;
+it is not required for these runtime checks.
+
+This is a behavioural extraction from https://github.com/OpenHFT/Chronicle-Core/pull/846[PR #846],
+not adoption of its annotation or scanner-comment scheme.
