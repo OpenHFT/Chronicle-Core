@@ -72,6 +72,83 @@ class CloseableAssertionInterruptionTest {
     }
 
     @ParameterizedTest
+    @CsvSource({"false, false", "false, true", "true, false", "true, true"})
+    void retainsPollingInterruptThroughDiagnosticCleanup(boolean initiallyInterrupted, boolean cleanupThrows) throws Exception {
+        CountDownLatch queried = new CountDownLatch(1);
+        AtomicBoolean closed = new AtomicBoolean();
+        AtomicInteger closeCalls = new AtomicInteger();
+        IllegalStateException cleanupFailure = new IllegalStateException("diagnostic cleanup failed");
+        ManagedCloseable resource = new ManagedCloseable() {
+            @Override public void close() {
+                closeCalls.incrementAndGet();
+                Thread.interrupted();
+                closed.set(true);
+                if (cleanupThrows)
+                    throw cleanupFailure;
+            }
+            @Override public boolean isClosed() { return closed.get(); }
+            @Override public boolean isClosing() {
+                queried.countDown();
+                return closed.get();
+            }
+        };
+        CloseableUtils.add(resource);
+        Thread waiter = Thread.currentThread();
+        CountDownLatch ready = new CountDownLatch(1);
+        AtomicBoolean stop = new AtomicBoolean();
+        AtomicBoolean interruptedDuringPolling = new AtomicBoolean();
+        AtomicReference<Throwable> workerFailure = new AtomicReference<>();
+        Thread worker = new Thread(() -> {
+            ready.countDown();
+            try {
+                assertTrue(queried.await(5, TimeUnit.SECONDS), "resource was never queried");
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+                while (!stop.get() && System.nanoTime() < deadline) {
+                    if (waiter.getState() == Thread.State.TIMED_WAITING) {
+                        interruptedDuringPolling.set(true);
+                        waiter.interrupt();
+                        return;
+                    }
+                    LockSupport.parkNanos(TimeUnit.MICROSECONDS.toNanos(100));
+                }
+            } catch (Throwable failure) {
+                workerFailure.set(failure);
+            }
+        }, "assertion-diagnostic-interrupter");
+        worker.setDaemon(true);
+        worker.start();
+        try {
+            assertTrue(ready.await(5, TimeUnit.SECONDS));
+            if (initiallyInterrupted)
+                waiter.interrupt();
+            // Keep the resource open throughout polling so the diagnostic close, not the worker, consumes the flag.
+            if (cleanupThrows) {
+                assertSame(cleanupFailure, assertThrows(IllegalStateException.class, CloseableUtils::assertCloseablesClosed));
+            } else {
+                AssertionError failure = assertThrows(AssertionError.class, CloseableUtils::assertCloseablesClosed);
+                assertEquals("Closeables still open", failure.getMessage());
+                assertEquals(1, failure.getSuppressed().length);
+            }
+            assertTrue(interruptedDuringPolling.get(), "no polling sleep was interrupted");
+            assertEquals(1, closeCalls.get(), "diagnostic cleanup must run exactly once");
+            assertTrue(closed.get());
+            assertTrue(waiter.isInterrupted(), "diagnostic cleanup consumed the remembered polling interrupt");
+        } finally {
+            stop.set(true);
+            queried.countDown();
+            Thread.interrupted();
+            try {
+                worker.join(5000);
+            } finally {
+                closed.set(true);
+                CloseableUtils.unmonitor(resource);
+            }
+        }
+        assertFalse(worker.isAlive(), "interrupter did not stop");
+        assertNull(workerFailure.get(), () -> String.valueOf(workerFailure.get()));
+    }
+
+    @ParameterizedTest
     @CsvSource({"false, false", "true, false", "false, true", "true, true"})
     void givesBackgroundClosureARealPause(boolean initiallyInterrupted, boolean interruptDuringPause) throws Exception {
         ProbeCloseable resource = new ProbeCloseable();

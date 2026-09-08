@@ -188,6 +188,8 @@ public final class CloseableUtils {
                 if (waitForTraceSet(traceSet, traceSet2))
                     return;
 
+                //! Cleanup callbacks can consume the flag restored by polling; remember it until the outer finally.
+                interrupted |= Thread.interrupted();
                 captureTheUnclosed(openFiles, traceSet2);
             }
 
