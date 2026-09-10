@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Maths;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * ClassMetrics is a utility class that holds offset and length metrics of a class.
@@ -19,7 +20,7 @@ public class ClassMetrics {
      * @param offset the offset value
      * @param length the length value
      */
-    public ClassMetrics(int offset, int length) {
+    public ClassMetrics(@NonNegative int offset, @NonNegative int length) {
         this.offset = offset;
         this.length = length;
     }

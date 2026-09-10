@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 public interface ThrowingSupplier<V, T extends Throwable> {
 
     static <V, T extends Throwable> Supplier<V> asSupplier(@NotNull ThrowingSupplier<V, T> throwingSupplier) {
+        // CSCheckedSwallowThroughRethrow REVIEW return () -> { because this rethrow in ThrowingSupplier#asSupplier converts a checked cause into an unchecked wrapper and still needs either a declared `throws` at the enclosing method or an explicit reviewed note on why no local cleanup is performed.
         return () -> {
             try {
                 return throwingSupplier.get();

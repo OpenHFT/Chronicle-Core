@@ -24,6 +24,7 @@ public final class ReflectionUtil {
 
     public static boolean analyticsPresent() {
         try {
+            // CSClassForNameInput keep Class.forName(ANALYTICS_NAME) here because analytics support is an optional module that is detected reflectively at runtime.
             Class.forName(ANALYTICS_NAME);
             return true;
         } catch (ClassNotFoundException ignored) {
@@ -32,6 +33,7 @@ public final class ReflectionUtil {
     }
 
     @NotNull
+    @SuppressWarnings("CSReflectiveMethodInvoke")
     public static Object analyticsBuilder(@NotNull final String measurementId, @NotNull final String apiSecret) {
         requireNonNull(measurementId);
         requireNonNull(apiSecret);
@@ -39,11 +41,13 @@ public final class ReflectionUtil {
             final Method method = methodOrThrow(ANALYTICS_NAME, "builder", String.class, String.class);
             return method.invoke(null, measurementId, apiSecret);
         } catch (ReflectiveOperationException | IllegalArgumentException e) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             throw Jvm.rethrow(e);
         }
     }
 
     @NotNull
+    @SuppressWarnings("CSClassForNameInput")
     public static Method methodOrThrow(@NotNull final String className,
                                        @NotNull final String methodName,
                                        final Class<?>... parameterTypes) {
@@ -53,10 +57,12 @@ public final class ReflectionUtil {
             final Class<?> analyticsClass = Class.forName(className);
             return analyticsClass.getMethod(methodName, parameterTypes);
         } catch (ReflectiveOperationException e) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             throw Jvm.rethrow(e);
         }
     }
 
+    @SuppressWarnings("CSReflectiveMethodInvoke")
     public static Object invokeOrThrow(@NotNull final Method method,
                                        @NotNull final Object target,
                                        Object... params) {
@@ -66,11 +72,13 @@ public final class ReflectionUtil {
         try {
             return method.invoke(target, params);
         } catch (ReflectiveOperationException | IllegalArgumentException e) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             throw Jvm.rethrow(e);
         }
     }
 
     @NotNull
+    @SuppressWarnings("CSProxyAdmission")
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf, @NotNull final Object delegate) throws IllegalArgumentException {
         requireNonNull(interf);
         requireNonNull(delegate);
@@ -83,6 +91,7 @@ public final class ReflectionUtil {
     }
 
     @NotNull
+    @SuppressWarnings("CSProxyAdmission")
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf,
                                         @NotNull final Object delegate,
                                         final boolean returnProxy) throws IllegalArgumentException {
@@ -106,6 +115,7 @@ public final class ReflectionUtil {
             this.returnProxy = requireNonNull(returnProxy);
         }
 
+        @SuppressWarnings("CSReflectiveMethodInvoke")
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 

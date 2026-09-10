@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.util.CoreDynamicEnum;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
@@ -16,6 +17,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * Represents a dynamic enumeration class that extends the capabilities of {@link EnumCache}.
@@ -44,6 +46,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
 
     public static final CoreDynamicEnum<?>[] CORE_DYNAMIC_ENUMS = {};
     // The map and list that holds the enum instances.
+    // CSUnboundedInternCache keep assuming the size will be reasonable
     private final Map<String, E> eMap = Collections.synchronizedMap(new LinkedHashMap<>());
     private final List<E> eList = new ArrayList<>();
     // Fields to reflectively set properties on new instances.
@@ -62,7 +65,9 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     DynamicEnumClass(Class<E> eClass) {
         super(eClass);
         reset0();
+        // CSReflectiveFieldLookup keep this field lookup because DynamicEnumClass must set the runtime enum name when creating new instances.
         nameField = Jvm.getField(eClass, "name");
+        // CSReflectiveFieldLookup keep this field lookup because DynamicEnumClass must set the runtime enum ordinal when creating new instances.
         ordinalField = Jvm.getFieldOrNull(eClass, "ordinal");
     }
 
@@ -81,9 +86,11 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         for (Field field : fields) {
             if (Modifier.isStatic(field.getModifiers()) && field.getType() == eClass) {
                 try {
-                    field.setAccessible(true);
+                    // CSSetAccessibleEscalation field so that we can access dynamic enums
+                    ClassUtil.setAccessible(field);
                     Object o = field.get(null);
                     fieldList.add(uncheckedCast(o));
+                    // CSWarnAndContinue catch because we can ignore inaccessible fields
                 } catch (IllegalAccessException | IllegalArgumentException e) {
                     Jvm.warn().on(getClass(), e.toString());
                 }
@@ -152,7 +159,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * @return an array containing the enum instances
      */
     @Override
-    public E forIndex(int index) {
+    public E forIndex(@NonNegative int index) {
         return eList.get(index);
     }
 

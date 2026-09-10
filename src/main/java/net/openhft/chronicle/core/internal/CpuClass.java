@@ -27,6 +27,7 @@ public final class CpuClass {
         String model = System.getProperty("os.arch", "unknown");
 
         try {
+            // CSProcfsOrRealPathInference keep Paths.get("/proc/cpuinfo") here because Linux CPU-model detection intentionally reads the fixed procfs file when it is available.
             final Path path = Paths.get("/proc/cpuinfo");
             if (Files.isReadable(path)) {
                 try (Stream<String> lines = Files.lines(path)) {
@@ -43,6 +44,7 @@ public final class CpuClass {
                         line.startsWith("machdep.cpu.brand_string") ? removingTag().apply(line) : null);
             }
 
+            // CSWarnAndContinue catch so that we fall back to making no assumptions about cpuinfo
         } catch (IOException e) {
             LOGGER.debug("Unable to read cpuinfo", e);
         }

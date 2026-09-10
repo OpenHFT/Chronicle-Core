@@ -92,6 +92,7 @@ public final class Wget {
     public void fetch(final String url, final Appendable out) throws IOException {
         Objects.requireNonNull(out, "out");
 
+        // CSUrlOrSocketBoundary keep new URL(url) here because Wget intentionally fetches caller-supplied http/https URLs after validating the scheme and length.
         final URL u = new URL(url);
         final String scheme = u.getProtocol();
         if (!"http".equals(scheme) && !"https".equals(scheme))

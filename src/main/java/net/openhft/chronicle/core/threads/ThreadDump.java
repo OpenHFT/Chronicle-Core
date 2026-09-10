@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.annotation.NonNegative;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;
@@ -101,7 +102,7 @@ public class ThreadDump {
      * @param delay     total extra time to wait across all iterations
      * @param delayUnit unit of {@code delay}
      */
-    public void assertNoNewThreads(int delay, @NotNull TimeUnit delayUnit) {
+    public void assertNoNewThreads(@NonNegative int delay, @NotNull TimeUnit delayUnit) {
         int last = Jvm.isArm() ? 18 : 14;
         long delayMillis = (delayUnit.toMillis(delay) + last - 1) / last;
         for (int i = 1; i <= last; i++) {

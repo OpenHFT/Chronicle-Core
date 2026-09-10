@@ -37,6 +37,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
@@ -104,6 +105,7 @@ public final class Jvm {
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static boolean RESOURCE_TRACING;
+    // CSPathFromInput keep File(PROC) here because this startup probe intentionally checks the fixed /proc filesystem before using Linux-specific process paths.
     private static final boolean PROC_EXISTS = new File(PROC).exists();
     @SuppressWarnings("unused")
     private static volatile Thread s_blackHole;
@@ -116,12 +118,14 @@ public final class Jvm {
             // Eagerly initialise Posix & Affinity
             try {
                 PosixAPI.posix();
+                // CSWarnAndContinue catch so that we can continue without the posix API
             } catch (Error e) {
                 logger.debug("Unable to load PosixAPI ", e);
             }
 
             try {
                 Class.forName("net.openhft.affinity.Affinity");
+                // CSWarnAndContinue catch so that we can continue without Affinity
             } catch (ClassNotFoundException e) {
                 logger.trace("Unable to load Affinity", e);
             }
@@ -149,11 +153,14 @@ public final class Jvm {
         if (DISABLE_DEBUG)
             logger.info("-Ddisable.debug.info turned of debug logging");
         if (logger.isInfoEnabled() && notJUnitTest)
+            // CSGeneratedSourceLog keep logger.info here because reporting the loaded code source once at startup is an intentional operator diagnostic.
             logger.info(String.format("Chronicle core loaded from %s", Jvm.class.getProtectionDomain().getCodeSource().getLocation()));
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
+            // CSGeneratedSourceLog keep logger.warn here because enabling resource tracing materially changes runtime behaviour and should be surfaced once at startup.
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
 
+        // CSClassForNameInput keep ChronicleInit.postInit() here because Chronicle post-init hooks are an intentional startup extension point executed once during JVM bootstrap.
         ChronicleInit.postInit();
     }
 
@@ -212,17 +219,20 @@ public final class Jvm {
 
     public static void init() {
         // force static initialisation
+        // CSClassForNameInput keep ChronicleInit.init() here because Chronicle init hooks are an intentional startup extension point executed during JVM bootstrap.
         ChronicleInit.init();
     }
 
+    @SuppressWarnings("CSConvenienceFileOrStreamLoad")
     private static void loadSystemProperties(final String name, final boolean wasSet) {
         try {
             final ClassLoader classLoader = Jvm.class.getClassLoader();
+            // CQTryWithResourcesMissing the stream alias initialised here because it probes the classloader resource and then falls back to Files.newInputStream(...) before handing the chosen stream into try (InputStream is = is0)
             InputStream is0 = classLoader == null ? null : classLoader.getResourceAsStream(name);
             if (is0 == null) {
                 File file = new File(name);
                 if (file.exists())
-                    is0 = new FileInputStream(file);
+                    is0 = Files.newInputStream(file.toPath());
             }
             try (InputStream is = is0) {
                 if (is == null) {
@@ -237,7 +247,7 @@ public final class Jvm {
                     Slf4jExceptionHandler.DEBUG.on(Jvm.class, "Loaded " + name + " with " + prop);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             Slf4jExceptionHandler.WARN.on(Jvm.class, "Error loading " + name, e);
         }
     }
@@ -425,12 +435,13 @@ public final class Jvm {
      *
      * @param durationMs to sleep for.
      */
-    public static void pause(final long durationMs) {
+    public static void pause(final @NonNegative long durationMs) {
         if (durationMs <= 0) {
             Thread.yield();
             return;
         }
         try {
+            // CQJvmPauseOverThreadSleep keep Thread.sleep(durationMs) here because this method is the implementation of Jvm.pause(...) itself and cannot delegate to Jvm.pause(...) without recursion.
             Thread.sleep(durationMs);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -445,6 +456,7 @@ public final class Jvm {
             if (onSpinWaitMH != null)
                 onSpinWaitMH.invokeExact();
         } catch (Throwable throwable) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             Jvm.rethrow(throwable);
         }
     }
@@ -457,7 +469,8 @@ public final class Jvm {
      *
      * @param durationUs Time in durationUs
      */
-    public static void busyWaitMicros(final long durationUs) {
+    public static void busyWaitMicros(final @NonNegative long durationUs) {
+        // CQTimeApiIndirection keep System.nanoTime here because busy-wait deadlines must use the actual runtime monotonic clock.
         busyWaitUntil(System.nanoTime() + (durationUs * 1_000));
     }
 
@@ -470,6 +483,7 @@ public final class Jvm {
      * @param waitUntilNs nanosecond precision counter value to await.
      */
     public static void busyWaitUntil(final long waitUntilNs) {
+        // CQTimeApiIndirection keep System.nanoTime here because busy-wait loops must use the actual runtime monotonic clock.
         while (waitUntilNs > System.nanoTime()) {
             Jvm.nanoPause();
         }
@@ -483,6 +497,7 @@ public final class Jvm {
      * @param fieldName of the field
      * @return the Field.
      */
+    @SuppressWarnings("CSReflectiveFieldLookup")
     @NotNull
     public static Field getField(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
         return ClassUtil.getField0(clazz, fieldName, true, true);
@@ -497,6 +512,7 @@ public final class Jvm {
      * @return the Field.
      * @throws AssertionError if no such Field exists
      */
+    @SuppressWarnings("CSReflectiveFieldLookup")
     @Nullable
     public static Field getFieldOrNull(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
         return ClassUtil.getField0(clazz, fieldName, false, true);
@@ -516,6 +532,7 @@ public final class Jvm {
      * @return method
      */
     @NotNull
+    @SuppressWarnings("CSReflectiveMethodLookup")
     public static Method getMethod(@NotNull final Class<?> clazz,
                                    @NotNull final String methodName,
                                    final Class<?>... argTypes) {
@@ -552,6 +569,7 @@ public final class Jvm {
      * @return the value of the provided {@code fieldName} extracted from the provided {@code target}
      */
     @Nullable
+    @SuppressWarnings("CSReflectiveFieldLookup")
     public static <V> V getValue(@NotNull Object target, @NotNull final String fieldName) {
         Class<?> aClass = target.getClass();
         for (String n : fieldName.split("/")) {
@@ -575,6 +593,7 @@ public final class Jvm {
      * @return the lock.toString plus a stack trace.
      */
     public static String lockWithStack(@NotNull final ReentrantLock lock) {
+        // CSReflectiveFieldLookup keep this lock-owner lookup here because lockWithStack intentionally inspects the internal owner thread for diagnostics.
         final Thread t = getValue(lock, "sync/exclusiveOwnerThread");
         if (t == null) {
             return lock.toString();
@@ -843,9 +862,12 @@ public final class Jvm {
      * upon detecting system signals (e.g. HUP, INT, TERM).
      * <p>
      * Not all signals are available on all operating systems.
+     * <p>
+     * There is no matching removeSignalHandler. Each classloader reload appends another lambda holding the previous loader, so in-container / test-harness reloads leak handlers and references to the stale loader. No Checkstyle rule covers this
      *
      * @param signalHandler to call on a signal
      */
+    @SuppressWarnings("CSShutdownHookRegistration")
     public static void addSignalHandler(final SignalHandler signalHandler) {
         final SignalHandler signalHandler2 = signal -> {
             Jvm.warn().on(signalHandler.getClass(), "Signal " + signal + " triggered for " + signalHandler);
@@ -879,7 +901,7 @@ public final class Jvm {
      * @return if there is a class name that ends with the provided {@code endsWith} string
      * when examining the current stack trace of depth at most up to the provided {@code maxDepth}
      */
-    public static boolean stackTraceEndsWith(final String endsWith, final int maxDepth) {
+    public static boolean stackTraceEndsWith(final String endsWith, final @NonNegative int maxDepth) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (int i = maxDepth + 2; i < stackTrace.length; i++)
             if (stackTrace[i].getClassName().endsWith(endsWith))
@@ -926,6 +948,7 @@ public final class Jvm {
         for (Field f : c.getDeclaredFields()) {
             if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0 || !f.getType().isPrimitive())
                 continue;
+            // CSRawAddressAccess keep UnsafeMemory.unsafeObjectFieldOffset here because class metrics intentionally inspect fixed primitive field offsets.
             int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             int size = PRIMITIVE_SIZE.get(f.getType());
             start = Math.min(start0, start);
@@ -949,6 +972,7 @@ public final class Jvm {
         for (Field f : c.getDeclaredFields()) {
             if ((f.getModifiers() & Modifier.STATIC) != 0 || f.getType().isPrimitive())
                 continue;
+            // CSRawAddressAccess keep UnsafeMemory.unsafeObjectFieldOffset here because raw layout validation intentionally inspects declared field offsets.
             final int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             if (start <= start0 && start0 < end) {
                 rethrow(new IllegalArgumentException(c + " is not suitable for raw copies due to " + f));
@@ -1231,6 +1255,7 @@ public final class Jvm {
             return defaultValue;
         try {
             return parseSize(value);
+            // CSWarnAndContinue catch IllegalArgumentException because the defaultValue is acceptable
         } catch (IllegalArgumentException iae) {
             Jvm.warn().on(Jvm.class, "Unable to parse the property " + property + " as a size " + iae.getMessage() + " using " + defaultValue);
             return defaultValue;
@@ -1281,12 +1306,23 @@ public final class Jvm {
             doNotCloseOnInterrupt8(clazz, fc);
     }
 
+    @Nullable
+    private static Field interruptorField(final Class<?> clazz) {
+        final Field field = ClassUtil.getField0(AbstractInterruptibleChannel.class,
+                "interruptor",
+                false,
+                true);
+        if (field == null)
+            Jvm.warn().on(clazz, "Couldn't disable close on interrupt, interruptor field not accessible");
+        return field;
+    }
+
     private static void doNotCloseOnInterrupt8(final Class<?> clazz, final FileChannel fc) {
+        final Field field = interruptorField(clazz);
+        if (field == null)
+            return;
+        final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
         try {
-            final Field field = AbstractInterruptibleChannel.class
-                    .getDeclaredField("interruptor");
-            ClassUtil.setAccessible(field);
-            final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
             field.set(fc, new Interruptible() {
                 @Override
                 public void interrupt(Thread target) {
@@ -1297,7 +1333,7 @@ public final class Jvm {
                     // added in Java 23+
                 }
             });
-        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException | AssertionError e) {
+        } catch (IllegalAccessException | IllegalArgumentException | AssertionError e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
     }
@@ -1306,12 +1342,14 @@ public final class Jvm {
     // https://stackoverflow.com/a/52262779/57695
     @SuppressWarnings("java:S3011") // Justification: No supported public API; guarded by property and try/catch.
     private static void doNotCloseOnInterrupt9(final Class<?> clazz, final FileChannel fc) {
+        final Field field = interruptorField(clazz);
+        if (field == null)
+            return;
+        final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
+        final Class<?> interruptibleClass = field.getType();
         try {
-            final Field field = AbstractInterruptibleChannel.class.getDeclaredField("interruptor");
-            final Class<?> interruptibleClass = field.getType();
-            ClassUtil.setAccessible(field);
-            final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
             Class<?>[] interfaces = {interruptibleClass};
+            // CSProxyAdmission keep this proxy creation here because the Java 9+ interrupt hook must intercept the internal callback without depending on a public implementation type.
             field.set(fc, Proxy.newProxyInstance(
                     interruptibleClass.getClassLoader(),
                     interfaces,
@@ -1320,7 +1358,7 @@ public final class Jvm {
                             ci.interrupt();
                         return ObjectUtils.defaultValue(m.getReturnType());
                     }));
-        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException | AssertionError e) {
+        } catch (IllegalAccessException | IllegalArgumentException | AssertionError e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
     }
@@ -1328,6 +1366,8 @@ public final class Jvm {
     /**
      * Ensures that all the jars and other resources are added to the class path of the classloader
      * associated by the provided {@code clazz}.
+     * <p>
+     * NOTE: aggregates URLClassLoader.getURLs() into the widely-read java.class.path system property with no path allowlist. If any URL resolves to caller-plantable storage (e.g. /tmp/evil.jar via a rogue loader), it lands in a property other libraries trust. In-process only, but worth narrowing or documenting the trust model.
      *
      * @param clazz to use as a template.
      */
@@ -1670,8 +1710,10 @@ public final class Jvm {
 
         private static void addSignalHandler(final String sig, @SuppressWarnings("SameParameterValue") final sun.misc.SignalHandler signalHandler) {
             try {
+                // CSShutdownHookRegistration keep Signal.handle here because Chronicle installs process-signal forwarding once during startup to fan out registered handlers.
                 Signal.handle(new Signal(sig), signalHandler);
 
+                // CSWarnAndContinue keep this degraded fallback because unsupported signal registration should not stop the process from starting.
             } catch (IllegalArgumentException e) {
                 // When -Xrs is specified the user is responsible for
                 // ensuring that shutdown hooks are run by calling
@@ -1691,6 +1733,7 @@ public final class Jvm {
                 try {
                     if (handler != null)
                         handler.handle(signal);
+                    // CSCatchThrowable keep this catch-all here because one failing signal handler must not prevent the remaining registered handlers from running.
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
@@ -1699,6 +1742,7 @@ public final class Jvm {
                 try {
                     if (handler != null)
                         handler.handle(signal.getName());
+                    // CSCatchThrowable keep this catch-all here because one failing signal handler must not prevent the remaining registered handlers from running.
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
@@ -1707,6 +1751,7 @@ public final class Jvm {
     }
 
     private static boolean isJUnitTest0() {
+        // CSThreadDumpLogging keep this thread-dump scan here because JUnit detection intentionally inspects all live thread stacks before enabling startup diagnostics.
         for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
             for (StackTraceElement element : stackTrace) {
                 if (element.getClassName().contains(".junit")) {
@@ -1738,6 +1783,7 @@ public final class Jvm {
                 // CSWarnAndContinue keep this degraded fallback because reserved-memory introspection is optional and callers accept reporting zero when the platform does not expose it.
             } catch (ClassNotFoundException | IllegalAccessException e) {
                 if (MAX_DIRECT_MEMORY > 0)
+                    // CQJvmLogOverSystemErr keep System.err output here because reserved-memory discovery can fail during bootstrap before Chronicle logging is fully available.
                     System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
                 reservedMemoryGetter = () -> 0L;
             }

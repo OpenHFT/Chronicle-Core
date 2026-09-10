@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.annotation.NonNegative;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FilterInputStream;
@@ -54,7 +55,7 @@ final class LimitedInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
+    public int read(final byte @NotNull [] buf, final @NonNegative int off, final @NonNegative int len) throws IOException {
         // Classic Java-8 bounds checks
         Objects.requireNonNull(buf, "buffer");
         if (off < 0 || len < 0 || len > buf.length - off)

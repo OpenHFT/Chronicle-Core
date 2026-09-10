@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.annotation.NonNegative;
 import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.time.TimeProvider;
 import org.jetbrains.annotations.NotNull;
@@ -47,8 +48,8 @@ public class Timer {
      * @param period       interval in milliseconds between executions.
      */
     public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                    long initialDelay,
-                                    long period) {
+                                    @NonNegative long initialDelay,
+                                    @NonNegative long period) {
         cancellableTimer.scheduleAtFixedRate(eventHandler, initialDelay, period);
     }
 
@@ -64,8 +65,8 @@ public class Timer {
      * @param priority       The priority of the event handler.
      */
     public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                    long initialDelay,
-                                    long period,
+                                    @NonNegative long initialDelay,
+                                    @NonNegative long period,
                                     HandlerPriority priority) {
         cancellableTimer.scheduleAtFixedRate(eventHandler, initialDelay, period, priority);
     }
@@ -78,7 +79,7 @@ public class Timer {
      * @param eventHandler The handler to be invoked once.
      * @param delay        how long in milliseconds to wait before the handler runs.
      */
-    public void schedule(@NotNull Runnable eventHandler, long delay) {
+    public void schedule(@NotNull Runnable eventHandler, @NonNegative long delay) {
         cancellableTimer.schedule(eventHandler, delay);
     }
 }

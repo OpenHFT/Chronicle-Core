@@ -89,6 +89,7 @@ public final class CloseableUtils {
         final BlockingQueue<String> q = new LinkedBlockingQueue<>();
 
         // Anonymous inner class overriding the finalize() method to track finalization.
+        // CSFinalizerOverride keep this anonymous finalizer sentinel here because the test waits for one GC cycle to confirm cleanup has had a chance to run.
         new Object() {
             @SuppressWarnings({"deprecation", "removal", "java:S1113"})
             @Override
@@ -137,6 +138,7 @@ public final class CloseableUtils {
         if (interrupted)
             System.err.println("Interrupted in waitForCloseablesToClose!");
 
+        // CQTimeApiIndirection keep System.currentTimeMillis here because closeable-wait deadlines must stay tied to wall-clock time.
         long end = System.currentTimeMillis() + millis;
         try {
             while (true) {
@@ -194,8 +196,8 @@ public final class CloseableUtils {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
         }
-        if (Thread.interrupted())
-            System.err.println("Interrupted in assertCloseablesClosed!");
+        if (Thread.currentThread().isInterrupted())
+            Jvm.warn().on(CloseableUtils.class, "Interrupted in assertCloseablesClosed!");
 
         BackgroundResourceReleaser.releasePendingResources();
 
@@ -263,10 +265,14 @@ public final class CloseableUtils {
         getCloseableFields(keyClass, fields);
         for (Field field : fields) {
             try {
-                field.setAccessible(true);
+                // CSSetAccessibleEscalation get the field value so that nested closeables are found and closed too
+                ClassUtil.setAccessible(field);
+                // CQTryWithResourcesMissing we are only inspecting so that we can report on these closeables
                 Closeable o = (Closeable) field.get(key);
                 if (o != null && nested.add(o) && depth > 1)
                     addNested(nested, o, depth - 1);
+
+                // CSWarnAndContinue catch IllegalAccessException so that we can obtain all the closeable object
             } catch (IllegalAccessException e) {
                 Jvm.warn().on(keyClass, e);
             }
@@ -335,6 +341,7 @@ public final class CloseableUtils {
                 // If you close a ServerSocketChannelImpl more than once it can throw an IOException that it doesn't exist.
                 if (!"No such file or directory".equals(e.getMessage()))
                     logErrorOnClose(e);
+                // CSCatchThrowable Errors during cleanup are better logged or ignored so that remaining resources still get closed
             } catch (Throwable e) {
                 logErrorOnClose(e);
             }
@@ -342,6 +349,7 @@ public final class CloseableUtils {
         } else if (o instanceof java.lang.AutoCloseable) {
             try {
                 ((java.lang.AutoCloseable) o).close();
+                // CSCatchThrowable Errors during cleanup are better logged or ignored so that remaining resources still get closed
             } catch (Throwable e) {
                 logErrorOnClose(e);
             }

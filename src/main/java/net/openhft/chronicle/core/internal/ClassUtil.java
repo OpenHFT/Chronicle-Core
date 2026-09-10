@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ public final class ClassUtil {
             final MethodType signature = MethodType.methodType(boolean.class, boolean.class);
             try {
                 // Access privateLookupIn() reflectively to support compilation with JDK 8
+                // CSReflectiveMethodLookup keep this privateLookupIn lookup here because ClassUtil probes once for the JDK 9+ setAccessible0 path and reuses the result for all later access checks.
                 Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
                 MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
                 return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
@@ -31,6 +33,8 @@ public final class ClassUtil {
                      IllegalArgumentException e) {
                 Logger logger = LoggerFactory.getLogger(ClassUtil.class);
                 logger.error("Chronicle products may require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
+                // Fallback to null here when the JDK 9+ setAccessible0 path is unavailable and let callers use the older accessibility path instead.
+                // CSAuthNullSuccess REVIEW keep private ClassUtil() here because this fallback still needs an explicit reviewed degraded-outcome contract.
                 return null;
             }
         }
@@ -38,6 +42,7 @@ public final class ClassUtil {
     private ClassUtil() {
     }
 
+    @Nullable
     public static Field getField0(@NotNull final Class<?> clazz,
                                   @NotNull final String name,
                                   final boolean error,
@@ -45,12 +50,15 @@ public final class ClassUtil {
         try {
             final Field field = clazz.getDeclaredField(name);
             if (setAccessible)
+                // CSSetAccessibleEscalation keep setAccessible(field) here because this helper intentionally exposes declared-field lookup that can bypass normal Java access checks.
                 setAccessible(field);
             return field;
 
+            // CSWarnAndContinue catch (IllegalAccessError e) because this reflective lookup reports the access failure and then falls back to treating the field as unavailable.
         } catch (IllegalAccessError e) {
             if (error)
                 Jvm.warn().on(clazz, "Unable to access " + name + " " + e.getMessage());
+            // CSWarnReturnNull REVIEW keep final Class<?> superclass = clazz.getSuperclass() here because this fallback still needs an explicit reviewed degraded-outcome contract.
             return null;
         } catch (NoSuchFieldException e) {
             final Class<?> superclass = clazz.getSuperclass();
@@ -76,7 +84,8 @@ public final class ClassUtil {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
-    @SuppressWarnings("java:S3011") // Justification: centralised, audited accessibility control for Chronicle internals.
+    @SuppressWarnings({"java:S3011", "CSSetAccessibleEscalation"})
+    // Justification: centralised, audited accessibility control for Chronicle internals.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         if (Bootstrap.isJava9Plus())
             try {
@@ -91,6 +100,8 @@ public final class ClassUtil {
             accessibleObject.setAccessible(true);
     }
 
+    @Nullable
+    @SuppressWarnings({"CSReflectiveMethodLookup", "CSSetAccessibleEscalation:silent"})
     public static Method getMethod0(@NotNull final Class<?> clazz,
                                     @NotNull final String name,
                                     final Class<?>[] args,

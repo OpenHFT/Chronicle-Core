@@ -22,6 +22,7 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface ThrowingFunction<I, R, T extends Throwable> {
     static <I, R, T extends Throwable> Function<I, R> asFunction(@NotNull ThrowingFunction<I, R, T> function) {
+        // CSCheckedSwallowThroughRethrow REVIEW return in -> { because this rethrow in ThrowingFunction#asFunction converts a checked cause into an unchecked wrapper and still needs either a declared `throws` at the enclosing method or an explicit reviewed note on why no local cleanup is performed.
         return in -> {
             try {
                 return function.apply(in);

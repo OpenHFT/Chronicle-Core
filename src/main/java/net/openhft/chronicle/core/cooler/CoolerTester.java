@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * This class is used to test the effectiveness of various {@link CpuCooler} implementations.
@@ -87,6 +88,7 @@ public class CoolerTester {
             innerLoop2(tested, histogram);
             count++;
         }
+        // CQTimeApiIndirection keep System.currentTimeMillis here because CoolerTester runtime windows should use the real wall clock.
         while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount * 10));
     }
 
@@ -96,14 +98,17 @@ public class CoolerTester {
             innerLoop2(tested, histogram);
             count++;
         }
+        // CQTimeApiIndirection keep System.currentTimeMillis here because CoolerTester runtime windows should use the real wall clock.
         while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount));
     }
 
     private static void innerLoop2(Callable<?> tested, Histogram histogram) throws Exception {
         UNSAFE.fullFence();
+        // CQTimeApiIndirection keep System.nanoTime here because CoolerTester histogram timing should use the real runtime clock.
         long start0 = System.nanoTime();
         blackhole = tested.call();
 //            UNSAFE.fullFence();
+        // CQTimeApiIndirection keep System.nanoTime here because CoolerTester histogram timing should use the real runtime clock.
         long time0 = System.nanoTime() - start0;
         histogram.sample(time0);
     }
@@ -170,7 +175,7 @@ public class CoolerTester {
      * @param minCount the minimum number of times each test is run with each cooler
      * @return this object
      */
-    public CoolerTester minCount(int minCount) {
+    public CoolerTester minCount(@NonNegative int minCount) {
         this.minCount = minCount;
         return this;
     }
@@ -188,7 +193,7 @@ public class CoolerTester {
      * @param maxCount the maximum number of times each test is run with each cooler
      * @return this object
      */
-    public CoolerTester maxCount(int maxCount) {
+    public CoolerTester maxCount(@NonNegative int maxCount) {
         this.maxCount = maxCount;
         return this;
     }
@@ -199,6 +204,7 @@ public class CoolerTester {
      */
     public void run() {
         try {
+            // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its progress output is intended for immediate console use.
             System.out.println("---- Warmup ----");
             for (int j = 0; j < tests.size(); j++) {
                 for (int i = 0; i < disturbers.size(); i++) {
@@ -207,8 +213,10 @@ public class CoolerTester {
             }
             for (int t = 0; t <= repeat; t++) {
                 if (t == 1)
+                    // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its progress output is intended for immediate console use.
                     System.out.println("\n---- Real Tests ----");
                 if (t == repeat)
+                    // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its progress output is intended for immediate console use.
                     System.out.println("\n---- RESULTS ----\n");
                 for (int j = 0; j < tests.size(); j++) {
                     runInnerLoop(t, j);
@@ -225,6 +233,7 @@ public class CoolerTester {
             CpuCooler disturber = disturbers.get(i);
             Histogram histogram = histograms.get(j * disturbers.size() + i);
 
+            // CQTimeApiIndirection keep System.currentTimeMillis here because CoolerTester run windows should use the real wall clock.
             long start = System.currentTimeMillis();
             int count = 0;
             if (t > 0)
@@ -232,8 +241,11 @@ public class CoolerTester {
             else
                 innerloop0(tested, histogram, start, count, minCount, runTimeMS, maxCount);
             if (tests.size() > 1)
+                // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its tabular results are intended for immediate console use.
                 System.out.print(testNames.get(j) + " ");
+            // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its tabular results are intended for immediate console use.
             System.out.print(disturber);
+            // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its tabular results are intended for immediate console use.
             System.out.println(",band,<0.1,<1,<10,<100, "
                     + histogram.percentageLessThan(0.1e3) + ", "
                     + histogram.percentageLessThan(1e3) + ", "

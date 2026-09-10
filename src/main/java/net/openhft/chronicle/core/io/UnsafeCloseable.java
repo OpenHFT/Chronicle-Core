@@ -4,7 +4,10 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.UnsafeMemory;
+import net.openhft.chronicle.core.aegis.MemoryAegis;
 import sun.misc.Unsafe;
+
+import static net.openhft.chronicle.assertions.AssertUtil.SKIP_ASSERTIONS;
 
 /**
  * Convenience base for memory backed resources using {@link Unsafe}.
@@ -13,7 +16,9 @@ import sun.misc.Unsafe;
  */
 public abstract class UnsafeCloseable extends AbstractCloseable {
 
+    // CSOwnershipCheckDisable keep this reviewed site here because this lifecycle or ownership exception still needs an explicit reviewed lifecycle contract.
     protected long address;
+    // CSOwnershipCheckDisable keep this reviewed site here because this lifecycle or ownership exception still needs an explicit reviewed lifecycle contract.
     protected Unsafe unsafe = null;
 
     /**
@@ -22,6 +27,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      */
     @SuppressWarnings("this-escape")
     protected UnsafeCloseable() {
+        // CSOwnershipCheckDisable keep singleThreadedCheckDisabled(true) here because this raw-address wrapper is intentionally shared across threads around off-heap state.
         singleThreadedCheckDisabled(true);
     }
 
@@ -45,8 +51,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public long getLong() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
+            assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Long.BYTES);
             return unsafe.getLong(address);
         } catch (NullPointerException e) {
             throwExceptionIfClosed();
@@ -61,8 +69,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public void setLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
+            assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Long.BYTES);
             unsafe.putLong(address, value);
         } catch (NullPointerException e) {
             throwExceptionIfClosed();
@@ -77,8 +87,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public long getVolatileLong() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
+            assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Long.BYTES);
             return unsafe.getLongVolatile(null, address);
         } catch (NullPointerException e) {
             throwExceptionIfClosed();
@@ -93,8 +105,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public void setVolatileLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
+            assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Long.BYTES);
             unsafe.putLongVolatile(null, address, value);
         } catch (NullPointerException e) {
             throwExceptionIfClosed();
@@ -115,7 +129,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
             return closedLong;
         try {
             return getVolatileLong();
-        } catch (Exception e) {
+        } catch (IllegalStateException | NullPointerException e) {
             return closedLong;
         }
     }
@@ -127,8 +141,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public void setOrderedLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
+            assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Long.BYTES);
             unsafe.putOrderedLong(null, address, value);
         } catch (NullPointerException e) {
             throwExceptionIfClosed();
@@ -144,8 +160,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public long addLong(long delta) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
+            assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Long.BYTES);
             return unsafe.getAndAddLong(null, address, delta) + delta;
         } catch (NullPointerException e) {
             throwExceptionIfClosed();
@@ -182,6 +200,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      */
     public boolean compareAndSwapLong(long expected, long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
+            assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Long.BYTES);
             return unsafe.compareAndSwapLong(null, address, expected, value);
         } catch (NullPointerException e) {
             throwExceptionIfClosed();

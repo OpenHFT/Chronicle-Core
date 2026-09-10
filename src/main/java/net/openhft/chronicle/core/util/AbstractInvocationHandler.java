@@ -56,7 +56,9 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
      * @param c The class to get a MethodHandles.Lookup instance for.
      * @return MethodHandles.Lookup instance.
      */
-    @SuppressWarnings("java:S3011") // Justification: Access to private Lookup is required to bind default methods across packages.
+    @SuppressWarnings({"java:S3011", "CSReflectiveConstructorLookup",
+            "CSReflectiveConstructorInvoke:silent", "CSReflectiveFieldLookup:silent",
+            "CSSetAccessibleEscalation:silent"})
     private static MethodHandles.Lookup acquireLookup(Class<?> c) {
         try {
             // try to create one using a constructor
@@ -91,6 +93,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
      * @return The result from the method call.
      * @throws Throwable if an error occurs during method invocation.
      */
+    @SuppressWarnings("CSReflectiveMethodInvoke")
     @Override
     public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Class<?> declaringClass = method.getDeclaringClass();
@@ -99,6 +102,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
 
         } else if (declaringClass == Closeable.class && method.getName().equals("close")) {
             Closeable.closeQuietly(closeable);
+            // close() is void so should return null
             return null;
         }
 

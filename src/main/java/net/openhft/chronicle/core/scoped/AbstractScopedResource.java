@@ -25,6 +25,7 @@ abstract class AbstractScopedResource<T> implements ScopedResource<T> {
      */
     protected AbstractScopedResource(ScopedThreadLocal<T> scopedThreadLocal) {
         this.scopedThreadLocal = scopedThreadLocal;
+        // CQTimeApiIndirection keep System.nanoTime here because scoped-resource ordering needs the actual runtime monotonic clock for debugging and eviction order.
         this.createdTimeNanos = System.nanoTime();
     }
 

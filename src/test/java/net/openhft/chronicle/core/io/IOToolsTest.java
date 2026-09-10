@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -127,6 +128,39 @@ class IOToolsTest extends CoreTestCommon {
 
         assertFalse(tempFile.exists());
         assertFalse(tempDir.toFile().exists());
+    }
+
+    @Test
+    void testDeleteDirWithFilesDoesNotTraverseSymlinkedChildDirectory() throws IOException {
+        assumeTrue(OS.isLinux());
+
+        Path tempDir = Files.createTempDirectory("testDir");
+        Path foreignDir = Files.createTempDirectory("foreignDir");
+        Path foreignFile = Files.createTempFile(foreignDir, "test", ".tmp");
+        Path link = tempDir.resolve("linked-dir");
+        Files.createSymbolicLink(link, foreignDir);
+
+        assertTrue(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+        assertTrue(Files.exists(foreignFile));
+        assertTrue(IOTools.deleteDirWithFiles(tempDir.toFile()));
+
+        assertFalse(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+        assertFalse(Files.exists(tempDir, LinkOption.NOFOLLOW_LINKS));
+        assertTrue(Files.exists(foreignDir));
+        assertTrue(Files.exists(foreignFile));
+
+        IOTools.deleteDirWithFiles(foreignDir.toFile());
+    }
+
+    @Test
+    void testDeleteDirWithFilesDoesNotDeletePlainFileRoot() throws IOException {
+        Path tempFile = Files.createTempFile("testFile", ".tmp");
+
+        assertTrue(Files.exists(tempFile, LinkOption.NOFOLLOW_LINKS));
+        assertFalse(IOTools.deleteDirWithFiles(tempFile.toFile()));
+        assertTrue(Files.exists(tempFile, LinkOption.NOFOLLOW_LINKS));
+
+        Files.delete(tempFile);
     }
 
     @Test
@@ -403,6 +437,7 @@ class IOToolsTest extends CoreTestCommon {
         Socket s2 = ss.accept();
         ss.close();
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+        boolean wasInterrupted = Thread.interrupted();
         Thread main = Thread.currentThread();
         Thread t = new Thread(() -> {
             Jvm.pause(100);
@@ -425,6 +460,9 @@ class IOToolsTest extends CoreTestCommon {
         } finally {
             s2.close();
             sc.close();
+            Thread.interrupted();
+            if (wasInterrupted)
+                Thread.currentThread().interrupt();
         }
     }
 

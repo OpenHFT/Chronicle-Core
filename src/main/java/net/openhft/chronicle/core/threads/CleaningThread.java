@@ -7,6 +7,7 @@ import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
@@ -36,8 +37,11 @@ public class CleaningThread extends Thread {
 
     // Static block to initialize reflection fields.
     static {
+        // CSReflectiveFieldLookup keep this field lookup because CleaningThread must reach Thread.threadLocals to clean abandoned thread-local state.
         THREAD_LOCALS = Jvm.getField(Thread.class, "threadLocals");
+        // CSReflectiveFieldLookup keep this field lookup because CleaningThread must walk the internal thread-local table to find stale entries.
         TABLE = Jvm.getField(THREAD_LOCALS.getType(), "table");
+        // CSReflectiveFieldLookup keep this field lookup because CleaningThread must read each entry value while the weak reference is still reachable.
         VALUE = Jvm.getField(TABLE.getType().getComponentType(), "value");
     }
 
@@ -90,16 +94,10 @@ public class CleaningThread extends Thread {
     }
 
     @Nullable
-    @SuppressWarnings("java:S3011") // Justification: non-public remove(ThreadLocal) is required to clean thread-locals deterministically.
+    @SuppressWarnings("CSReflectiveMethodLookup")
     private static Method getRemoveMethod(Object o) {
-        Method remove;
-        try {
-            remove = o.getClass().getDeclaredMethod("remove", ThreadLocal.class);
-            remove.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-        return remove;
+        Class<?>[] params = {ThreadLocal.class};
+        return ClassUtil.getMethod0(o.getClass(), "remove", params, false);
     }
 
     /**
@@ -123,6 +121,7 @@ public class CleaningThread extends Thread {
         if (table == null)
             return;
 
+        // CSReflectiveMethodLookup use getRemoveMethod(o) so that we can access the remove method generically
         Method remove = getRemoveMethod(o);
         if (remove == null) return;
 
@@ -146,11 +145,14 @@ public class CleaningThread extends Thread {
                 CleaningThreadLocal<Object> ctlKey = uncheckedCast(key);
                 ctlKey.cleanup(value);
 
+                // CSReflectiveMethodInvoke call remove via reflection so that it is called if not public
                 remove.invoke(o, key);
                 if (ctl != null)
                     break;
+                // CSWarnAndContinue catch IllegalAccessException so that we can clean up as many resources as possible, with a one line message
             } catch (IllegalAccessException e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e.toString());
+                // CSCatchThrowable catch Throwable so that we can clean up as many resources as possible
             } catch (Throwable e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e);
             }
@@ -185,6 +187,7 @@ public class CleaningThread extends Thread {
         // Reset thread affinity if required
         if (Affinity.getAffinity().cardinality() == 1) {
             Jvm.debug().on(getClass(), "Resetting affinity from " + Affinity.getAffinity() + " to " + AffinityLock.BASE_AFFINITY);
+            // CSAffinityIdUnvalidated REVIEW keep Affinity.setAffinity here because this lifecycle or ownership exception still needs an explicit reviewed lifecycle contract.
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
         }
 

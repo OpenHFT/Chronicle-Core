@@ -16,13 +16,15 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import net.openhft.chronicle.core.annotation.NonNegative;
 /**
  * A class responsible for looking up classes and associating them with aliases for
  * more convenient referencing. ClassAliasPool supports custom class loaders and allows
  * for modification of its lookup data without affecting parent lookups.
  */
 public class ClassAliasPool implements ClassLookup {
-    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
+    // CSMutableStaticState keep this shared CLASS_ALIASES registry here because Chronicle maintains one default alias pool for class-name and alias resolution.
+    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool((ClassLookup) null).defaultAliases();
     static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
     private final ClassLookup parent;
     private final ClassLoader classLoader;
@@ -38,6 +40,7 @@ public class ClassAliasPool implements ClassLookup {
      *               in this ClassAliasPool.
      * @param classLoader The ClassLoader to be used for loading classes.
      */
+    @SuppressWarnings("CSClassLookupExposure")
     ClassAliasPool(ClassLookup parent, ClassLoader classLoader) {
         this.parent = parent;
         this.classLoader = classLoader;
@@ -50,6 +53,7 @@ public class ClassAliasPool implements ClassLookup {
      * @param parent The parent ClassLookup that can be consulted if a class cannot be found
      *               in this ClassAliasPool.
      */
+    @SuppressWarnings("CSClassLookupExposure")
     ClassAliasPool(ClassLookup parent) {
         this.parent = parent;
         this.classLoader = (parent == null ? this : parent).getClass().getClassLoader();
@@ -100,6 +104,7 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(String[].class, "String[]");
         Class<?>[] classes = {boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class};
         for (@NotNull Class<?> prim : classes)
+            // CSClassAliasIntakeUnchecked REVIEW keep addAlias here because this type-materialization path still needs an explicit reviewed type-resolution contract.
             addAlias(Array.newInstance(prim, 0).getClass(), prim.getName() + "[]");
         // byte[] gets in before camel cased Byte[]
         addAlias(Byte[].class, "Byte[]");
@@ -141,6 +146,7 @@ public class ClassAliasPool implements ClassLookup {
      */
     @Override
     @NotNull
+    @SuppressWarnings("CSClassForNameInput")
     public Class<?> forName(@NotNull CharSequence name) throws ClassNotFoundRuntimeException {
         Objects.requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
@@ -152,6 +158,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @NotNull
+    @SuppressWarnings("CSClassForNameInput")
     private synchronized Class<?> forName0(@NotNull CAPKey key) throws ClassNotFoundRuntimeException {
         ClassNotFoundRuntimeException resolutionFailure = nameExceptionMap.get(key);
         if (resolutionFailure != null)
@@ -192,6 +199,7 @@ public class ClassAliasPool implements ClassLookup {
      * @return The resolved class
      * @throws ClassNotFoundRuntimeException if the class can't be loaded
      */
+    @SuppressWarnings("CSClassForNameInput")
     private Class<?> doLookupWindowsOSX(String name) {
         try {
             return doLookup(name);
@@ -200,6 +208,7 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
+    @SuppressWarnings({"CSClassForNameInput", "CSAliasOrClassResolve"})
     private Class<?> doLookup(String name) {
         if (banned(name))
             throw new ClassNotFoundRuntimeException(new ClassNotFoundException(name + " not available"));
@@ -207,6 +216,7 @@ public class ClassAliasPool implements ClassLookup {
             return Class.forName(name, true, classLoader);
         } catch (ClassNotFoundException e) {
             if (parent != null)
+                // CSClassAliasIntakeUnchecked REVIEW keep parent.forName here because this type-materialization path still needs an explicit reviewed type-resolution contract.
                 return parent.forName(name);
             throw new ClassNotFoundRuntimeException(e);
         }
@@ -355,7 +365,7 @@ public class ClassAliasPool implements ClassLookup {
         }
 
         @Override
-        public char charAt(int index) throws IndexOutOfBoundsException {
+        public char charAt(@NonNegative int index) throws IndexOutOfBoundsException {
             return value.charAt(index);
         }
 

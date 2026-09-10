@@ -44,7 +44,7 @@ public interface LicenceCheck {
 
     static boolean isJGuardProtected() {
         try {
-            //noinspection JavaReflectionMemberAccess
+            // CSReflectiveFieldLookup keep this field lookup because the isDecrypted field presence is the runtime signal that JGuard protection is active.
             ChronicleGuarding.class.getDeclaredField("isDecrypted");
             return true;
         } catch (NoSuchFieldException e) {
@@ -66,6 +66,7 @@ public interface LicenceCheck {
         if (key == null || !key.contains(product + '.')) {
             String expiryDateFile = product + ".expiry-date";
             try {
+                // CSIOToolsInputPath REVIEW touch String here because this filesystem boundary still needs an explicit reviewed path-handling contract.
                 String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
                 LocalDate expiryDate = LocalDate.parse(source.trim());
                 long days = ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
@@ -73,6 +74,7 @@ public interface LicenceCheck {
                     throw Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
                 licenceExpiryDetails.accept(days, null);
             } catch (Throwable t) {
+                // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
                 throw Jvm.rethrow(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
             }
         } else {
@@ -81,6 +83,7 @@ public interface LicenceCheck {
             LocalDate date = LocalDate.parse(key.substring(start, end));
             int start2 = key.indexOf("owner=") + 6;
             int end2 = key.indexOf(",", start2);
+            // CQTimeApiIndirection keep System.currentTimeMillis here because licence-expiry checks must use wall-clock calendar time.
             long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
             if (days < 0)
                 throw Jvm.rethrow(new TimeLimitExceededException());

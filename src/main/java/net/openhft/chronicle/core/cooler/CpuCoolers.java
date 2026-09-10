@@ -175,7 +175,9 @@ public enum CpuCoolers implements CpuCooler {
     static volatile Object blackhole;
 
     public static void busyWait(double nanos) {
+        // CQTimeApiIndirection keep System.nanoTime here because busyWait duration loops must use the actual runtime monotonic clock.
         long start = System.nanoTime();
+        // CQTimeApiIndirection keep System.nanoTime here because busyWait duration loops must use the actual runtime monotonic clock.
         while (System.nanoTime() - start < nanos) {
             Jvm.safepoint();
         }

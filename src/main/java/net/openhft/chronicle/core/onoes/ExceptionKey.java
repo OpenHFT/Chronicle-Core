@@ -136,8 +136,10 @@ public class ExceptionKey {
     @NotNull
     @Override
     public String toString() {
+        // CQTryWithResourcesMissing don't close assuming it does nothing, but it does declare IOException which required catching even though it won't happen
         @NotNull StringWriter sw = new StringWriter();
         if (throwable != null)
+            // CSPrintStackTrace to a buffer so that it can be included in the toString
             throwable.printStackTrace(new PrintWriter(sw));
         return "ExceptionKey{" +
                 "level=" + level +

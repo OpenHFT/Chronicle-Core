@@ -19,6 +19,7 @@ public final class InternalPomProperties {
     private InternalPomProperties() {
     }
 
+    // CSUnboundedInternCache keep assuming the number of groupId:artifactId are low
     private static final Map<String, String> VERSION_CACHE = new ConcurrentHashMap<>();
 
     @NotNull

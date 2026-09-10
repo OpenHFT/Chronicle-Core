@@ -45,6 +45,7 @@ public final class CleanerServiceLocator {
      */
     public static synchronized ByteBufferCleanerService cleanerService() {
         if (!initialised) {
+            // CSServiceLoaderBoundary load services so that cleaning up of ByteBuffer is pluggable
             final ServiceLoader<ByteBufferCleanerService> available =
                     ServiceLoader.load(ByteBufferCleanerService.class,
                             Thread.currentThread().getContextClassLoader());
@@ -58,6 +59,7 @@ public final class CleanerServiceLocator {
                         cleanerService = next;
                     }
                 }
+                // CSWarnAndContinue catch ServiceConfigurationError so that we can fallback
             } catch (ServiceConfigurationError e) {
                 Jvm.error().on(CleanerServiceLocator.class, "Error while trying to load service providers", e);
             }

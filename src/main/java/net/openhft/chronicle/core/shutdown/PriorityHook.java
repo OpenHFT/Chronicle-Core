@@ -51,6 +51,7 @@ public class PriorityHook {
      * @return the hooklet that will be executed
      * @throws NullPointerException if {@code hooklet} is {@code null}
      */
+    @SuppressWarnings("CSShutdownHookRegistration")
     public static synchronized <H extends Hooklet> H addAndGet(H hooklet) {
         Objects.requireNonNull(hooklet);
         if (registeredHook == null) {

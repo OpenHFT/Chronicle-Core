@@ -142,6 +142,7 @@ public final class Mocker {
                     protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                         consumer.accept(method.getName(), args);
                         if (t != null)
+                            // CSReflectiveMethodInvoke call the underlying method because we have called the chained method above
                             return method.invoke(t, args);
                         // Assume the mocked method returns the default value
                         return ObjectUtils.defaultValue(method.getReturnType());
@@ -201,6 +202,7 @@ public final class Mocker {
      * @param handler     the invocation handler to handle method invocations on the proxy instance
      * @return the new proxy instance
      */
+    @SuppressWarnings("CSProxyAdmission")
     private static Object newProxyInstance(ClassLoader classLoader, Class<?>[] classes, AbstractInvocationHandler handler) {
         try {
             // for exec-maven

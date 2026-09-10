@@ -19,13 +19,16 @@ import java.lang.reflect.Method;
  * Note that this class is intended for use cases where there is a need to load classes into the JVM
  * programmatically during runtime.
  */
+@Deprecated(/* To be removed in 2028, not used */)
 public final class CompilerUtils {
     private static final Method DEFINE_CLASS_METHOD;
 
     static {
         try {
+            // CSReflectiveMethodLookup defineClass so that we can inject a compiled class
             DEFINE_CLASS_METHOD = ClassLoader.class.getDeclaredMethod(
                     "defineClass", String.class, byte[].class, int.class, int.class);
+            // CSSetAccessibleEscalation defineClass so that we can inject a compiled class
             ClassUtil.setAccessible(DEFINE_CLASS_METHOD);
         } catch (NoSuchMethodException e) {
             throw new AssertionError(e);
@@ -50,6 +53,7 @@ public final class CompilerUtils {
     public static Class<?> defineClass(
             @NotNull ClassLoader classLoader, @NotNull String className, byte @NotNull [] bytes) {
         try {
+            // CSDefineClassBytecodeLoad invoke because this is the safest/simplest way to load runtime compiled bytecode
             return (Class<?>) DEFINE_CLASS_METHOD
                     .invoke(classLoader, className, bytes, 0, bytes.length);
         } catch (IllegalAccessException e) {

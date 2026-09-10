@@ -77,6 +77,7 @@ public final class ObjectUtils {
             entry(double.class, 0.0d)
     );
 
+    // CSUnboundedInternCache keep this  because the number classes is limited
     private static final Map<Class<?>, Function<String, Number>> conversionMap = new HashMap<>();
     private static final Map<Class<?>, UnaryOperator<Number>> numberConversionMap = new HashMap<>();
 
@@ -102,15 +103,19 @@ public final class ObjectUtils {
 
     static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
     static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
+    // CSSetAccessibleEscalation REVIEW static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> { because this access override still needs either encapsulation-preserving access or an explicit reviewed runtime-access contract.
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
+            // CSReflectiveMethodLookup keep this readResolve lookup here because deserialization support intentionally discovers a declared readResolve hook when one exists.
             Method m = c.getDeclaredMethod("readResolve");
+            // CSSetAccessibleEscalation keep ClassUtil.setAccessible(m) here because a declared readResolve hook may be non-public but still defines the canonical deserialized instance.
             ClassUtil.setAccessible(m);
             return m;
         } catch (NoSuchMethodException expected) {
             return null;
         }
     });
+    // CSUnboundedInternCache keep this reviewed site here because this lifecycle or ownership exception still needs an explicit reviewed lifecycle contract.
     private static final Map<Class<?>, Immutability> IMMUTABILITY_MAP = new ConcurrentHashMap<>();
 
     // these should only ever be changed on startup.
@@ -142,6 +147,7 @@ public final class ObjectUtils {
         if (c.isInterface()) return supplierForInterface(c);
         if (c.isEnum()) return supplierForEnum(c);
         if (Modifier.isAbstract(c.getModifiers())) return supplierForAbstractClass(c);
+        // CSReflectiveConstructorLookup defaultSupplier(c) here because this fallback constructs arbitrary user types only after the cheaper non-reflective cases have been ruled out.
         return defaultSupplier(c);
     }
 
@@ -184,7 +190,7 @@ public final class ObjectUtils {
         return () -> (T) rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
     }
 
-    @SuppressWarnings("java:S3011") // Justification: allow instantiation via non-public default constructor as a last resort.
+    @SuppressWarnings({"java:S3011", "CSReflectiveConstructorLookup", "CSSetAccessibleEscalation:silent"}) // Justification: allow instantiation via non-public default constructor as a last resort.
     private static <T> Supplier<T> defaultSupplier(Class<T> c) {
         try {
             Constructor<T> constructor = c.getDeclaredConstructor();
@@ -575,6 +581,7 @@ public final class ObjectUtils {
      * @throws ClassCastException if the class cannot be cast to the type T.
      */
     @NotNull
+    @SuppressWarnings("CSResolvedTypeInstantiation")
     public static <T> T newInstance(@NotNull String className) throws ClassCastException {
         return newInstance((Class<T>) CLASS_ALIASES.forName(className));
     }
@@ -594,14 +601,23 @@ public final class ObjectUtils {
     }
 
     /**
-     * Creates a new instance of the specified class, returning null if instantiation fails.
+     * Creates a new instance of the specified class, returning null if the resolved supplier
+     * produced an incompatible type.
+     * <p>
+     * Only {@link ClassCastException} from the cast inside {@link #newInstance(Class)} is
+     * suppressed and reported via {@link Jvm#warn()}. All other failures
+     * ({@link NullPointerException}, reflective failures wrapped as {@link RuntimeException},
+     * {@link SecurityException}, and so on) propagate to the caller so genuine configuration
+     * errors are not silently swallowed.
      *
      * @param type The class to be instantiated.
-     * @return A new instance of the specified class or null if instantiation fails.
+     * @return A new instance of the specified class, or null if the resolved supplier produced
+     *         a value that could not be cast to {@code type}.
      */
     @Nullable
     public static Object newInstanceOrNull(final Class<?> type) {
         try {
+            // CSResolvedTypeInstantiation REVIEW keep newInstance here because this type-materialization path still needs an explicit reviewed type-resolution contract.
             return newInstance(type);
         } catch (Exception e) {
             Jvm.debug().on(ObjectUtils.class, "Failed to create type", e);
@@ -667,6 +683,7 @@ public final class ObjectUtils {
      * @return A dynamic proxy instance implementing the specified interfaces.
      * @throws IllegalArgumentException If the arguments are invalid.
      */
+    @SuppressWarnings({"CSProxyAdmission", "CSReflectiveMethodInvoke"})
     @NotNull
     public static <T> T onMethodCall(@NotNull final BiFunction<Method, Object[], Object> biFunction,
                                      @NotNull final Class<T> tClass,
@@ -802,6 +819,7 @@ public final class ObjectUtils {
             Class<?> c2;
             try {
                 c2 = defaultObjectForInterface.apply(c);
+                // CSWarnAndContinue keep this degraded fallback because a missing default alias should leave the interface mapped to itself instead of aborting configuration.
             } catch (ClassNotFoundException cne) {
                 Jvm.warn().on(ObjectUtils.class, "Unable to find alias for " + c + " " + cne);
                 c2 = c;
@@ -822,6 +840,7 @@ public final class ObjectUtils {
     static Class<?> lookForImplEnum(Class<?> c2) {
         if (c2.isInterface()) {
             try {
+                // CSAliasPoolDefault keep ClassAliasPool.CLASS_ALIASES.forName(...) here because interface defaults are conventionally discovered by resolving the pluralized implementation alias.
                 final Class<?> c3 = ClassAliasPool.CLASS_ALIASES.forName(c2.getName() + "s");
                 if (c2.isAssignableFrom(c3))
                     return c3;
@@ -873,24 +892,20 @@ public final class ObjectUtils {
                 return String::getBytes;
             if (CoreDynamicEnum.class.isAssignableFrom(c))
                 return EnumCache.of(c)::get;
-            try {
-                Method valueOf = c.getDeclaredMethod("valueOf", String.class);
-                ClassUtil.setAccessible(valueOf);
+            // CSReflectiveMethodLookup keep this valueOf(String) lookup here because string conversion intentionally prefers an optional static factory before trying constructor-based parsing.
+            Method valueOf = ClassUtil.getMethod0(c, "valueOf", new Class[]{String.class}, false);
+            if (valueOf != null)
                 return s -> valueOf.invoke(null, s);
-            } catch (NoSuchMethodException e) {
-                // ignored
-            }
 
-            try {
-                Method parse = c.getDeclaredMethod("parse", CharSequence.class);
-                ClassUtil.setAccessible(parse);
+            // CSReflectiveMethodLookup keep this parse(CharSequence) lookup here because string conversion intentionally checks for an optional parse factory before trying constructor-based parsing.
+            Method parse = ClassUtil.getMethod0(c, "parse", new Class[]{CharSequence.class}, false);
+            if (parse != null)
                 return s -> parse.invoke(null, s);
 
-            } catch (NoSuchMethodException e) {
-                // ignored
-            }
             try {
+                // CSReflectiveConstructorLookup keep this String-constructor lookup here because string conversion intentionally falls back to a single-argument constructor when no factory method is available.
                 final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
+                // CSSetAccessibleEscalation keep ClassUtil.setAccessible(constructor) here because the String-constructor conversion path must also support non-public value types.
                 ClassUtil.setAccessible(constructor);
                 return constructor::newInstance;
             } catch (NoSuchMethodException e) {

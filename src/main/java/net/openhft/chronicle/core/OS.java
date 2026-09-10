@@ -33,6 +33,8 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
 import static net.openhft.chronicle.core.util.Longs.requireNonNegative;
 import static net.openhft.chronicle.core.util.Longs.requirePositive;
+import net.openhft.chronicle.core.annotation.NonNegative;
+import net.openhft.chronicle.core.annotation.Positive;
 
 /**
  * Low level access to OS class. The OS class provides utility methods related to the operating system.
@@ -41,13 +43,16 @@ import static net.openhft.chronicle.core.util.Longs.requirePositive;
 public final class OS {
     @SuppressWarnings("unused")
     public static final String USER_HOME = Jvm.getProperty("user.home");
+    // CSMutableStaticState keep this shared timeout sentinel here because OS wait loops reuse one stackless exception instead of allocating a fresh timeout marker each time.
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
     static final String SUN_NIO_CH_FILE_DISPATCHER_IMPL = "sun.nio.ch.FileDispatcherImpl";
+    // CSReflectiveMethodLookup keep this map0 lookup here because Chronicle needs the JDK's internal 64-bit file-mapping entry point that the public ByteBuffer API does not expose.
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
             if (Jvm.isJava20Plus()) {
+                // CSClassForNameInput keep this dispatcher lookup here because Java 20+ file mapping must bind to the platform-specific FileDispatcher implementation at runtime.
                 Class<?> dispatcherClass = OS.isWindows() ? findClass(SUN_NIO_CH_FILE_DISPATCHER_IMPL) : findClass("sun.nio.ch.UnixFileDispatcherImpl");
                 map0 = Jvm.getMethod(dispatcherClass, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
             } else if (Jvm.isJava19Plus()) {
@@ -88,6 +93,7 @@ public final class OS {
     private OS() {
     }
 
+    @SuppressWarnings("CSClassForNameInput")
     private static Class<?> findClass(String name) {
         try {
             return Thread.currentThread().getContextClassLoader().loadClass(name);
@@ -164,7 +170,8 @@ public final class OS {
                 return gradleTarget.getAbsolutePath();
         }
         final File dir = new File(Jvm.getProperty("java.io.tmpdir"), "target");
-        dir.mkdirs();
+        // CSFileCreatePermissions keep dir.mkdirs() here because Chronicle creates a fallback target/build directory when no existing build output directory is present.
+        dir.mkdir();
         return dir.getPath();
     }
 
@@ -192,6 +199,7 @@ public final class OS {
      * @return the resulting File path.
      */
     @NotNull
+    @SuppressWarnings("CSPathFromInput")
     public static File findFile(@NotNull String... path) {
         @NotNull File dir = new File(".").getAbsoluteFile();
         for (int i = 0; i < path.length - 1; i++) {
@@ -270,7 +278,7 @@ public final class OS {
      * @return aligned size
      * @see #pageSize()
      */
-    public static long pageAlign(long size, int pageSize) {
+    public static long pageAlign(@NonNegative long size, @Positive int pageSize) {
         final long mask = pageSize - 1L;
         return (size + mask) & ~mask;
     }
@@ -282,7 +290,7 @@ public final class OS {
      * @return aligned size
      * @see #pageSize()
      */
-    public static long pageAlign(long size) {
+    public static long pageAlign(@NonNegative long size) {
         return pageAlign(size, pageSize());
     }
 
@@ -319,7 +327,7 @@ public final class OS {
      * @throws IllegalArgumentException if offset is negative.
      * @see #mapAlignment()
      */
-    public static long mapAlign(long offset) {
+    public static long mapAlign(@NonNegative long offset) {
         return mapAlign(offset, defaultOsPageSize());
     }
 
@@ -335,7 +343,7 @@ public final class OS {
      * @return the aligned offset.
      * @throws IllegalArgumentException if offset is negative or pageAlignment is non-positive.
      */
-    public static long mapAlign(long offset, int pageAlignment) {
+    public static long mapAlign(@NonNegative long offset, @Positive int pageAlignment) {
         requireNonNegative(offset);
         requirePositive(pageAlignment);
 
@@ -401,6 +409,7 @@ public final class OS {
      */
     static int getProcessId0() {
         @Nullable String pid = null;
+        // CSPathFromInput keep this procfs lookup here because PID discovery intentionally probes the fixed /proc/self entry on Linux before falling back to MXBean parsing.
         @NotNull final File self = new File(PROC_SELF);
         try {
             if (self.exists())
@@ -455,6 +464,7 @@ public final class OS {
      */
     public static long getPidMax() {
         if (isLinux()) {
+            // CSPathFromInput keep this procfs lookup here because Linux pid-max discovery intentionally reads the fixed /proc/sys/kernel/pid_max entry.
             @NotNull File file = new File(PROC_SYS_KERNEL_PID_MAX);
             if (file.canRead())
                 try {
@@ -483,7 +493,7 @@ public final class OS {
      * @throws IllegalArgumentException if the arguments are invalid
      */
     @SuppressWarnings("java:S106")
-    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size, int pageSize)
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, @NonNegative long start, @NonNegative long size, @Positive int pageSize)
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
@@ -492,13 +502,13 @@ public final class OS {
         if (isLinux() && (address > 0 && address < threshold) && Jvm.is64bit()) {
             double ratio = (double) threshold / address;
             final long durationMs = Math.max(5000, (long) (250 * ratio * ratio * ratio));
-            System.err.println("Running low on virtual memory, pausing " + durationMs + " ms, address: " + Long.toUnsignedString(address, 16));
+            Jvm.warn().on(OS.class, "Running low on virtual memory, pausing " + durationMs + " ms, address: " + Long.toUnsignedString(address, 16));
             Jvm.pause(durationMs);
         }
         return address;
     }
 
-    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, @NonNegative long start, @NonNegative long size)
             throws IOException, IllegalArgumentException {
         return map(fileChannel, mode, start, size, (int) mapAlignment());
     }
@@ -552,7 +562,7 @@ public final class OS {
      * @param size    length of the region
      * @throws IOException if the unmap fails
      */
-    public static void unmap(long address, long size, int pageSize) throws IOException {
+    public static void unmap(@NonNegative long address, @NonNegative long size, @Positive int pageSize) throws IOException {
         try {
             final long size2 = pageAlign(size, pageSize);
             // n must be used here
@@ -568,7 +578,7 @@ public final class OS {
         return Unmapp0Holder.UNMAPP0_MH;
     }
 
-    public static void unmap(long address, long size) throws IOException {
+    public static void unmap(@NonNegative long address, @NonNegative long size) throws IOException {
         unmap(address, size, (int) mapAlignment());
     }
 
@@ -608,7 +618,10 @@ public final class OS {
      * @param filename to get the actual size of
      * @return size in bytes.
      */
+    @SuppressWarnings("CQDeprecationJavadoc")
+    @Deprecated(/* to be removed in 2028 */)
     public static long spaceUsed(@NotNull String filename) {
+        // CSPathFromInput keep this String-to-File conversion here because this overload intentionally accepts a caller-supplied path before delegating to the File-based implementation.
         return spaceUsed(new File(filename));
     }
 
@@ -617,6 +630,7 @@ public final class OS {
             try {
                 final String du = run("du", "-ks", file.getAbsolutePath());
                 return Long.parseLong(du.substring(0, du.indexOf('\t')));
+                // CSWarnAndContinue keep this degraded fallback because legacy spaceUsed(String) falls back to file.length() when the external du output cannot be parsed.
             } catch (@NotNull IOException | NumberFormatException e) {
                 Jvm.warn().on(OS.class, e);
             }
@@ -627,6 +641,7 @@ public final class OS {
     private static String run(String... cmds) throws IOException {
         @NotNull ProcessBuilder pb = new ProcessBuilder(cmds);
         pb.redirectErrorStream(true);
+        // CSExternalCommandProcess don't move to aegis, as this is planned for removal
         Process process = pb.start();
         // Some commands deadlock if their stdin remains open while the parent waits on stdout.
         closeQuietly(process.getOutputStream());
@@ -653,7 +668,7 @@ public final class OS {
         return USER_DIR;
     }
 
-    public static int read0(FileDescriptor fd, long address, int len) throws IOException {
+    public static int read0(FileDescriptor fd, long address, @NonNegative int len) throws IOException {
         try {
             return (int) getRead0Mh().invokeExact(fd, address, len);
         } catch (IOException ioe) {
@@ -667,7 +682,7 @@ public final class OS {
         return Read0Holder.READ0_MH;
     }
 
-    public static int write0(FileDescriptor fd, long address, int len) throws IOException {
+    public static int write0(FileDescriptor fd, long address, @NonNegative int len) throws IOException {
         try {
             if (Write0Holder.WRITE0_MH2 == null)
                 return (int) Write0Holder.WRITE0_MH.invokeExact(fd, address, len);
@@ -748,6 +763,7 @@ public final class OS {
 
         private static String getHostName0() {
             if (isWindows()) {
+                // CSEnvironmentVariableAccess keep System.getenv() here because Windows hostname lookup intentionally prefers the local COMPUTERNAME environment variable before slower network resolution.
                 String computerName = System.getenv().get("COMPUTERNAME");
                 if (isSet(computerName))
                     return computerName.toLowerCase();
@@ -789,6 +805,7 @@ public final class OS {
     static class FDFieldHolder {
         private FDFieldHolder() {
         }
+        // CSReflectiveFieldLookup keep this field lookup because fd-aware native paths still require the underlying FileChannelImpl descriptor field.
         static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
     }
 
@@ -801,8 +818,10 @@ public final class OS {
             Method unmap0;
             if (Jvm.isJava20Plus()) {
                 Class<?> dispatcherClass = OS.isWindows() ? findClass(SUN_NIO_CH_FILE_DISPATCHER_IMPL) : findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                // CSReflectiveMethodLookup keep this unmap0 lookup here because Chronicle must call the JDK-internal unmap entry point that matches the earlier map0 allocation path.
                 unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
             } else {
+                // CSReflectiveMethodLookup keep this unmap0 lookup here because Chronicle must call the JDK-internal unmap entry point that matches the earlier map0 allocation path.
                 unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
             }
             try {
@@ -820,7 +839,9 @@ public final class OS {
         static final MethodHandle READ0_MH;
         static {
             try {
+                // CSClassForNameInput keep this FileDispatcher lookup here because fd-based native reads are only exposed through the JDK-internal dispatcher class.
                 Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
+                // CSReflectiveMethodLookup keep this read0 lookup here because Chronicle's fd-based native read path is only available through the JDK-internal dispatcher method.
                 Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
                 READ0_MH = MethodHandles.lookup().unreflect(read0);
             } catch (Throwable t) {
@@ -839,11 +860,14 @@ public final class OS {
             MethodHandle write0Mh = null;
             MethodHandle write0Mh2 = null;
             try {
+                // CSClassForNameInput keep this FileDispatcher lookup here because fd-based native writes are only exposed through the JDK-internal dispatcher class.
                 Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
                 try {
+                    // CSReflectiveMethodLookup keep this write0 lookup here because Chronicle's fd-based native write path is only available through the JDK-internal dispatcher method.
                     Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
                     write0Mh = MethodHandles.lookup().unreflect(write0);
                 } catch (AssertionError ae) {
+                    // CSReflectiveMethodLookup keep this alternate write0 lookup here because some JDKs expose the fd-based native write path with an additional boolean parameter.
                     Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
                     write0Mh2 = MethodHandles.lookup().unreflect(write0);
                 }

@@ -9,6 +9,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * Represents a static enumeration class that extends the capabilities of {@link EnumCache}.
@@ -74,7 +75,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      * @throws ArrayIndexOutOfBoundsException if the index is out of range.
      */
     @Override
-    public E forIndex(int index) {
+    public E forIndex(@NonNegative int index) {
         return values[index];
     }
 

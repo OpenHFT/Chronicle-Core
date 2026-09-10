@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.NonNegative;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.DoubleFunction;
@@ -37,7 +38,7 @@ public class RecordingHistogram extends Histogram {
      * @param durationNs The sample duration in nanoseconds.
      */
     @Override
-    public void sampleNanos(long durationNs) {
+    public void sampleNanos(@NonNegative long durationNs) {
         super.sampleNanos(durationNs);
         if (start == 0)
             start = currentTimeNanos();

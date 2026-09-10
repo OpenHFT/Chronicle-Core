@@ -25,7 +25,8 @@ public abstract class AbstractCloseableReferenceCounted
     private transient volatile boolean closing;
     private transient volatile boolean closed;
     private transient volatile StackTrace closedHere;
-    private boolean initReleased;
+    // volatile to avoid a race condition on release/close
+    private volatile boolean initReleased;
 
     /**
      * Constructs a new AbstractCloseableReferenceCounted instance and adds the instance

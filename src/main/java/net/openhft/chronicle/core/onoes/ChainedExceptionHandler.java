@@ -65,6 +65,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
         for (ExceptionHandler eh : chain) {
             try {
                 eh.on(clazz, message, thrown);
+                // CSCatchThrowable catch Throwable so that we make every attempt to log the message
             } catch (Throwable t) {
                 LoggerFactory.getLogger(eh.getClass()).error("Unable to call with message " + message, t);
             }
@@ -84,6 +85,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
         for (ExceptionHandler eh : chain)
             try {
                 eh.on(logger, message, thrown);
+                // CSCatchThrowable catch Throwable so that we make every attempt to log the message
             } catch (Throwable t) {
                 LoggerFactory.getLogger(eh.getClass()).error("Unable to call with message " + message, t);
             }

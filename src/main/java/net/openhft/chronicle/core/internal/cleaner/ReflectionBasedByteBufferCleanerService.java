@@ -31,6 +31,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
         MethodHandle clean = null;
         Impact impact = Impact.SOME_IMPACT;
         try {
+            // CSClassForNameInput forName so that we can deterministically clean the resource
             final Class<?> cleanerClass = Class.forName(cleanerClassname);
             cleaner = lookup.findVirtual(DirectBufferUtil.directBufferClass(), "cleaner", MethodType.methodType(cleanerClass));
             clean = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
@@ -63,6 +64,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
                 final Object cleaner = CLEANER_METHOD.invoke(DirectBufferUtil.directBufferClass().cast(buffer));
                 CLEAN_METHOD.invoke(cleaner);
             } catch (Throwable throwable) {
+                // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
                 throw Jvm.rethrow(throwable);
             }
         }

@@ -87,7 +87,7 @@ public interface LongValue extends Closeable {
             return closedValue;
         try {
             return getVolatileValue();
-        } catch (Exception e) {
+        } catch (IllegalStateException | NullPointerException e) {
             return closedValue;
         }
     }

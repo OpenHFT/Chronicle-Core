@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * This class represents a cache for enum values to improve performance in scenarios where the same enum values
@@ -51,7 +52,7 @@ public class EnumInterner<E extends Enum<E>> {
      * @param capacity the initial capacity of the EnumInterner
      * @throws IllegalArgumentException if an illegal argument is provided
      */
-    public EnumInterner(Class<E> eClass, int capacity) throws IllegalArgumentException {
+    public EnumInterner(Class<E> eClass, @NonNegative int capacity) throws IllegalArgumentException {
         enumCache = EnumCache.of(eClass);
         int initialSize = enumCache.size() * 3 / 2;
         int n = Maths.nextPower2(Math.max(initialSize, capacity), 16);

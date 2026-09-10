@@ -36,6 +36,7 @@ public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerServ
         try {
             INVOKE_CLEANER_METHOD.invokeExact(UnsafeMemory.UNSAFE, buffer);
         } catch (Throwable throwable) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             throw Jvm.rethrow(throwable);
         }
     }

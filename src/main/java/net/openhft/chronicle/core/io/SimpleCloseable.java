@@ -20,6 +20,7 @@ public abstract class SimpleCloseable implements Closeable, ReferenceOwner, Mana
     /**
      * Idempotent close for use with try-with-resources.
      */
+    // REVIEW TASK CQTryWithResourcesMissing: rework this resource lifecycle manually; baseline-assist will not guess close order or control flow here.
     @Override
     public final void close() {
         if (closed)

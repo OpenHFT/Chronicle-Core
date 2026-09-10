@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
+import net.openhft.chronicle.core.annotation.Positive;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -43,8 +44,8 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     }
 
     @Override
-    public AnalyticsFacade.@NotNull Builder withFrequencyLimit(final int messages,
-                                                               final long duration,
+    public AnalyticsFacade.@NotNull Builder withFrequencyLimit(final @Positive int messages,
+                                                               final @Positive long duration,
                                                                @NotNull final TimeUnit timeUnit) {
         requireNonNull(timeUnit);
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withFrequencyLimit", int.class, long.class, TimeUnit.class);
@@ -55,6 +56,7 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     @Override
     public AnalyticsFacade.@NotNull Builder withErrorLogger(@NotNull final Consumer<? super String> errorLogger) {
         requireNonNull(errorLogger);
+        // CSClassForNameInput keep this reflective analytics binding here because the analytics builder is an optional module that is only linked at runtime when present.
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withErrorLogger", Consumer.class);
         ReflectionUtil.invokeOrThrow(m, delegate, errorLogger);
         return this;
@@ -63,6 +65,7 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     @Override
     public AnalyticsFacade.@NotNull Builder withDebugLogger(@NotNull Consumer<? super String> debugLogger) {
         requireNonNull(debugLogger);
+        // CSClassForNameInput keep this reflective analytics binding here because the analytics builder is an optional module that is only linked at runtime when present.
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withDebugLogger", Consumer.class);
         ReflectionUtil.invokeOrThrow(m, delegate, debugLogger);
         return this;
@@ -71,6 +74,7 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     @Override
     public AnalyticsFacade.@NotNull Builder withClientIdFileName(@NotNull String clientIdFileName) {
         requireNonNull(clientIdFileName);
+        // CSClassForNameInput keep this reflective analytics binding here because the analytics builder is an optional module that is only linked at runtime when present.
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withClientIdFileName", String.class);
         ReflectionUtil.invokeOrThrow(m, delegate, clientIdFileName);
         return this;
@@ -79,6 +83,7 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     @Override
     public AnalyticsFacade.@NotNull Builder withUrl(@NotNull String url) {
         requireNonNull(url);
+        // CSClassForNameInput keep this reflective analytics binding here because the analytics builder is an optional module that is only linked at runtime when present.
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withUrl", String.class);
         ReflectionUtil.invokeOrThrow(m, delegate, url);
         return this;

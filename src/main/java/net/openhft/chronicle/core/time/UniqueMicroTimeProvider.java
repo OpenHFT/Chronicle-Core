@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * for background on the algorithm.
  */
 public class UniqueMicroTimeProvider implements TimeProvider {
+    // CSMutableStaticState shared INSTANCE here so that callers use one JVM-wide microtime sequencer to guarantee unique monotonically increasing microsecond values.
     public static final UniqueMicroTimeProvider INSTANCE = new UniqueMicroTimeProvider();
 
     private final AtomicLong lastIssuedTimeMicros = new AtomicLong();

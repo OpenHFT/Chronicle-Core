@@ -44,6 +44,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     static {
         if (Jvm.isResourceTracing())
             enableCloseableTracing();
+        // CSRawAddressAccess keep UnsafeMemory.unsafeObjectFieldOffset here because the closed-state field offset drives the raw lifecycle state machine.
         CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(ClassUtil.getField0(AbstractCloseable.class, "closed", true, false));
     }
 
@@ -165,8 +166,10 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
             return;
         }
 
+        // CQTimeApiIndirection keep System.nanoTime here because performClose duration tracking must use the actual runtime monotonic clock.
         long start = System.nanoTime();
         callPerformClose();
+        // CQTimeApiIndirection keep System.nanoTime here because performClose duration tracking must use the actual runtime monotonic clock.
         long time = System.nanoTime() - start;
         if (time >= WARN_NS &&
                 !BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread())
@@ -205,10 +208,13 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     protected void waitForClosed() {
         boolean interrupted = false;
         try {
+            // CQTimeApiIndirection keep System.currentTimeMillis here because close wait deadlines must stay tied to wall-clock time.
             long start = System.currentTimeMillis();
             while (closed != STATE_CLOSED) {
+                // CQTimeApiIndirection keep System.currentTimeMillis here because close timeout checks must use wall-clock time.
                 if (System.currentTimeMillis() > start + 2_500) {
                     Jvm.warn().on(getClass(), "Aborting close()ing object " + referenceId +
+                            // CQTimeApiIndirection keep System.currentTimeMillis here because operator-facing elapsed time must reflect wall-clock time.
                             " after " + (System.currentTimeMillis() - start) / 1e3 + " secs", new StackTrace("waiting here", closedHere));
                     break;
                 }
@@ -285,6 +291,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     void callPerformClose() {
         try {
             performClose();
+            // CSCatchThrowable warn on Throwable so that close doesn't fail
         } catch (Throwable t) { // NOSONAR
             Jvm.warn().on(getClass(), "Error occurred in close method", t);
         } finally {
@@ -430,6 +437,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
          *
          * @throws Throwable if an error occurs during finalization.
          */
+        // CSFinalizerOverride keep finalize() here because this diagnostic fallback reports leaked closeables before best-effort cleanup.
         @SuppressWarnings({"deprecation", "removal", "java:S1113"})
         @Override
         protected void finalize() throws Throwable {
