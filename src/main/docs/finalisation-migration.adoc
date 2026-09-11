@@ -1,111 +1,70 @@
-= Finalisation Migration Inventory and Evidence
+= Finalisation Investigation
 Chronicle Software
 :toc:
 :sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 
-This document records the research increment for GitHub issue #331. It does not introduce a
-cleanup implementation and does not claim that the issue is complete.
+This investigation for GitHub issue #331 inventories the remaining finalisers and provides a manual
+probe. It removes no finaliser and implements no replacement cleanup mechanism.
 
-== Production inventory
+== Inventory
 
-The following command finds three `finalize()` overrides in production sources:
+`rg -n "void finalize\(\)" src/main/java` finds three overrides:
 
-[source,bash]
-----
-rg -n "void finalize\(\)" src/main/java
-----
-
-[cols="1,2,2"]
+[cols="1,2"]
 |===
-|Location |Purpose |Migration requirement
+|Location |Purpose
 
 |`CleaningRandomAccessFile`
-|Best-effort close when the caller omitted explicit close
-|Preserve descriptor release without a cleanup action that strongly references the file owner
+|Best-effort descriptor close when the caller omitted explicit close
 
 |`AbstractCloseable.Finalizer`
-|Warn and close a leaked closeable
-|Preserve both warning and close behaviour using owner-free cleanup state
+|Warning and close attempt for a leaked closeable
 
 |`CloseableUtils.gcAndWaitForCloseablesToClose()`
-|Test and diagnostic barrier that waits for the JVM finaliser thread
-|Replace separately once production cleanup no longer depends on finalisation
+|Diagnostic barrier waiting for the JVM finaliser thread
 |===
 
-== Measured disabled-finalisation behaviour
+The two resource safety nets and the diagnostic barrier need separate migrations. Happy-path tests
+that close resources explicitly do not establish that forgotten-close protection can be removed.
 
-The observations below were recorded on 2026-08-22 with OpenJDK 21.0.11. The complete probe is
-committed as `src/test/java/net/openhft/chronicle/core/io/FinalisationDisabledProbe.java`. It is a
-manual research aid rather than a unit test because GC timing is nondeterministic and the disabled
-case requires a JVM launch flag.
+== Manual probe
 
-Compile the test sources and write their dependency class path to a durable file:
+`src/test/java/net/openhft/chronicle/core/io/FinalisationDisabledProbe.java` is a main class, not a
+discovered JUnit regression. Compile it and obtain the test dependency class path:
 
 [source,bash]
 ----
 mvn -q -DskipTests test-compile dependency:build-classpath \
   -Dmdep.outputFile=target/test-classpath
-----
-
-On Unix-like systems, set the probe class path and run the two finaliser invocations:
-
-[source,bash]
-----
 PROBE_CP="target/test-classes:target/classes:$(cat target/test-classpath)"
 java -cp "$PROBE_CP" net.openhft.chronicle.core.io.FinalisationDisabledProbe
 java --finalization=disabled -cp "$PROBE_CP" \
   net.openhft.chronicle.core.io.FinalisationDisabledProbe
-----
-
-[cols="1,1"]
-|===
-|Invocation |Result
-
-|`java FinalizeProbe`
-|`finalize ran = true`
-
-|`java --finalization=disabled FinalizeProbe`
-|`finalize ran = false`
-|===
-
-The same committed probe calls `AbstractCloseable.gcAndWaitForCloseablesToClose()` when passed the
-`barrier` argument:
-
-[source,bash]
-----
 java -cp "$PROBE_CP" net.openhft.chronicle.core.io.FinalisationDisabledProbe barrier
 java --finalization=disabled -cp "$PROBE_CP" \
   net.openhft.chronicle.core.io.FinalisationDisabledProbe barrier
 ----
 
-[cols="1,2"]
+The disabled-finalisation option requires a JDK that supports it. The recorded OpenJDK 21.0.11
+observations from 22 August 2026 were:
+
+[cols="1,1,1"]
 |===
-|Invocation |Result
-
-|Default finalisation
-|Returned normally in approximately 334 ms
-
-|`--finalization=disabled`
-|Threw `AssertionError: Timed out waiting for the Finalizer` after approximately 5,382 ms
+|Mode |Finaliser probe |Barrier probe
+|Default |`finalize ran = true` |Returned normally
+|`--finalization=disabled` |`finalize ran = false` |Printed `AssertionError: Timed out waiting for the Finalizer`
 |===
 
-This demonstrates a hard dependency in the diagnostic barrier. It does not prove that the two
-production safety nets can be removed: existing happy-path tests close resources explicitly and
-therefore do not exercise forgotten-close behaviour.
+The finaliser probe requests GC and observes a fixed window. Seeing `false` does not prove that an
+eligible object would otherwise have been finalised. The barrier probe catches and prints its
+assertion, so a zero process exit code is not an automated passing resource-release regression.
+These observations expose the barrier's dependency; they do not validate either resource safety net.
 
-== Required follow-up proof
+== Evidence needed for a replacement
 
-The next implementation increment must:
-
-* keep its reference and worker implementation private;
-* migrate one production finaliser rather than publish an unused abstraction;
-* prove explicit cleanup exactly once with deterministic queue processing;
-* prove automatic resource release with `--finalization=disabled`;
-* ensure the cleanup action cannot retain its owner;
-* define interruption, termination and context-class-loader behaviour; and
-* retain raw commands and results with the change.
-
-The `CloseableUtils` barrier is a separate test-infrastructure migration. It must not be treated as
-evidence that either production safety net is safe to delete.
+A later implementation must preserve the migrated owner's close and warning contract, without
+retaining that owner from the cleanup action. It needs deterministic exactly-once cleanup tests,
+resource-release evidence with finalisation disabled, and explicit worker/interruption/class-loader
+lifecycle rules. Java 8 compatibility and the diagnostic barrier must be considered separately.

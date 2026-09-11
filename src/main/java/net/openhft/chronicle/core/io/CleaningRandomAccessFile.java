@@ -28,8 +28,7 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
     /**
      * Best-effort safety net for a file that was not closed explicitly.
      * <p>
-     * Finalisation is unreliable and deprecated for removal, but deleting this method before a
-     * tested replacement exists would silently remove the fallback close and permit descriptor leaks.
+     * Removing this fallback requires separate evidence of forgotten-close descriptor release.
      * See {@code src/main/docs/finalisation-migration.adoc}.
      *
      * @throws Throwable if an error occurs during finalization.

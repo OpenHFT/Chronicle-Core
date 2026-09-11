@@ -426,9 +426,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         /**
          * Best-effort safety net for an {@link AbstractCloseable} that was not closed.
          * <p>
-         * Finalisation is unreliable and deprecated for removal, but deleting this method before a
-         * tested replacement exists would silently remove the leak warning and close attempt. The
-         * migration must preserve both behaviours without retaining the owner from its cleanup action.
+         * A replacement must preserve the leak warning and close attempt without retaining its owner.
          * See {@code src/main/docs/finalisation-migration.adoc}.
          *
          * @throws Throwable if an error occurs during finalization.

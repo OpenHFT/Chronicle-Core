@@ -88,12 +88,7 @@ public final class CloseableUtils {
         // find any discarded resources.
         final BlockingQueue<String> q = new LinkedBlockingQueue<>();
 
-        // TEST ASSISTANCE ONLY (no production impact): this uses finalize() purely to detect that
-        // GC/finalization has run, so tests can assert resources were released. It is unrelated to the
-        // retained resource safety nets. Because finalize() is deprecated for removal (JEP 421) and is
-        // never guaranteed to run, this diagnostic will ultimately need a non-finalize replacement (a
-        // PhantomReference + ReferenceQueue detector) so the test suite still works once finalize is
-        // gone; that is a lower-urgency test-infra task and does NOT gate the safety-net migration.
+        // This diagnostic barrier cannot complete when finalisation is disabled.
         // Anonymous inner class overriding the finalize() method to track finalization.
         new Object() {
             @SuppressWarnings({"deprecation", "removal", "java:S1113"})
