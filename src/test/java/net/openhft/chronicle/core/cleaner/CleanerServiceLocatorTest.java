@@ -96,8 +96,12 @@ class CleanerServiceLocatorTest {
 
     @Test
     void probeExceptionDoesNotBreakSelection() {
+        final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         assertDoesNotThrow(() ->
                 CleanerServiceLocator.verifySelectedCleaner(new ThrowingCleaner(), Jvm::usedDirectMemory));
+        assertEquals(1, countFrom(recorded, LogLevel.ERROR,
+                "Could not verify ByteBuffer cleaner " + ThrowingCleaner.class.getName()),
+                "a non-fatal probe failure must still be reported; recorded=" + recorded.keySet());
     }
 
     @Test
