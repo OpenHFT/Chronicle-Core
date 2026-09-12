@@ -36,7 +36,12 @@ public final class ThreadLocalHelper {
      * @param supplier    Supplier used to create the value on first access
      * @param <T>         Type of value held
      * @return Existing or newly created value
+     * @deprecated Passing the supplier on every call encourages allocating a fresh
+     * capturing lambda per access on the hot path. Prefer {@link WeakThreadLocal},
+     * which captures the supplier once in its constructor and also allows the
+     * reference strength (weak or soft) to be configured.
      */
+    @Deprecated
     @NotNull
     public static <T> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, @NotNull Supplier<T> supplier) {
         @Nullable WeakReference<T> ref = threadLocal.get();
