@@ -1,0 +1,28 @@
+= No-Follow Directory Deletion
+:lang: en-GB
+:sectnums:
+
+== Contract and decision
+
+`IOTools.deleteDirWithFiles(File, int)` deletes symbolic links as leaf entries, including root and dangling links.
+It must not enumerate a linked directory's target. A plain-file or missing root still returns `false`.
+
+Keep the existing recursive depth algorithm: the root is depth zero, files within an allowed directory
+are permitted, and a real directory immediately beyond `maxDepth` raises `AssertionError` without deleting it.
+Earlier permitted entries may already have been removed when a later entry fails; deletion is not atomic.
+Use no-follow directory classification for children and handle a root link before calling `listFiles`.
+
+This avoids the `walkFileTree` boundary distinction from PR #846, where maximum-depth directories
+arrive in `visitFile` rather than `preVisitDirectory`. It does not add real-path canonicalisation.
+This is protection against traversing links in a stable tree, not a race-free guarantee against hostile
+concurrent path replacement. Race-resistant directory operations require a separate design.
+
+== Evidence
+
+`IOToolsDeletionTest` covers empty and populated over-depth directories at limits 0, 1 and 2;
+permitted depth including an `Integer.MAX_VALUE` limit; child/root/dangling/cyclic links; and plain/missing roots.
+JUnit's `TempDir` fixture cleans up even if an assertion fails. Link tests are skipped only when
+the filesystem does not support them or Windows does not allow link creation.
+
+Extracted from https://github.com/OpenHFT/Chronicle-Core/pull/846[PR #846] without its depth regression,
+annotations, scanner commentary or stronger path-security claims.
