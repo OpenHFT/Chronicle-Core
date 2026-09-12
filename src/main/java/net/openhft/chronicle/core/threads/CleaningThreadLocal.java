@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -216,8 +217,16 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      *
      * <p>Call at whatever cadence suits your application (e.g.&nbsp;every few
      * seconds, once a minute, or only at JVM shutdown).</p>
+     *
+     * <p>Liveness is sampled once per distinct thread during each sweep. If a
+     * thread terminates after being observed alive, its remaining values are
+     * retained until the next sweep.</p>
      */
     public static void cleanupNonCleaningThreads() {
+        cleanupNonCleaningThreads(Thread::isAlive);
+    }
+
+    static void cleanupNonCleaningThreads(Predicate<Thread> isThreadAlive) {
         // Drain stale entries under the lock, then run user cleanup
         // callbacks outside it so slow cleanup code never blocks
         // set()/remove()/initialValue() across the JVM.
@@ -226,7 +235,11 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
             if (cleaningThreadLocals.isEmpty())
                 return;
             pendingCleanups = new ArrayList<>();
-            cleaningThreadLocals.removeIf(ctl -> ctl.drainStaleInto(pendingCleanups));
+            //! Cache across all locals because thread keys are unique within each local map.
+            //! Keep the cache per sweep so a later sweep always refreshes liveness.
+            Map<Thread, Boolean> livenessByThread = new IdentityHashMap<>();
+            cleaningThreadLocals.removeIf(ctl ->
+                    ctl.drainStaleInto(pendingCleanups, livenessByThread, isThreadAlive));
         }
 
         for (Runnable r : pendingCleanups)
@@ -234,7 +247,9 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     }
 
     // holds lock on cleaningThreadLocals
-    private boolean drainStaleInto(List<Runnable> sink) {
+    private boolean drainStaleInto(List<Runnable> sink,
+                                   Map<Thread, Boolean> livenessByThread,
+                                   Predicate<Thread> isThreadAlive) {
         if (!trackNonCleaningThreads)
             return true;
 
@@ -243,7 +258,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
              mapIt.hasNext(); ) {
 
             Map.Entry<Thread, Object> e = mapIt.next();
-            if (!e.getKey().isAlive()) {
+            boolean isAlive = livenessByThread.computeIfAbsent(e.getKey(), isThreadAlive::test);
+            if (!isAlive) {
                 Object staleValue = e.getValue();
                 sink.add(() -> cleanup(uncheckedCast(staleValue)));
                 mapIt.remove();
