@@ -109,7 +109,7 @@ public final class CloseableUtils {
                     throw new AssertionError("Timed out waiting for the Finalizer");
             }
 
-            AbstractCloseable.waitForCloseablesToClose(1000);
+            waitForCloseablesToClose(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AssertionError(e);
@@ -117,13 +117,13 @@ public final class CloseableUtils {
     }
 
     /**
-     * Waits for closeable resources to close within a specified time limit.
-     * This method checks if the closeable resources in the trace set have been closed.
-     * If all resources are closed within the specified time limit, it returns true.
-     * If the time limit is exceeded before all resources are closed, it returns false.
+     * Waits for all tracked closeable resources to enter the closing state.
+     * A successful return means that {@code close()} has been called on each resource,
+     * but does not guarantee that every close operation has completed.
      *
-     * @param millis The time limit in milliseconds to wait for the closeable resources to close.
-     * @return true if all closeable resources are closed within the time limit, false otherwise.
+     * @param millis the time limit in milliseconds for the resources to enter the closing state
+     * @return true if all closeable resources are closing within the time limit, false otherwise.
+     * @see #assertCloseablesClosed()
      */
     @SuppressWarnings({"java:S3776", "java:S3516"}) // turned on by assert
     public static boolean waitForCloseablesToClose(long millis) {
@@ -131,42 +131,53 @@ public final class CloseableUtils {
         if (traceSet == null) {
             return true;
         }
-        if (Thread.interrupted())
+        //! Preserve interruption for the caller, but clear it while polling: an already-set flag
+        //! would make every Jvm.pause sleep throw immediately instead of waiting.
+        boolean interrupted = Thread.interrupted();
+        if (interrupted)
             System.err.println("Interrupted in waitForCloseablesToClose!");
 
         long end = System.currentTimeMillis() + millis;
+        try {
+            while (true) {
+                //! A tracked thread can terminate, or a release can be queued, after an earlier poll.
+                //! Repeat both progress operations outside the registry monitor; polling alone may leave a resource open.
+                //! Explicit draining also supports callers with the background release thread disabled.
+                CleaningThreadLocal.cleanupNonCleaningThreads();
+                BackgroundResourceReleaser.releasePendingResources();
 
-        toWait:
-        while (true) {
-            Collection<Closeable> traceSetCopy;
-            synchronized (traceSet) {
-                traceSetCopy = new ArrayList<>(traceSet);
-            }
-            for (Closeable key : traceSetCopy) {
-                if (key.isClosing())
-                    continue;
-                try {
-                    // too late to be checking thread safety.
-                    if (key instanceof AbstractCloseable) {
-                        ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
-                    }
-                    if (key instanceof ReferenceCountedTracer) {
-                        ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
-                    }
-
-                } catch (IllegalStateException e) {
-                    if (System.currentTimeMillis() > end)
-                        throw e;
-
-                    BackgroundResourceReleaser.releasePendingResources();
-
-                    CleaningThreadLocal.cleanupNonCleaningThreads();
-
-                    Jvm.pause(1);
-                    continue toWait;
+                //! isClosing() may take a resource lock while its close path holds that lock and calls unmonitor().
+                //! Only snapshot creation may hold the registry monitor; querying under it would invert the lock order
+                //! and could block beyond the wait deadline.
+                Collection<ManagedCloseable> traceSetCopy;
+                synchronized (traceSet) {
+                    traceSetCopy = new ArrayList<>(traceSet);
                 }
+
+                boolean allClosing = true;
+                for (ManagedCloseable key : traceSetCopy) {
+                    if (!key.isClosing()) {
+                        allClosing = false;
+                        break;
+                    }
+                }
+                if (allClosing)
+                    return true;
+
+                if (System.currentTimeMillis() > end)
+                    return false;
+
+                //! Jvm.pause restores interruptions received during its sleep. Capture and clear the flag on either side
+                //! so later polls can pause; the finally block restores remembered interruptions on every exit path.
+                if (Thread.interrupted())
+                    interrupted = true;
+                Jvm.pause(25);
+                if (Thread.interrupted())
+                    interrupted = true;
             }
-            return true;
+        } finally {
+            if (interrupted)
+                Thread.currentThread().interrupt();
         }
     }
 
@@ -174,6 +185,8 @@ public final class CloseableUtils {
      * Asserts that all closeable resources are closed.
      * This method checks if there are any remaining open closeable resources.
      * If any resources are found to be open, an AssertionError is thrown.
+     *
+     * @see #waitForCloseablesToClose(long)
      */
     public static void assertCloseablesClosed() {
         final Set<ManagedCloseable> traceSet = CLOSEABLES.get();
