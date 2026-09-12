@@ -2509,9 +2509,9 @@ public class UnsafeMemory implements Memory {
         }
 
         /**
-         * Reads a volatile float from the specified address.
-         * If the address is not aligned to 4 bytes (which is the size of an int),
-         * a memory fence is used to ensure ordering of reads and writes.
+         * Reads a volatile float from the specified address. A misaligned read uses
+         * a plain bit-preserving read followed by an acquire fence; it is ordered but
+         * not atomic.
          *
          * @param address the memory address to read from
          * @return the float value read from the address
@@ -2521,8 +2521,27 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedInt(address))
                 return super.readVolatileFloat(address);
+            final float value = readFloat(address);
             UNSAFE.loadFence();
-            return readFloat(address);
+            return value;
+        }
+
+        /**
+         * Reads a volatile float from an object offset. A misaligned read uses a plain
+         * bit-preserving read followed by an acquire fence; it is ordered but not atomic.
+         *
+         * @param object the object to read from, or {@code null} for an absolute address
+         * @param offset the offset to read from
+         * @return the float value read from the offset
+         */
+        @Override
+        public float readVolatileFloat(Object object, long offset) {
+            assert SKIP_ASSERTIONS || offset > 0;
+            if (safeAlignedInt(offset))
+                return super.readVolatileFloat(object, offset);
+            final float value = readFloat(object, offset);
+            UNSAFE.loadFence();
+            return value;
         }
 
         /**
@@ -2604,8 +2623,8 @@ public class UnsafeMemory implements Memory {
         }
 
         /**
-         * Writes a volatile float to the specified address. If the address is not aligned to
-         * 4 bytes (which is the size of an int), the float is written as a volatile int to the address.
+         * Writes a volatile float to the specified address. A misaligned write uses a plain
+         * bit-preserving write followed by a release fence; it is ordered but not atomic.
          *
          * @param address the memory address to write to
          * @param f       the float value to write
@@ -2615,8 +2634,29 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedInt(address))
                 super.writeVolatileFloat(address, f);
-            else
-                writeVolatileInt(address, Float.floatToRawIntBits(f));
+            else {
+                writeFloat(address, f);
+                UNSAFE.storeFence();
+            }
+        }
+
+        /**
+         * Writes a volatile float to an object offset. A misaligned write uses a plain
+         * bit-preserving write followed by a release fence; it is ordered but not atomic.
+         *
+         * @param object the object to write to, or {@code null} for an absolute address
+         * @param offset the offset to write to
+         * @param f      the float value to write
+         */
+        @Override
+        public void writeVolatileFloat(Object object, long offset, float f) {
+            assert SKIP_ASSERTIONS || offset > 0;
+            if (safeAlignedInt(offset))
+                super.writeVolatileFloat(object, offset, f);
+            else {
+                writeFloat(object, offset, f);
+                UNSAFE.storeFence();
+            }
         }
 
         /**
@@ -2921,9 +2961,9 @@ public class UnsafeMemory implements Memory {
         }
 
         /**
-         * Reads a volatile double value from the specified memory address.
-         * If the address is not aligned to 8 bytes (which is the size of a long), it performs an unsafe load fence and
-         * a normal read.
+         * Reads a volatile double value from the specified memory address. A misaligned
+         * read uses a plain bit-preserving read followed by an acquire fence; it is ordered
+         * but not atomic.
          *
          * @param address the memory address
          * @return the read double value
@@ -2933,8 +2973,27 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedLong(address))
                 return super.readVolatileDouble(address);
+            final double value = readDouble(address);
             UNSAFE.loadFence();
-            return readDouble(address);
+            return value;
+        }
+
+        /**
+         * Reads a volatile double from an object offset. A misaligned read uses a plain
+         * bit-preserving read followed by an acquire fence; it is ordered but not atomic.
+         *
+         * @param object the object to read from, or {@code null} for an absolute address
+         * @param offset the offset to read from
+         * @return the double value read from the offset
+         */
+        @Override
+        public double readVolatileDouble(Object object, long offset) {
+            assert SKIP_ASSERTIONS || offset > 0;
+            if (safeAlignedLong(offset))
+                return super.readVolatileDouble(object, offset);
+            final double value = readDouble(object, offset);
+            UNSAFE.loadFence();
+            return value;
         }
 
         /**
@@ -2986,8 +3045,29 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedLong(address))
                 super.writeVolatileDouble(address, d);
-            else
-                writeLong(address, Double.doubleToRawLongBits(d));
+            else {
+                writeDouble(address, d);
+                UNSAFE.storeFence();
+            }
+        }
+
+        /**
+         * Writes a volatile double to an object offset. A misaligned write uses a plain
+         * bit-preserving write followed by a release fence; it is ordered but not atomic.
+         *
+         * @param object the object to write to, or {@code null} for an absolute address
+         * @param offset the offset to write to
+         * @param d      the double value to write
+         */
+        @Override
+        public void writeVolatileDouble(Object object, long offset, double d) {
+            assert SKIP_ASSERTIONS || offset > 0;
+            if (safeAlignedLong(offset))
+                super.writeVolatileDouble(object, offset, d);
+            else {
+                writeDouble(object, offset, d);
+                UNSAFE.storeFence();
+            }
         }
 
         /**

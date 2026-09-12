@@ -36,6 +36,20 @@ interface UnsafeMemoryTestMixin<T> {
     T nonZero();
 
     /**
+     * Values used to verify every read/write operation pairing.
+     */
+    default Stream<T> readWriteValues() {
+        return Stream.of(nonZero());
+    }
+
+    /**
+     * Compares values using the representation required by the tested type.
+     */
+    default void assertValueEquals(T expected, T actual) {
+        assertEquals(expected, actual);
+    }
+
+    /**
      * Returns a sequence of values that must not start with zero();
      *
      * @return a sequence
@@ -68,8 +82,12 @@ interface UnsafeMemoryTestMixin<T> {
                                     final Variant variant = new Variant(args);
                                     final String operationName = p.first().name() + " and " + p.second().name();
                                     return DynamicTest.dynamicTest(variant.name() + " using " + operationName, () -> {
-                                        test(variant, nonZero(), p.first().operation(), p.second().operation());
-                                        variant.close();
+                                        try {
+                                            readWriteValues().forEach(value ->
+                                                    test(variant, value, p.first().operation(), p.second().operation()));
+                                        } finally {
+                                            variant.close();
+                                        }
                                     });
                                 });
                     } else {
@@ -78,8 +96,12 @@ interface UnsafeMemoryTestMixin<T> {
                                     final Variant variant = new Variant(args);
                                     final String operationName = p.first().name() + " and " + p.second().name();
                                     return DynamicTest.dynamicTest(variant.name() + " using " + operationName, () -> {
-                                        testObj(variant, nonZero(), p.first().operation(), p.second().operation());
-                                        variant.close();
+                                        try {
+                                            readWriteValues().forEach(value ->
+                                                    testObj(variant, value, p.first().operation(), p.second().operation()));
+                                        } finally {
+                                            variant.close();
+                                        }
                                     });
                                 });
                     }
@@ -153,6 +175,147 @@ interface UnsafeMemoryTestMixin<T> {
                                     });
                                 })
                 );
+    }
+
+    /**
+     * Exercises release/acquire ordering at offsets that cannot use the platform's
+     * aligned volatile primitive. Implementations opt in by returning offsets from
+     * {@link #misalignedVolatileOffsets()}.
+     */
+    @TestFactory
+    default Stream<DynamicTest> misalignedVolatileOrderingTests() {
+        return arguments()
+                .flatMap(args -> misalignedVolatileOffsets()
+                        .mapToObj(offset -> {
+                            final Variant variant = new Variant(args);
+                            return DynamicTest.dynamicTest(
+                                    variant.name() + " misaligned " + type().getSimpleName() + "@" + offset,
+                                    () -> {
+                                        try {
+                                            exerciseMisalignedVolatileOrdering(variant, offset);
+                                        } finally {
+                                            variant.close();
+                                        }
+                                    });
+                        }));
+    }
+
+    default IntStream misalignedVolatileOffsets() {
+        return IntStream.empty();
+    }
+
+    default void exerciseMisalignedVolatileOrdering(Variant variant, int offset) throws InterruptedException {
+        final int iterations = 10_000;
+        final int payloadOffset = CACHE_LINE_SIZE + 16;
+        final int acknowledgementOffset = payloadOffset + Integer.BYTES;
+        final List<T> markers = sequence().collect(toList());
+        assertFalse(markers.isEmpty());
+
+        final Supplier<T> markerReader = variant.mode().isDirectAddressing()
+                ? () -> addressReadVolatileOperation().apply(variant.memory(), variant.addr() + offset)
+                : () -> objectReadVolatileOperation().apply(variant.memory(), variant.object(), variant.addr() + offset);
+        final Consumer<T> markerWriter = variant.mode().isDirectAddressing()
+                ? value -> addressWriteVolatileOperation().accept(variant.memory(), variant.addr() + offset, value)
+                : value -> objectWriteVolatileOperation().accept(variant.memory(), variant.object(), variant.addr() + offset, value);
+
+        writePlainInt(variant, payloadOffset, 0);
+        writeVolatileInt(variant, acknowledgementOffset, 0);
+        markerWriter.accept(zero());
+
+        final List<String> threadErrors = new CopyOnWriteArrayList<>();
+        final long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20);
+        final Thread writer = new Thread(() -> {
+            try {
+                for (int i = 0; i < iterations; i++) {
+                    awaitInt(variant, acknowledgementOffset, i, deadline, threadErrors);
+                    writePlainInt(variant, payloadOffset, i + 1);
+                    markerWriter.accept(markers.get(i % markers.size()));
+                }
+            } catch (Throwable t) {
+                threadErrors.add("writer: " + t);
+            }
+        }, "misaligned-volatile-writer@" + offset);
+        final Thread reader = new Thread(() -> {
+            try {
+                for (int i = 0; i < iterations; i++) {
+                    final T expected = markers.get(i % markers.size());
+                    awaitMarker(markerReader, expected, deadline, threadErrors);
+                    final int payload = readPlainInt(variant, payloadOffset);
+                    if (payload != i + 1)
+                        throw new AssertionError("expected payload " + (i + 1) + " but was " + payload);
+                    writeVolatileInt(variant, acknowledgementOffset, i + 1);
+                }
+            } catch (Throwable t) {
+                threadErrors.add("reader: " + t);
+            }
+        }, "misaligned-volatile-reader@" + offset);
+
+        writer.start();
+        reader.start();
+        writer.join(TimeUnit.SECONDS.toMillis(25));
+        reader.join(TimeUnit.SECONDS.toMillis(25));
+        if (writer.isAlive() || reader.isAlive()) {
+            writer.interrupt();
+            reader.interrupt();
+            writer.join();
+            reader.join();
+            fail("Timed out exercising misaligned volatile ordering");
+        }
+        if (!threadErrors.isEmpty())
+            fail(threadErrors.toString());
+    }
+
+    default void awaitInt(Variant variant,
+                          int offset,
+                          int expected,
+                          long deadline,
+                          List<String> threadErrors) {
+        while (readVolatileInt(variant, offset) != expected) {
+            if (!threadErrors.isEmpty() || Thread.currentThread().isInterrupted())
+                throw new AssertionError("peer stopped while waiting for acknowledgement " + expected);
+            if (System.nanoTime() >= deadline)
+                throw new AssertionError("timed out waiting for acknowledgement " + expected);
+            Jvm.nanoPause();
+        }
+    }
+
+    default void awaitMarker(Supplier<T> markerReader,
+                             T expected,
+                             long deadline,
+                             List<String> threadErrors) {
+        while (!expected.equals(markerReader.get())) {
+            if (!threadErrors.isEmpty() || Thread.currentThread().isInterrupted())
+                throw new AssertionError("peer stopped while waiting for marker " + expected);
+            if (System.nanoTime() >= deadline)
+                throw new AssertionError("timed out waiting for marker " + expected);
+            Jvm.nanoPause();
+        }
+    }
+
+    default int readPlainInt(Variant variant, int offset) {
+        return variant.mode().isDirectAddressing()
+                ? variant.memory().readInt(variant.addr() + offset)
+                : variant.memory().readInt(variant.object(), variant.addr() + offset);
+    }
+
+    default int readVolatileInt(Variant variant, int offset) {
+        return variant.mode().isDirectAddressing()
+                ? variant.memory().readVolatileInt(variant.addr() + offset)
+                : variant.memory().readVolatileInt(variant.object(), variant.addr() + offset);
+    }
+
+    default void writePlainInt(Variant variant, int offset, int value) {
+        if (variant.mode().isDirectAddressing())
+            variant.memory().writeInt(variant.addr() + offset, value);
+        else
+            variant.memory().writeInt(variant.object(), variant.addr() + offset, value);
+    }
+
+    default void writeVolatileInt(Variant variant, int offset, int value) {
+        if (variant.mode().isDirectAddressing())
+            variant.memory().writeVolatileInt(variant.addr() + offset, value);
+        else
+            variant.memory().writeVolatileInt(variant.object(), variant.addr() + offset, value);
     }
 
     final class Reader<T> implements Runnable {
@@ -259,27 +422,30 @@ interface UnsafeMemoryTestMixin<T> {
         for (int i = 0; i <= CACHE_LINE_SIZE; i++) {
             addressWriter.accept(variant.memory(), variant.addr() + i, testValue);
             final T t = addressReader.apply(variant.memory(), variant.addr() + i);
-            assertEquals(testValue, t);
+            assertValueEquals(testValue, t);
         }
     }
 
-    default <S> void testObj(final Variant variant,
-                             final S testValue,
-                             final MemoryObjLongObjConsumer<S> objectWriter,
-                             final MemoryObjLongFunction<S> objectReader) {
+    default void testObj(final Variant variant,
+                         final T testValue,
+                         final MemoryObjLongObjConsumer<T> objectWriter,
+                         final MemoryObjLongFunction<T> objectReader) {
         for (int i = 0; i <= CACHE_LINE_SIZE; i++) {
             objectWriter.accept(variant.memory(), variant.object(), variant.addr() + i, testValue);
-            final S s = objectReader.apply(variant.memory(), variant.object(), variant.addr() + i);
-            assertEquals(testValue, s);
+            final T value = objectReader.apply(variant.memory(), variant.object(), variant.addr() + i);
+            assertValueEquals(testValue, value);
         }
     }
 
-    default IntStream interestingOffsets() {
+    default IntStream candidateOffsets() {
         return IntStream.concat(
                         IntStream.of(0, 1),
                         IntStream.of(CACHE_LINE_SIZE_ARM, CACHE_LINE_SIZE)
-                                .flatMap(s -> IntStream.rangeClosed(s - Long.BYTES, s)))
-                .filter(alignedToType());
+                                .flatMap(s -> IntStream.rangeClosed(s - Long.BYTES, s)));
+    }
+
+    default IntStream interestingOffsets() {
+        return candidateOffsets().filter(alignedToType());
     }
 
     static Stream<Arguments> arguments() {
