@@ -1,0 +1,37 @@
+= Closeable Assertion Interruption
+:lang: en-GB
+:sectnums:
+
+== Contract and decision
+
+`CloseableUtils.assertCloseablesClosed()` retains its existing grace period and diagnostic cleanup.
+Interruption is not cancellation: remember and temporarily clear an entry interrupt, let polling sleeps
+block, and restore the flag on success or failure. Interruptions received during a sleep must also be
+remembered and restored, without making subsequent sleeps repeatedly throw immediately.
+
+When the grace period expires, transfer the polling helper's restored status into the outer method's
+remembered state before diagnostic cleanup. Clear the live flag for cleanup and retain the saved state
+until the outer `finally`: a resource's `close()` can consume the flag and can then return or throw.
+Restoring the flag only at the helper boundary is therefore insufficient.
+
+Preserve the existing stderr diagnostic and registry locking; changing logger behaviour or the
+snapshot/locking model is outside this fix. The separate `waitForCloseablesToClose()` repair is PR #862.
+Merely replacing `Thread.interrupted()` with `isInterrupted()` would preserve the flag but collapse
+the grace period, which is why the one-line change in PR #846 is not extracted in isolation.
+
+== Evidence
+
+`CloseableAssertionInterruptionTest` covers initially clear/set interruption on empty-registry success,
+state-query failure and unclosed-resource reporting. A latch starts a background observer only after
+resource queries begin; it closes the resource after observing the waiter in a real timed wait.
+It also interrupts an active sleep, requires another query and a subsequent blocking sleep, and verifies
+the resulting status. Worker completion is bounded
+and failures are propagated to the owning test. No fixed sleep guesses when a worker is ready.
+
+The diagnostic-cleanup regression keeps a resource open until the grace loop expires and interrupts
+the assertion thread after observing a polling sleep. Its `close()` consumes interruption and either
+returns or throws a specific exception. Both entry states must retain the polling interrupt on exit,
+without changing the existing assertion/cleanup failure or closing more than once. Against the first
+revision of PR #866, both initially-clear cases fail; the initially-interrupted controls pass.
+
+This is extracted and corrected from https://github.com/OpenHFT/Chronicle-Core/pull/846[PR #846].

@@ -5,13 +5,16 @@ package net.openhft.chronicle.core.cleaner;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.annotation.TargetMajorVersion;
+import net.openhft.chronicle.core.internal.ClassUtil;
+import net.openhft.chronicle.core.internal.cleaner.Jdk9ByteBufferCleanerService;
 import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
-import java.util.function.LongSupplier;
+import java.util.function.Function;
 
 /**
  * A utility class to locate the appropriate {@link ByteBufferCleanerService} implementation.
@@ -93,45 +96,82 @@ public final class CleanerServiceLocator {
     }
 
     /**
-     * Logs the selected cleaner and warns if it cannot actually free direct memory, surfacing a
-     * silent off-heap leak. Diagnostic only: it never changes the selected service.
+     * Checks whether the selected service invokes the probe buffer's JDK cleaner.
+     * Diagnostic only: it never changes the selected service or infers success from global memory usage.
      */
     static void verifySelectedCleaner(final ByteBufferCleanerService svc) {
-        verifySelectedCleaner(svc, Jvm::usedDirectMemory);
+        verifySelectedCleaner(svc, buffer -> Jvm.getValue(buffer, "cleaner"));
     }
 
-    // usedDirectMemory is injectable so the accounting-unavailable path is testable.
-    static void verifySelectedCleaner(final ByteBufferCleanerService svc, final LongSupplier usedDirectMemory) {
+    static void verifySelectedCleaner(final ByteBufferCleanerService svc,
+                                      final Function<ByteBuffer, Object> cleanerLookup) {
         final String name = svc.getClass().getName();
+        ByteBuffer buffer = null;
         try {
             if (svc.impact() == ByteBufferCleanerService.Impact.UNAVAILABLE) {
                 warnLeakingCleaner(name);
                 return;
             }
 
-            final int probeSize = 1 << 12;
-            final long before = usedDirectMemory.getAsLong();
-            final ByteBuffer buffer = ByteBuffer.allocateDirect(probeSize);
-            final long afterAllocation = usedDirectMemory.getAsLong();
+            buffer = ByteBuffer.allocateDirect(1 << 12);
+            final Object cleaner = cleanerLookup.apply(buffer);
+            if (isCleanerInvoked(cleaner))
+                throw new IllegalStateException("Probe buffer was already cleaned");
+
             svc.clean(buffer);
-            final long afterClean = usedDirectMemory.getAsLong();
 
-            if (afterAllocation <= before) {
-                // accounting unavailable: can't prove a leak, so stay quiet
+            // The JDK cleaner unlinks itself before running its deallocator. Check this buffer's
+            // invocation state after the synchronous clean call, not process-wide memory totals.
+            // This is not an independent measurement of native deallocation completion.
+            if (isCleanerInvoked(cleaner)) {
                 Jvm.debug().on(CleanerServiceLocator.class, "Selected ByteBuffer cleaner: " + name +
-                        " (impact=" + svc.impact() + "); effectiveness unverified as direct-memory accounting is unavailable");
-                return;
-            }
-
-            if (afterClean < afterAllocation) {
-                Jvm.debug().on(CleanerServiceLocator.class, "Selected ByteBuffer cleaner: " + name +
-                        " (impact=" + svc.impact() + ", verified to free direct memory)");
+                        " (impact=" + svc.impact() + ", verified to invoke the direct buffer cleaner)");
             } else {
                 warnLeakingCleaner(name);
             }
         } catch (Throwable t) { // NOSONAR — diagnostic probe must never destabilise selection, incl. Errors
             Jvm.error().on(CleanerServiceLocator.class, "Could not verify ByteBuffer cleaner " + name, t);
+        } finally {
+            // Keep the buffer reachable through observation and release it even for no-op or
+            // throwing providers. The JDK cleaner is idempotent; never run its deallocator directly.
+            if (buffer != null) {
+                try {
+                    final ByteBufferCleanerService cleanup = Jvm.isJava9Plus()
+                            ? new Jdk9ByteBufferCleanerService()
+                            : new ReflectionBasedByteBufferCleanerService();
+                    cleanup.clean(buffer);
+                } catch (Throwable t) {
+                    Jvm.error().on(CleanerServiceLocator.class, "Could not release ByteBuffer cleaner probe", t);
+                }
+            }
         }
+    }
+
+    /**
+     * Recognises only the JDK cleaner list states used by direct buffers. In particular,
+     * Reference.next is queue linkage and must not be mistaken for legacy Cleaner.next.
+     * Unknown layouts leave verification inconclusive rather than identifying a leaking service.
+     */
+    static boolean isCleanerInvoked(final Object cleaner) throws ReflectiveOperationException {
+        final Class<?> type = cleaner.getClass();
+        switch (type.getName()) {
+            case "sun.misc.Cleaner":
+            case "jdk.internal.ref.Cleaner":
+                return declaredCleanerState(cleaner, "next", type.getName()) == cleaner;
+            case "java.nio.BufferCleaner$PhantomCleaner":
+                return declaredCleanerState(cleaner, "node", "java.nio.BufferCleaner$CleanerList$Node") == null;
+            default:
+                throw new UnsupportedOperationException("Unrecognised direct buffer cleaner layout: " + type.getName());
+        }
+    }
+
+    private static Object declaredCleanerState(final Object cleaner, final String name,
+                                              final String expectedType) throws ReflectiveOperationException {
+        final Field field = cleaner.getClass().getDeclaredField(name);
+        if (!field.getType().getName().equals(expectedType))
+            throw new UnsupportedOperationException("Unrecognised direct buffer cleaner state: " + field);
+        ClassUtil.setAccessible(field);
+        return field.get(cleaner);
     }
 
     private static void warnLeakingCleaner(final String name) {

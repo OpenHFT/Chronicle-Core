@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.internal;
 import net.openhft.chronicle.core.io.*;
 import net.openhft.chronicle.core.test.RecordingCloseable;
 import net.openhft.chronicle.core.test.RecordingManagedCloseable;
+import net.openhft.chronicle.core.threads.CleaningThreadLocal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,13 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,6 +89,132 @@ class CloseableUtilsTest {
         CloseableUtils.add(closeable);
 
         assertTrue(CloseableUtils.waitForCloseablesToClose(1000));
+    }
+
+    @Test
+    void waitForCloseablesToCloseReturnsFalseForOpenResource() {
+        CloseableUtils.add(closeable);
+
+        assertFalse(CloseableUtils.waitForCloseablesToClose(50));
+    }
+
+    @Test
+    void waitForCloseablesToCloseRepeatsOrphanCleanup() throws Exception {
+        CountDownLatch firstQuery = new CountDownLatch(1);
+        AtomicBoolean closing = new AtomicBoolean();
+        AtomicInteger cleanups = new AtomicInteger();
+        ManagedCloseable resource = new ManagedCloseable() {
+            @Override
+            public void close() {
+                cleanups.incrementAndGet();
+                closing.set(true);
+            }
+
+            @Override
+            public boolean isClosing() {
+                firstQuery.countDown();
+                return closing.get();
+            }
+
+            @Override
+            public boolean isClosed() {
+                return closing.get();
+            }
+        };
+        CleaningThreadLocal<ManagedCloseable> local =
+                CleaningThreadLocal.withCleanup(() -> resource, ManagedCloseable::close);
+        CountDownLatch populated = new CountDownLatch(1);
+        CountDownLatch stopOwner = new CountDownLatch(1);
+        Thread owner = new Thread(() -> {
+            local.get();
+            populated.countDown();
+            try {
+                stopOwner.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "closeable-orphan-owner");
+        ExecutorService waiter = Executors.newSingleThreadExecutor();
+
+        try {
+            owner.start();
+            assertTrue(populated.await(5, TimeUnit.SECONDS));
+            CloseableUtils.add(resource);
+
+            Future<Boolean> closed = waiter.submit(() -> CloseableUtils.waitForCloseablesToClose(2_000));
+            assertTrue(firstQuery.await(5, TimeUnit.SECONDS));
+            stopOwner.countDown();
+            owner.join(5_000);
+            assertFalse(owner.isAlive());
+
+            assertTrue(closed.get(5, TimeUnit.SECONDS));
+            assertEquals(1, cleanups.get());
+            CleaningThreadLocal.cleanupNonCleaningThreads();
+            assertEquals(1, cleanups.get(), "a later sweep must not repeat cleanup");
+        } finally {
+            stopOwner.countDown();
+            owner.join(5_000);
+            CleaningThreadLocal.cleanupNonCleaningThreads();
+            waiter.shutdownNow();
+        }
+    }
+
+    @Test
+    void waitForCloseablesToClosePreservesInterruptWithoutSpinning() {
+        AtomicInteger queries = new AtomicInteger();
+        ManagedCloseable resource = new ManagedCloseable() {
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public boolean isClosing() {
+                queries.incrementAndGet();
+                return false;
+            }
+
+            @Override
+            public boolean isClosed() {
+                return false;
+            }
+        };
+        CloseableUtils.add(resource);
+
+        try {
+            Thread.currentThread().interrupt();
+            assertFalse(CloseableUtils.waitForCloseablesToClose(100));
+            assertTrue(Thread.currentThread().isInterrupted());
+            assertTrue(queries.get() < 100, "an interrupted wait must still pause between polls");
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void waitForCloseablesToCloseQueriesOutsideRegistryLock() {
+        Set<ManagedCloseable> traceSet = getCloseablesRef().get();
+        AtomicBoolean queried = new AtomicBoolean();
+        ManagedCloseable resource = new ManagedCloseable() {
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public boolean isClosing() {
+                queried.set(true);
+                assertFalse(Thread.holdsLock(traceSet), "isClosing must not run under the registry lock");
+                return true;
+            }
+
+            @Override
+            public boolean isClosed() {
+                return true;
+            }
+        };
+        CloseableUtils.add(resource);
+
+        assertTrue(CloseableUtils.waitForCloseablesToClose(1_000));
+        assertTrue(queried.get());
     }
 
     @Test
