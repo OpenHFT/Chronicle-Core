@@ -87,3 +87,5 @@ CORE-FN-053 :: The histogram shall allow configurable precision or accuracy.
 === Interfaces & Dependencies
 CORE-FN-054 :: Chronicle Core APIs consumed by other Chronicle libraries shall be designed for long-term stability.
 CORE-FN-055 :: Evolution of Core APIs shall minimise breaking changes for dependent libraries.
+The exported test JAR shall not register Core's test-only service providers in consumer JVMs.
+Core's own tests retain those registrations in their local test-class output; `mvn verify` also checks the packaged fixtures in separate consumer JVMs.
