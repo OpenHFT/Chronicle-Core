@@ -5,8 +5,6 @@ package net.openhft.chronicle.core.benchmark;
 
 import net.openhft.chronicle.core.Jvm;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.BigMatrix;
-import org.apache.commons.math.linear.BigMatrixImpl;
 import org.apache.commons.math.linear.RealMatrix;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
@@ -131,14 +129,6 @@ public class MatrixMain {
 
             new Runner(opt).run();
         }
-    }
-
-//    @Benchmark
-//    @BenchmarkMode({Mode.SampleTime, Mode.Throughput})
-    public BigMatrix BigDecimalMatrix() {
-        BigMatrix matrix = new BigMatrixImpl(values);
-        BigMatrix matrix2 = new BigMatrixImpl(vector);
-        return matrix.multiply(matrix2);
     }
 
     //    @Benchmark

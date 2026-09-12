@@ -1,6 +1,8 @@
 /*
  * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
+import net.openhft.chronicle.core.io.IOTools;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -53,7 +55,7 @@ public class MapBenchMain {
             for (int i = 0; i < buffers.size(); i++) {
                 MappedByteBuffer buffer = buffers.get(i);
                 long start2 = nanoTime();
-                ((DirectBuffer) buffer).cleaner().clean();
+                IOTools.clean(buffer);
                 long end2 = nanoTime();
                 double unmap = (end2 - start2) / 1000 / 1e3;
                 System.out.println(i * CHUNK_SIZE + " unmap: " + unmap);
