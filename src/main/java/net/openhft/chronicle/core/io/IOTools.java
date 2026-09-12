@@ -514,26 +514,13 @@ public final class IOTools {
         return IOStatus.normalize(n);
     }
 
-    // has to be moved to another class to avoid a live lock
+    //! Keep the worker outside Language: its class initialiser waits for the socket operation to finish.
     @NotNull
-    static Runnable close3(SocketChannel sc, SocketChannel s2) {
+    static Runnable closeSocketChannelsInBackground(SocketChannel sc, SocketChannel s2) {
         return () -> {
             Jvm.pause(50);
-            System.out.println("Close " + sc);
             closeQuietly(sc);
             Jvm.pause(10);
-            closeQuietly(s2);
-        };
-    }
-
-    // has to be moved to another class to avoid a live lock
-    @NotNull
-    static Runnable close4(SocketChannel sc, SocketChannel s2, Thread main) {
-        return () -> {
-            Jvm.pause(50);
-            main.interrupt();
-            Jvm.pause(10);
-            closeQuietly(sc);
             closeQuietly(s2);
         };
     }
@@ -586,6 +573,17 @@ public final class IOTools {
         }
 
         static void addRegionalMessages() throws IOException {
+            //! An entry interrupt must not abort accept/connect before the probe reaches its intended failures.
+            boolean interrupted = Thread.interrupted();
+            try {
+                collectRegionalMessages();
+            } finally {
+                if (interrupted)
+                    Thread.currentThread().interrupt();
+            }
+        }
+
+        private static void collectRegionalMessages() throws IOException {
             try (ServerSocketChannel ssc = ServerSocketChannel.open()) {
                 ssc.bind(new InetSocketAddress(0));
                 final int port = ssc.socket().getLocalPort();
@@ -634,7 +632,7 @@ public final class IOTools {
                 }
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
-                    Thread t = new Thread(close3(sc, s2), "close~3");
+                    Thread t = new Thread(closeSocketChannelsInBackground(sc, s2), "close~3");
                     t.setDaemon(true);
                     t.start();
                     try {
@@ -649,18 +647,20 @@ public final class IOTools {
                 }
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
-                    Thread main = Thread.currentThread();
-                    Thread t = new Thread(close4(sc, s2, main), "close~4");
-                    t.setDaemon(true);
-                    t.start();
+                    //! An already-interrupted blocking write also throws ClosedByInterruptException.
+                    //! Generate it on this thread so no delayed worker can interrupt the caller after the probe.
+                    boolean interrupted = Thread.interrupted();
                     try {
-                        for (int i = 0; i < 10000; i++) {
-                            bytes.clear();
-                            final int write = sc.write(bytes);
-                            assert write > 0;
-                        }
+                        Thread.currentThread().interrupt();
+                        bytes.clear();
+                        sc.write(bytes);
                     } catch (IOException ioe) {
                         CLOSED_MESSAGES.add(ioe.getMessage());
+                    } finally {
+                        //! Clear the probe's own interrupt before resource cleanup, even when the write fails.
+                        Thread.interrupted();
+                        if (interrupted)
+                            Thread.currentThread().interrupt();
                     }
                 }
             }

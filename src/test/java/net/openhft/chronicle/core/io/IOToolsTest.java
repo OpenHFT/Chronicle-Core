@@ -392,39 +392,28 @@ class IOToolsTest extends CoreTestCommon {
 
     @Test
     void connectionClosed4() throws IOException {
-        ServerSocket ss;
+        boolean interrupted = Thread.interrupted();
         try {
-            ss = new ServerSocket(0);
-        } catch (IOException ioe) {
-            assumeTrue(false, "Network not permitted in this environment");
-            return;
-        }
-        SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
-        Socket s2 = ss.accept();
-        ss.close();
-        ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
-        Thread main = Thread.currentThread();
-        Thread t = new Thread(() -> {
-            Jvm.pause(100);
-            main.interrupt();
-            Jvm.pause(10);
-            Closeable.closeQuietly(sc);
-        }, "close~thread");
-        t.setDaemon(true);
-        t.start();
-        try {
-            for (int i = 0; i < 10000; i++) {
-//                System.out.println(i);
-                bytes.clear();
-                final int write = sc.write(bytes);
-                assertTrue(write > 0);
+            ServerSocket server;
+            try {
+                server = new ServerSocket(0);
+            } catch (IOException ioe) {
+                assumeTrue(false, "Network not permitted in this environment");
+                return;
             }
-            fail();
-        } catch (IOException ioe) {
-            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
+            try (ServerSocket ss = server;
+                 SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
+                 Socket peer = ss.accept()) {
+                Thread.currentThread().interrupt();
+                IOException failure = assertThrows(java.nio.channels.ClosedByInterruptException.class,
+                        () -> sc.write(ByteBuffer.allocate(1)));
+                assertTrue(IOTools.isClosedException(failure), failure.toString());
+            }
         } finally {
-            s2.close();
-            sc.close();
+            // Resource-close failures must not leak this test's deliberate interrupt into the next test.
+            Thread.interrupted();
+            if (interrupted)
+                Thread.currentThread().interrupt();
         }
     }
 
