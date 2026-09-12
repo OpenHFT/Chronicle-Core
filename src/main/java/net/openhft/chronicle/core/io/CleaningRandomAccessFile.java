@@ -25,10 +25,17 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
         super(file, mode);
     }
 
+    /**
+     * Best-effort safety net for a file that was not closed explicitly.
+     * <p>
+     * Removing this fallback requires separate evidence of forgotten-close descriptor release.
+     * See {@code src/main/docs/finalisation-migration.adoc}.
+     *
+     * @throws Throwable if an error occurs during finalization.
+     */
     @SuppressWarnings({"deprecation", "removal", "java:S1113"})
     @Override
     protected void finalize() throws Throwable {
-        // best-efforts attempt to close the file if the owner forgot
         super.finalize();
         Closeable.closeQuietly(this);
     }

@@ -424,9 +424,10 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     @SuppressWarnings("RedundantSuppression")
     class Finalizer {
         /**
-         * Called by the garbage collector when the enclosing AbstractCloseable instance is
-         * being finalized. This method ensures that if the enclosing instance is not closed,
-         * a warning is issued and the close method is called.
+         * Best-effort safety net for an {@link AbstractCloseable} that was not closed.
+         * <p>
+         * A replacement must preserve the leak warning and close attempt without retaining its owner.
+         * See {@code src/main/docs/finalisation-migration.adoc}.
          *
          * @throws Throwable if an error occurs during finalization.
          */

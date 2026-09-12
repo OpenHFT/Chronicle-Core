@@ -88,6 +88,7 @@ public final class CloseableUtils {
         // find any discarded resources.
         final BlockingQueue<String> q = new LinkedBlockingQueue<>();
 
+        // This diagnostic barrier cannot complete when finalisation is disabled.
         // Anonymous inner class overriding the finalize() method to track finalization.
         new Object() {
             @SuppressWarnings({"deprecation", "removal", "java:S1113"})

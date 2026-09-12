@@ -1,0 +1,85 @@
+= Finalisation Investigation
+Chronicle Software
+:toc:
+:sectnums:
+:lang: en-GB
+:source-highlighter: rouge
+
+This investigation for GitHub issue #331 inventories the remaining finalisers and provides a manual
+probe. It removes no finaliser and implements no replacement cleanup mechanism.
+
+== Inventory
+
+`rg -n "void finalize\(\)" src/main/java` finds three overrides:
+
+[cols="1,2"]
+|===
+|Location |Purpose
+
+|`CleaningRandomAccessFile`
+|Best-effort descriptor close when the caller omitted explicit close
+
+|`AbstractCloseable.Finalizer`
+|Warning and close attempt for a leaked closeable
+
+|`CloseableUtils.gcAndWaitForCloseablesToClose()`
+|Diagnostic barrier waiting for the JVM finaliser thread
+|===
+
+The two resource safety nets and the diagnostic barrier need separate migrations. Happy-path tests
+that close resources explicitly do not establish that forgotten-close protection can be removed.
+
+== Manual probe
+
+`src/test/java/net/openhft/chronicle/core/io/FinalisationDisabledProbe.java` is a main class, not a
+discovered JUnit regression. Compile it and obtain the test dependency class path:
+
+[source,bash]
+----
+mvn -q -DskipTests test-compile dependency:build-classpath \
+  -Dmdep.outputFile=target/test-classpath
+PROBE_CP="target/test-classes:target/classes:$(cat target/test-classpath)"
+java -cp "$PROBE_CP" net.openhft.chronicle.core.io.FinalisationDisabledProbe
+java --finalization=disabled -cp "$PROBE_CP" \
+  net.openhft.chronicle.core.io.FinalisationDisabledProbe
+java -cp "$PROBE_CP" net.openhft.chronicle.core.io.FinalisationDisabledProbe barrier
+java --finalization=disabled -cp "$PROBE_CP" \
+  net.openhft.chronicle.core.io.FinalisationDisabledProbe barrier
+----
+
+The disabled-finalisation option requires a JDK that supports it. The recorded OpenJDK 21.0.11
+observations from 22 August 2026 were:
+
+[cols="1,1,1"]
+|===
+|Mode |Finaliser probe |Barrier probe
+|Default |`finalize ran = true` |Returned normally
+|`--finalization=disabled` |`finalize ran = false` |Printed `AssertionError: Timed out waiting for the Finalizer`
+|===
+
+The finaliser probe checks a one-second deadline between calls to `System.gc()`,
+`System.runFinalization()` and `Thread.sleep()`. Those calls can exceed that window; it is not a
+hard process deadline. Seeing `false` does not prove that an eligible object would otherwise have
+been finalised. The barrier probe catches and prints its
+assertion, so a zero process exit code is not an automated passing resource-release regression.
+These observations expose the barrier's dependency; they do not validate either resource safety net.
+
+An automated qualification wrapper must impose an external process watchdog and retain separate
+outcomes for normal return, the expected disabled-finalisation observation, unexpected failure and
+watchdog expiry. A timeout or a printed assertion must never be recorded as resource-release success.
+For example, on systems with GNU `timeout`, prefix each Java invocation above with
+`timeout --kill-after=5s 45s`; retain both output streams and the watchdog's exit status.
+
+Each receipt must identify the source revision (and any uncommitted source diff), the actual Java
+executable and `java -version` output, the full invocation, the resolved dependency class path and
+artifact hashes, the observation time, output and outcome. The table above remains the historical
+22 August observation; newer PR receipts qualify only their own recorded source and dependency
+composition. Neither a later successful probe nor a newer passing build retrospectively qualifies
+that historical run or establishes a replacement resource owner's lifecycle contract.
+
+== Evidence needed for a replacement
+
+A later implementation must preserve the migrated owner's close and warning contract, without
+retaining that owner from the cleanup action. It needs deterministic exactly-once cleanup tests,
+resource-release evidence with finalisation disabled, and explicit worker/interruption/class-loader
+lifecycle rules. Java 8 compatibility and the diagnostic barrier must be considered separately.
