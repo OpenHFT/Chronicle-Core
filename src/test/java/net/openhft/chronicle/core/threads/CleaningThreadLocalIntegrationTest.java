@@ -10,8 +10,11 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,11 +22,94 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CleaningThreadLocalIntegrationTest {
+
+    @Test
+    void cleanupReusesLivenessAcrossLocalsAndRefreshesEachSweep() throws Exception {
+        int localCount = 5;
+        int workerCount = 4;
+        AtomicInteger cleaned = new AtomicInteger();
+        List<CleaningThreadLocal<TrackedResource>> locals = new ArrayList<>();
+        for (int i = 0; i < localCount; i++) {
+            locals.add(new CleaningThreadLocal<>(
+                    TrackedResource::new,
+                    resource -> {
+                        resource.clean();
+                        cleaned.incrementAndGet();
+                    },
+                    UnaryOperator.identity(),
+                    Boolean.TRUE));
+        }
+
+        CountDownLatch populated = new CountDownLatch(workerCount);
+        CountDownLatch releaseWorkers = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        Set<Thread> workers = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (int i = 0; i < workerCount; i++) {
+            Thread worker = new Thread(() -> {
+                try {
+                    for (CleaningThreadLocal<TrackedResource> local : locals)
+                        local.get();
+                    populated.countDown();
+                    releaseWorkers.await();
+                } catch (Throwable t) {
+                    failure.compareAndSet(null, t);
+                }
+            }, "ctl-shared-worker-" + i);
+            workers.add(worker);
+        }
+
+        try {
+            workers.forEach(Thread::start);
+            assertTrue(populated.await(10, TimeUnit.SECONDS), "workers did not populate all locals");
+
+            AtomicInteger workerLivenessChecks = new AtomicInteger();
+            //! Count only these workers so unrelated tracked locals cannot affect the assertion.
+            Predicate<Thread> countingLiveness = thread -> {
+                if (workers.contains(thread))
+                    workerLivenessChecks.incrementAndGet();
+                return thread.isAlive();
+            };
+            CleaningThreadLocal.cleanupNonCleaningThreads(countingLiveness);
+
+            assertEquals(workerCount, workerLivenessChecks.get(),
+                    "each live worker should be checked once across all locals");
+            assertEquals(0, cleaned.get(), "live worker values should be retained");
+            for (CleaningThreadLocal<TrackedResource> local : locals)
+                assertEquals(workerCount, trackedEntryCount(local),
+                        "each local should retain every live worker value");
+
+            releaseWorkers.countDown();
+            for (Thread worker : workers)
+                worker.join();
+            assertNull(failure.get(), () -> "worker should not fail " + failure.get());
+
+            CleaningThreadLocal.cleanupNonCleaningThreads(countingLiveness);
+
+            assertEquals(workerCount * 2, workerLivenessChecks.get(),
+                    "a new sweep should refresh each worker's liveness");
+            assertEquals(localCount * workerCount, cleaned.get(),
+                    "every terminated-worker value should be cleaned once");
+            for (CleaningThreadLocal<TrackedResource> local : locals)
+                assertEquals(0, trackedEntryCount(local),
+                        "terminated-worker values should be removed");
+
+            CleaningThreadLocal.cleanupNonCleaningThreads(countingLiveness);
+            assertEquals(workerCount * 2, workerLivenessChecks.get(),
+                    "an empty sweep should not recheck removed workers");
+            assertEquals(localCount * workerCount, cleaned.get(),
+                    "an empty sweep should not repeat cleanup");
+        } finally {
+            releaseWorkers.countDown();
+            for (Thread worker : workers)
+                worker.join(10_000);
+        }
+    }
 
     @Test
     void cleanupNonCleaningThreadsHandlesConcurrentCallers() throws Exception {
