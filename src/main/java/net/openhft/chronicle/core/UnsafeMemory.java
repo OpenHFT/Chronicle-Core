@@ -710,14 +710,14 @@ public class UnsafeMemory implements Memory {
      * @param b       the byte array to be written.
      * @param offset  the starting offset in the byte array.
      * @param length  the number of bytes to write.
-     * @throws IllegalArgumentException if offset + length exceeds the byte array's length.
+     * @throws IllegalArgumentException if offset or length is negative, or the slice exceeds the array.
      */
     @Override
     public void writeBytes(long address, byte[] b, int offset, int length) throws IllegalArgumentException {
         assert address != 0;
-        assert SKIP_ASSERTIONS || offset >= 0;
-        assert SKIP_ASSERTIONS || length >= 0;
-        if (offset + length > b.length)
+        requireNonNull(b);
+        //! Array bounds must hold even without assertions: addition can wrap before Unsafe copies the slice.
+        if (offset < 0 || length < 0 || offset > b.length - (long) length)
             throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
         UnsafeMemory.UNSAFE.copyMemory(b, ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
     }
@@ -729,14 +729,14 @@ public class UnsafeMemory implements Memory {
      * @param b       the byte array to be filled.
      * @param offset  the starting offset in the byte array.
      * @param length  the number of bytes to read.
-     * @throws IllegalArgumentException if offset + length exceeds the byte array's length.
+     * @throws IllegalArgumentException if offset or length is negative, or the slice exceeds the array.
      */
     @Override
     public void readBytes(long address, byte[] b, long offset, int length) throws IllegalArgumentException {
         assert address != 0;
-        assert SKIP_ASSERTIONS || offset >= 0;
-        assert SKIP_ASSERTIONS || length >= 0;
-        if (offset + length > b.length)
+        requireNonNull(b);
+        //! Check the full long offset before adding the array base; narrowing it could admit an invalid slice.
+        if (offset < 0 || length < 0 || offset > b.length - (long) length)
             throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
         UnsafeMemory.UNSAFE.copyMemory(null, address, b, ARRAY_BYTE_BASE_OFFSET + offset, length);
     }
