@@ -15,6 +15,7 @@ Identifiers follow the
 * link:#CORE-RISK-003[CORE-RISK-003 Guard Native-Memory Mapping with Directory Whitelist]
 * link:#CORE-NF-O-004[CORE-NF-O-004 Background Resource Releaser Thread (Opt-In)]
 * link:#CORE-FN-005[CORE-FN-005 ChronicleInit for Pre/Post Application Hooks]
+* link:#CORE-TEST-006[CORE-TEST-006 Preserve First-Attempt Unit-Test Failures]
 
 [[CORE-DOC-001]]
 == CORE-DOC-001 Adopt Nine-Box Requirement & Decision Taxonomy
@@ -123,3 +124,24 @@ Impact & Consequences::
 Notes/Links::
 * link:functional-requirements.adoc#CORE-FN-015[CORE-FN-015]
 * link:functional-requirements.adoc#CORE-FN-016[CORE-FN-016]
+
+[[CORE-TEST-006]]
+== CORE-TEST-006 Preserve First-Attempt Unit-Test Failures
+
+Date:: 2026-09-12
+Context::
+* Automatic Surefire retries can turn an intermittent failure into a successful build.
+* Shared CI command lines can request retries with `-Dsurefire.rerunFailingTestsCount`.
+Decision Statement::
+* Set `rerunFailingTestsCount` to the literal value `0` in the Core Surefire plugin configuration.
+* Keep this value independent of Maven properties so command-line retry requests cannot enable automatic reruns.
+Rationale for Decision::
+* Each test invocation must retain its original outcome for failure triage.
+* Bounded, explicitly recorded repeat runs remain useful for investigating intermittent failures.
+Impact & Consequences::
+* Intermittent unit-test failures remain visible and need investigation.
+* This controls Surefire reruns; CI must still treat reported test failures as failures when it uses `maven.test.failure.ignore` to continue to later steps.
+Validation::
+* Check the effective POM with a non-zero command-line retry count, including the `sonar` and `run-all-tests` profiles.
+* Run ordinary and dynamic JUnit tests that fail on their first invocation and would pass on a second invocation.
+* With `-Dsurefire.rerunFailingTestsCount=3`, both `test` and direct `surefire:test` must execute each probe once and report failure.
