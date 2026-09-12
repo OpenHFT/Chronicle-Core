@@ -15,13 +15,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * Performs close and release operations on a background thread.
  * <p>
  * Closing in the background reduces worst case pause times because the caller
- * does not have to perform the tidy up work. The behaviour is controlled by two
+ * does not have to perform the tidy up work. The behaviour is controlled by three
  * system properties:
  * <ul>
  *   <li>{@code background.releaser} &mdash; set to {@code false} to disable
  *   queuing and release resources on the caller's thread.</li>
  *   <li>{@code background.releaser.thread} &mdash; set to {@code false} to queue
  *   work but require manual calls to {@link #releasePendingResources()}.</li>
+ *   <li>{@code background.releaser.application.name} &mdash; an optional application
+ *   label used in the releaser thread name.</li>
  * </ul>
  * <p>
  * Example usage:
@@ -37,6 +39,7 @@ public final class BackgroundResourceReleaser {
     }
 
     public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
+    static final String APPLICATION_NAME_PROPERTY = "background.releaser.application.name";
     static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
 
     /**
@@ -54,11 +57,93 @@ public final class BackgroundResourceReleaser {
     }
 
     private static Thread runBackgroundReleaserThread() {
-        Thread thread = new Thread(BackgroundResourceReleaser::runReleaseResources, BACKGROUND_RESOURCE_RELEASER);
+        Thread thread = new Thread(BackgroundResourceReleaser::runReleaseResources, backgroundReleaserThreadName());
         thread.setDaemon(true);
         thread.start();
 
         return thread;
+    }
+
+    /**
+     * Builds an attributable name for this class loader's releaser thread.
+     * <p>
+     * The application part is taken from {@code background.releaser.application.name}
+     * when configured, otherwise from {@code sun.java.command}. A non-system defining
+     * class loader is also identified because in-process launchers such as Maven
+     * {@code exec:java} can load Chronicle Core more than once while sharing the same
+     * Java command. The original bare name is retained when neither application nor
+     * non-system class-loader context is available.
+     *
+     * @return the thread name, e.g. {@code com.example.MyApp/background~resource~releaser}
+     */
+    static String backgroundReleaserThreadName() {
+        final String application = applicationContext();
+        final String classLoader = classLoaderContext();
+        if (application == null && classLoader == null)
+            return BACKGROUND_RESOURCE_RELEASER;
+        if (application == null)
+            return classLoader + '/' + BACKGROUND_RESOURCE_RELEASER;
+        if (classLoader == null)
+            return application + '/' + BACKGROUND_RESOURCE_RELEASER;
+        return application + '/' + classLoader + '/' + BACKGROUND_RESOURCE_RELEASER;
+    }
+
+    /**
+     * Obtains the configured application label or derives the launch target from
+     * {@code sun.java.command}.
+     *
+     * @return the configured label, the first whitespace-delimited command token,
+     * or {@code null} when neither is available
+     */
+    private static String applicationContext() {
+        try {
+            final String configuredName = trimmedProperty(APPLICATION_NAME_PROPERTY);
+            if (configuredName != null)
+                return configuredName;
+
+            String command = System.getProperty("sun.java.command");
+            if (command == null)
+                return null;
+            command = command.trim();
+            if (command.isEmpty())
+                return null;
+            for (int i = 0; i < command.length(); i++) {
+                if (Character.isWhitespace(command.charAt(i)))
+                    return command.substring(0, i);
+            }
+            return command;
+        } catch (SecurityException e) {
+            return null;
+        }
+    }
+
+    private static String trimmedProperty(String propertyName) {
+        final String value = System.getProperty(propertyName);
+        if (value == null)
+            return null;
+        final String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    /**
+     * Identifies a non-system defining class loader so separate in-process
+     * applications cannot receive identical releaser thread names.
+     */
+    private static String classLoaderContext() {
+        final ClassLoader loader = BackgroundResourceReleaser.class.getClassLoader();
+        if (loader == null)
+            return "bootstrap";
+        try {
+            if (loader == ClassLoader.getSystemClassLoader())
+                return null;
+        } catch (SecurityException ignored) {
+            // The defining loader is still safe to identify.
+        }
+
+        String type = loader.getClass().getSimpleName();
+        if (type.isEmpty())
+            type = loader.getClass().getName();
+        return type + '@' + Integer.toHexString(System.identityHashCode(loader));
     }
 
     private static void runReleaseResources() {
