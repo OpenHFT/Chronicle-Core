@@ -57,10 +57,25 @@ observations from 22 August 2026 were:
 |`--finalization=disabled` |`finalize ran = false` |Printed `AssertionError: Timed out waiting for the Finalizer`
 |===
 
-The finaliser probe requests GC and observes a fixed window. Seeing `false` does not prove that an
-eligible object would otherwise have been finalised. The barrier probe catches and prints its
+The finaliser probe checks a one-second deadline between calls to `System.gc()`,
+`System.runFinalization()` and `Thread.sleep()`. Those calls can exceed that window; it is not a
+hard process deadline. Seeing `false` does not prove that an eligible object would otherwise have
+been finalised. The barrier probe catches and prints its
 assertion, so a zero process exit code is not an automated passing resource-release regression.
 These observations expose the barrier's dependency; they do not validate either resource safety net.
+
+An automated qualification wrapper must impose an external process watchdog and retain separate
+outcomes for normal return, the expected disabled-finalisation observation, unexpected failure and
+watchdog expiry. A timeout or a printed assertion must never be recorded as resource-release success.
+For example, on systems with GNU `timeout`, prefix each Java invocation above with
+`timeout --kill-after=5s 45s`; retain both output streams and the watchdog's exit status.
+
+Each receipt must identify the source revision (and any uncommitted source diff), the actual Java
+executable and `java -version` output, the full invocation, the resolved dependency class path and
+artifact hashes, the observation time, output and outcome. The table above remains the historical
+22 August observation; newer PR receipts qualify only their own recorded source and dependency
+composition. Neither a later successful probe nor a newer passing build retrospectively qualifies
+that historical run or establishes a replacement resource owner's lifecycle contract.
 
 == Evidence needed for a replacement
 
