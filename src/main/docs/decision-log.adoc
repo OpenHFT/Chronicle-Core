@@ -135,8 +135,9 @@ Context::
 Decision Statement::
 * Retain the volatile float and double API rather than deprecating it.
 * Use the platform volatile primitive for aligned access.
-* For misaligned ARM access, perform the plain bit-preserving access followed by an acquire fence for reads or a release fence for writes.
-* Misaligned access provides ordering but is not atomic; callers that require atomic access must align the value to its natural width.
+* For misaligned ARM reads, perform the plain bit-preserving read before the acquire fence.
+* For misaligned ARM writes, place the release fence before the plain bit-preserving store, ordering prior payload accesses before publication. A fence after both stores cannot establish that ordering.
+* Misaligned access can tear and does not provide full volatile semantics. Callers requiring an atomic publication marker must align the value to its natural width.
 Alternatives Considered::
 * *Deprecate the methods for removal* - avoids maintaining ARM fallbacks but cascades into the Chronicle Bytes public API.
 * *Reject every misaligned access* - gives a simpler atomicity rule but removes behaviour already supported by the memory abstraction.
@@ -145,6 +146,7 @@ Rationale for Decision::
 * Explicit ARM fallbacks preserve the existing API while stating the alignment limitation.
 Impact & Consequences::
 * ARM direct-address, object-offset and null-object paths share the same ordering contract.
-* Tests cover misaligned release/acquire communication and raw floating-point representations.
+* Tests exercise misaligned ordering and raw floating-point representations; successful stress runs do not prove atomicity or replace ARM hardware qualification.
+* Concurrent ordering tests stop and join every started worker before releasing native memory, including owner interruption and partial startup failure. Test discovery does not allocate their native storage.
 Notes/Links::
 * GitHub issue #419.

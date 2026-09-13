@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
@@ -186,18 +187,13 @@ interface UnsafeMemoryTestMixin<T> {
     default Stream<DynamicTest> misalignedVolatileOrderingTests() {
         return arguments()
                 .flatMap(args -> misalignedVolatileOffsets()
-                        .mapToObj(offset -> {
-                            final Variant variant = new Variant(args);
-                            return DynamicTest.dynamicTest(
-                                    variant.name() + " misaligned " + type().getSimpleName() + "@" + offset,
+                        .mapToObj(offset -> DynamicTest.dynamicTest(
+                                    args.get()[0] + " misaligned " + type().getSimpleName() + "@" + offset,
                                     () -> {
-                                        try {
+                                        try (Variant variant = new Variant(args)) {
                                             exerciseMisalignedVolatileOrdering(variant, offset);
-                                        } finally {
-                                            variant.close();
                                         }
-                                    });
-                        }));
+                                    })));
     }
 
     default IntStream misalignedVolatileOffsets() {
@@ -250,19 +246,57 @@ interface UnsafeMemoryTestMixin<T> {
             }
         }, "misaligned-volatile-reader@" + offset);
 
-        writer.start();
-        reader.start();
-        writer.join(TimeUnit.SECONDS.toMillis(25));
-        reader.join(TimeUnit.SECONDS.toMillis(25));
-        if (writer.isAlive() || reader.isAlive()) {
-            writer.interrupt();
-            reader.interrupt();
-            writer.join();
-            reader.join();
-            fail("Timed out exercising misaligned volatile ordering");
+        try (OrderingWorkers workers = new OrderingWorkers(writer, reader)) {
+            workers.startAndWait();
         }
         if (!threadErrors.isEmpty())
             fail(threadErrors.toString());
+    }
+
+    final class OrderingWorkers implements AutoCloseable {
+        private final Thread writer;
+        private final Thread reader;
+
+        OrderingWorkers(Thread writer, Thread reader) {
+            this.writer = writer;
+            this.reader = reader;
+        }
+
+        void startAndWait() throws InterruptedException {
+            writer.start();
+            reader.start();
+            try {
+                writer.join(TimeUnit.SECONDS.toMillis(25));
+                reader.join(TimeUnit.SECONDS.toMillis(25));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
+            }
+            assertFalse(writer.isAlive() || reader.isAlive(), "Timed out exercising misaligned volatile ordering");
+        }
+
+        @Override
+        public void close() {
+            final AtomicBoolean interrupted = new AtomicBoolean(Thread.interrupted());
+            try {
+                assertAll(writer::interrupt, reader::interrupt, () -> {
+                    // The workers check interruption and have their own deadline. Never
+                    // return native storage to the allocator while either can access it.
+                    for (Thread worker : new Thread[]{writer, reader}) {
+                        while (worker.isAlive()) {
+                            try {
+                                worker.join();
+                            } catch (InterruptedException e) {
+                                interrupted.set(true);
+                            }
+                        }
+                    }
+                });
+            } finally {
+                if (interrupted.get())
+                    Thread.currentThread().interrupt();
+            }
+        }
     }
 
     default void awaitInt(Variant variant,
