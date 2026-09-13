@@ -96,8 +96,15 @@ class CleanerServiceLocatorTest {
 
     @Test
     void probeExceptionDoesNotBreakSelection() {
+        final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
+        final ThrowingCleaner cleaner = new ThrowingCleaner();
         assertDoesNotThrow(() ->
-                CleanerServiceLocator.verifySelectedCleaner(new ThrowingCleaner(), Jvm::usedDirectMemory));
+                CleanerServiceLocator.verifySelectedCleaner(cleaner, Jvm::usedDirectMemory));
+        assertTrue(recorded.keySet().stream().anyMatch(k -> k.level == LogLevel.ERROR
+                        && k.message != null
+                        && k.message.contains("Could not verify ByteBuffer cleaner " + ThrowingCleaner.class.getName())
+                        && k.throwable == cleaner.failure),
+                "the diagnostic must name the cleaner and retain its actual failure; recorded=" + recorded.keySet());
     }
 
     @Test
@@ -177,6 +184,8 @@ class CleanerServiceLocatorTest {
 
     /** Reports NO_IMPACT (so it reaches the probe) but throws on clean(). */
     private static final class ThrowingCleaner implements ByteBufferCleanerService {
+        private final RuntimeException failure = new RuntimeException("probe should swallow this");
+
         @Override
         public Impact impact() {
             return Impact.NO_IMPACT;
@@ -184,7 +193,7 @@ class CleanerServiceLocatorTest {
 
         @Override
         public void clean(ByteBuffer buffer) {
-            throw new RuntimeException("probe should swallow this");
+            throw failure;
         }
     }
 
