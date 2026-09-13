@@ -185,6 +185,15 @@ interface UnsafeMemoryTestMixin<T> {
      */
     @TestFactory
     default Stream<DynamicTest> misalignedVolatileOrderingTests() {
+        if (misalignedVolatileOffsets().findAny().isPresent())
+            System.out.println("ORDERING runtime: type=" + type().getSimpleName()
+                    + ", java=" + System.getProperty("java.runtime.version")
+                    + ", vendor=" + System.getProperty("java.vendor")
+                    + ", vm=" + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version")
+                    + ", os=" + System.getProperty("os.name") + " " + System.getProperty("os.version")
+                    + ", arch=" + System.getProperty("os.arch")
+                    + ", maxHeapBytes=" + Runtime.getRuntime().maxMemory()
+                    + ", processors=" + Runtime.getRuntime().availableProcessors());
         return arguments()
                 .flatMap(args -> misalignedVolatileOffsets()
                         .mapToObj(offset -> DynamicTest.dynamicTest(
@@ -219,38 +228,66 @@ interface UnsafeMemoryTestMixin<T> {
         markerWriter.accept(zero());
 
         final List<String> threadErrors = new CopyOnWriteArrayList<>();
-        final long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20);
+        // Each slot has one writer and is inspected only after both workers join.
+        final Throwable[] workerFailures = new Throwable[2];
+        final long started = System.nanoTime();
+        final long deadline = started + TimeUnit.SECONDS.toNanos(20);
         final Thread writer = new Thread(() -> {
+            int iteration = 0;
             try {
-                for (int i = 0; i < iterations; i++) {
-                    awaitInt(variant, acknowledgementOffset, i, deadline, threadErrors);
-                    writePlainInt(variant, payloadOffset, i + 1);
-                    markerWriter.accept(markers.get(i % markers.size()));
+                for (; iteration < iterations; iteration++) {
+                    awaitInt(variant, acknowledgementOffset, iteration, deadline, threadErrors);
+                    writePlainInt(variant, payloadOffset, iteration + 1);
+                    markerWriter.accept(markers.get(iteration % markers.size()));
                 }
             } catch (Throwable t) {
-                threadErrors.add("writer: " + t);
+                workerFailures[0] = t;
+                threadErrors.add("writer iteration=" + iteration + ": " + t);
             }
         }, "misaligned-volatile-writer@" + offset);
         final Thread reader = new Thread(() -> {
+            int iteration = 0;
             try {
-                for (int i = 0; i < iterations; i++) {
-                    final T expected = markers.get(i % markers.size());
+                for (; iteration < iterations; iteration++) {
+                    final T expected = markers.get(iteration % markers.size());
                     awaitMarker(markerReader, expected, deadline, threadErrors);
                     final int payload = readPlainInt(variant, payloadOffset);
-                    if (payload != i + 1)
-                        throw new AssertionError("expected payload " + (i + 1) + " but was " + payload);
-                    writeVolatileInt(variant, acknowledgementOffset, i + 1);
+                    if (payload != iteration + 1)
+                        throw new AssertionError("expected payload " + (iteration + 1) + " but was " + payload);
+                    writeVolatileInt(variant, acknowledgementOffset, iteration + 1);
                 }
             } catch (Throwable t) {
-                threadErrors.add("reader: " + t);
+                workerFailures[1] = t;
+                threadErrors.add("reader iteration=" + iteration + ": " + t);
             }
         }, "misaligned-volatile-reader@" + offset);
 
         try (OrderingWorkers workers = new OrderingWorkers(writer, reader)) {
             workers.startAndWait();
         }
-        if (!threadErrors.isEmpty())
-            fail(threadErrors.toString());
+        // Temporary diagnostics for #419: no logging or additional shared progress
+        // counters in the handshake. Native storage still belongs to this case.
+        final String context = variant.name() + ", mode=" + variant.mode()
+                + ", type=" + type().getSimpleName() + ", offset=" + offset
+                + ", accessOffsetMod64=" + ((variant.addr() + offset) & (CACHE_LINE_SIZE - 1))
+                + ", elapsedMs=" + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+        if (!threadErrors.isEmpty()) {
+            final AssertionError failure = new AssertionError("ORDERING FAILURE: " + context + ", " + threadErrors);
+            for (Throwable workerFailure : workerFailures)
+                if (workerFailure != null)
+                    failure.addSuppressed(workerFailure);
+            try {
+                // A post-join observation is separate from each worker's last poll.
+                failure.addSuppressed(new AssertionError("After worker join: marker=" + markerDescription(markerReader.get())
+                        + ", payload=" + readPlainInt(variant, payloadOffset)
+                        + ", acknowledgement=" + readVolatileInt(variant, acknowledgementOffset)
+                        + ", writer=" + writer.getState() + ", reader=" + reader.getState()));
+            } catch (Throwable diagnosticFailure) {
+                failure.addSuppressed(diagnosticFailure);
+            }
+            throw failure;
+        }
+        System.out.println("ORDERING PASS: " + context + ", iterations=" + iterations);
     }
 
     final class OrderingWorkers implements AutoCloseable {
@@ -304,11 +341,12 @@ interface UnsafeMemoryTestMixin<T> {
                           int expected,
                           long deadline,
                           List<String> threadErrors) {
-        while (readVolatileInt(variant, offset) != expected) {
+        int observed;
+        while ((observed = readVolatileInt(variant, offset)) != expected) {
             if (!threadErrors.isEmpty() || Thread.currentThread().isInterrupted())
-                throw new AssertionError("peer stopped while waiting for acknowledgement " + expected);
+                throw new AssertionError("peer stopped while waiting for acknowledgement " + expected + ", last observed=" + observed);
             if (System.nanoTime() >= deadline)
-                throw new AssertionError("timed out waiting for acknowledgement " + expected);
+                throw new AssertionError("timed out waiting for acknowledgement " + expected + ", last observed=" + observed);
             Jvm.nanoPause();
         }
     }
@@ -317,13 +355,24 @@ interface UnsafeMemoryTestMixin<T> {
                              T expected,
                              long deadline,
                              List<String> threadErrors) {
-        while (!expected.equals(markerReader.get())) {
+        T observed;
+        while (!expected.equals(observed = markerReader.get())) {
             if (!threadErrors.isEmpty() || Thread.currentThread().isInterrupted())
-                throw new AssertionError("peer stopped while waiting for marker " + expected);
+                throw new AssertionError("peer stopped while waiting for marker " + markerDescription(expected)
+                        + ", last observed=" + markerDescription(observed));
             if (System.nanoTime() >= deadline)
-                throw new AssertionError("timed out waiting for marker " + expected);
+                throw new AssertionError("timed out waiting for marker " + markerDescription(expected)
+                        + ", last observed=" + markerDescription(observed));
             Jvm.nanoPause();
         }
+    }
+
+    static String markerDescription(Object marker) {
+        if (marker instanceof Double)
+            return marker + " (bits=0x" + Long.toHexString(Double.doubleToRawLongBits((Double) marker)) + ")";
+        if (marker instanceof Float)
+            return marker + " (bits=0x" + Integer.toHexString(Float.floatToRawIntBits((Float) marker)) + ")";
+        return String.valueOf(marker);
     }
 
     default int readPlainInt(Variant variant, int offset) {

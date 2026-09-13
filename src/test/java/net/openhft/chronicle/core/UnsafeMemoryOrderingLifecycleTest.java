@@ -8,12 +8,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.provider.Arguments;
 
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UnsafeMemoryOrderingLifecycleTest {
+    @Test
+    void failedWorkerRetainsItsCauseAndNativeStateForDiagnostics() throws InterruptedException {
+        runControl("diagnostics");
+    }
+
     @Test
     void interruptedOwnerJoinsWorkersBeforeFreeingNativeMemory() throws InterruptedException {
         runControl("interrupt");
@@ -49,6 +55,10 @@ class UnsafeMemoryOrderingLifecycleTest {
 
     public static final class LifecycleMain {
         public static void main(String[] args) throws InterruptedException {
+            if ("diagnostics".equals(args[0])) {
+                verifyFailureDiagnostics();
+                return;
+            }
             final boolean partialStart = "second-start".equals(args[0]);
             final Thread owner = Thread.currentThread();
             final CountDownLatch started = new CountDownLatch(partialStart ? 1 : 2);
@@ -109,5 +119,28 @@ class UnsafeMemoryOrderingLifecycleTest {
                 interrupter.join();
             }
         }
+
+        private static void verifyFailureDiagnostics() {
+            final AssertionError workerFailure = new AssertionError("injected marker publication failure");
+            final UnsafeMemory memory = new UnsafeMemory.ARMMemory() {
+                @Override
+                public void writeVolatileDouble(long address, double value) {
+                    if (value != 0.0)
+                        throw workerFailure;
+                    super.writeVolatileDouble(address, value);
+                }
+            };
+            try (UnsafeMemoryTestMixin.Variant variant = new UnsafeMemoryTestMixin.Variant(
+                    Arguments.of("diagnostic control", memory, UnsafeMemoryTestMixin.Mode.NATIVE_ADDRESS))) {
+                final AssertionError reported = assertThrows(AssertionError.class,
+                        () -> new UnsafeMemoryDoubleTest().exerciseMisalignedVolatileOrdering(variant, 1));
+                assertTrue(reported.getMessage().contains("diagnostic control, mode=NATIVE_ADDRESS, type=Double, offset=1"));
+                assertTrue(Arrays.asList(reported.getSuppressed()).contains(workerFailure), "Retain the original worker exception");
+                assertTrue(Arrays.stream(reported.getSuppressed()).anyMatch(t -> t.getMessage().contains(
+                        "After worker join: marker=0.0 (bits=0x0), payload=1, acknowledgement=0, writer=TERMINATED, reader=TERMINATED")),
+                        "Capture native state after worker termination and before freeing it");
+            }
+        }
+
     }
 }
