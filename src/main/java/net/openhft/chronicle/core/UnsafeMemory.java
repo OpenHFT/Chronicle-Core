@@ -2623,8 +2623,9 @@ public class UnsafeMemory implements Memory {
         }
 
         /**
-         * Writes a volatile float to the specified address. A misaligned write uses a plain
-         * bit-preserving write followed by a release fence; it is ordered but not atomic.
+         * Writes a volatile float to the specified address. A misaligned write uses a
+         * release fence followed by a plain bit-preserving write. This orders preceding
+         * accesses before publication, but the write can tear and is not a full volatile store.
          *
          * @param address the memory address to write to
          * @param f       the float value to write
@@ -2635,14 +2636,15 @@ public class UnsafeMemory implements Memory {
             if (safeAlignedInt(address))
                 super.writeVolatileFloat(address, f);
             else {
-                writeFloat(address, f);
                 UNSAFE.storeFence();
+                writeFloat(address, f);
             }
         }
 
         /**
-         * Writes a volatile float to an object offset. A misaligned write uses a plain
-         * bit-preserving write followed by a release fence; it is ordered but not atomic.
+         * Writes a volatile float to an object offset. A misaligned write uses a
+         * release fence followed by a plain bit-preserving write. This orders preceding
+         * accesses before publication, but the write can tear and is not a full volatile store.
          *
          * @param object the object to write to, or {@code null} for an absolute address
          * @param offset the offset to write to
@@ -2654,8 +2656,8 @@ public class UnsafeMemory implements Memory {
             if (safeAlignedInt(offset))
                 super.writeVolatileFloat(object, offset, f);
             else {
-                writeFloat(object, offset, f);
                 UNSAFE.storeFence();
+                writeFloat(object, offset, f);
             }
         }
 
@@ -3034,8 +3036,9 @@ public class UnsafeMemory implements Memory {
         }
 
         /**
-         * Writes the specified double value to the specified memory address in a volatile manner.
-         * If the address is not aligned to 8 bytes (which is the size of a long), it performs a non-atomic write and a store fence.
+         * Writes a volatile double to the specified address. A misaligned write uses a
+         * release fence followed by a plain bit-preserving write. This orders preceding
+         * accesses before publication, but the write can tear and is not a full volatile store.
          *
          * @param address the memory address
          * @param d       the double value to write
@@ -3046,14 +3049,15 @@ public class UnsafeMemory implements Memory {
             if (safeAlignedLong(address))
                 super.writeVolatileDouble(address, d);
             else {
-                writeDouble(address, d);
                 UNSAFE.storeFence();
+                writeDouble(address, d);
             }
         }
 
         /**
-         * Writes a volatile double to an object offset. A misaligned write uses a plain
-         * bit-preserving write followed by a release fence; it is ordered but not atomic.
+         * Writes a volatile double to an object offset. A misaligned write uses a
+         * release fence followed by a plain bit-preserving write. This orders preceding
+         * accesses before publication, but the write can tear and is not a full volatile store.
          *
          * @param object the object to write to, or {@code null} for an absolute address
          * @param offset the offset to write to
@@ -3065,8 +3069,8 @@ public class UnsafeMemory implements Memory {
             if (safeAlignedLong(offset))
                 super.writeVolatileDouble(object, offset, d);
             else {
-                writeDouble(object, offset, d);
                 UNSAFE.storeFence();
+                writeDouble(object, offset, d);
             }
         }
 

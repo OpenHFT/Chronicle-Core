@@ -621,6 +621,9 @@ public interface Memory {
 
     /**
      * Reads a volatile float from the memory at the given address.
+     * On ARM, misaligned access supplies acquire ordering but can tear and is
+     * not equivalent to a full volatile access. Align the value to its natural width
+     * when atomicity is required.
      *
      * @param address the memory address
      * @return the float value read from the memory
@@ -629,6 +632,9 @@ public interface Memory {
 
     /**
      * Reads a volatile float from the object at the given offset.
+     * On ARM, misaligned access supplies acquire ordering but can tear and is
+     * not equivalent to a full volatile access. Align the value to its natural width
+     * when atomicity is required.
      *
      * @param object the source object
      * @param offset the offset in the object
@@ -657,6 +663,9 @@ public interface Memory {
 
     /**
      * Reads a volatile double from the memory at the given address.
+     * On ARM, misaligned access supplies acquire ordering but can tear and is
+     * not equivalent to a full volatile access. Align the value to its natural width
+     * when atomicity is required.
      *
      * @param address the memory address
      * @return the double value read from the memory
@@ -665,6 +674,9 @@ public interface Memory {
 
     /**
      * Reads a volatile double from the object at the given offset.
+     * On ARM, misaligned access supplies acquire ordering but can tear and is
+     * not equivalent to a full volatile access. Align the value to its natural width
+     * when atomicity is required.
      *
      * @param object the source object
      * @param offset the offset in the object
@@ -725,6 +737,9 @@ public interface Memory {
 
     /**
      * Writes a volatile float to the memory at the given address.
+     * On ARM, misaligned access supplies release ordering but can tear and is
+     * not equivalent to a full volatile access. Align the value to its natural width
+     * when atomicity is required.
      *
      * @param address the memory address
      * @param f       the float value to write
@@ -733,6 +748,9 @@ public interface Memory {
 
     /**
      * Writes a volatile float to the object at the given offset.
+     * On ARM, misaligned access supplies release ordering but can tear and is
+     * not equivalent to a full volatile access. Align the value to its natural width
+     * when atomicity is required.
      *
      * @param object the destination object
      * @param offset the offset in the destination object
@@ -759,6 +777,9 @@ public interface Memory {
 
     /**
      * Writes a volatile double to the memory at the given address.
+     * On ARM, misaligned access supplies release ordering but can tear and is
+     * not equivalent to a full volatile access. Align the value to its natural width
+     * when atomicity is required.
      *
      * @param address the memory address
      * @param d       the double value to write
@@ -767,6 +788,9 @@ public interface Memory {
 
     /**
      * Writes a volatile double to the object at the given offset.
+     * On ARM, misaligned access supplies release ordering but can tear and is
+     * not equivalent to a full volatile access. Align the value to its natural width
+     * when atomicity is required.
      *
      * @param object the destination object
      * @param offset the offset in the destination object
