@@ -73,6 +73,9 @@ public final class BackgroundResourceReleaser {
      * {@code exec:java} can load Chronicle Core more than once while sharing the same
      * Java command. The original bare name is retained when neither application nor
      * non-system class-loader context is available.
+     * The name is captured when the thread is created; later property changes do not
+     * rename it. Use the explicit application label when the first command token is
+     * not a useful name for the application.
      *
      * @return the thread name, e.g. {@code com.example.MyApp/background~resource~releaser}
      */
@@ -126,8 +129,8 @@ public final class BackgroundResourceReleaser {
     }
 
     /**
-     * Identifies a non-system defining class loader so separate in-process
-     * applications cannot receive identical releaser thread names.
+     * Adds best-effort distinguishing information for a non-system defining class
+     * loader. Identity hashes can collide, so names are not guaranteed to be unique.
      */
     private static String classLoaderContext() {
         final ClassLoader loader = BackgroundResourceReleaser.class.getClassLoader();

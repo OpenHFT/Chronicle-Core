@@ -13,6 +13,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -58,19 +60,13 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
             System.setProperty("sun.java.command", "org.codehaus.plexus.classworlds.launcher.Launcher exec:java");
             System.clearProperty(BackgroundResourceReleaser.APPLICATION_NAME_PROPERTY);
 
-            final LoadedReleaser first = loadReleaser(firstLoader);
-            final LoadedReleaser second = loadReleaser(secondLoader);
-            try {
+            try (LoadedReleaser first = new LoadedReleaser(firstLoader);
+                 LoadedReleaser second = new LoadedReleaser(secondLoader)) {
+                first.start();
+                second.start();
                 assertNotEquals(first.thread.getName(), second.thread.getName());
                 assertTrue(first.thread.getName().endsWith('/' + BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER));
                 assertTrue(second.thread.getName().endsWith('/' + BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER));
-            } finally {
-                first.stop.invoke(null);
-                second.stop.invoke(null);
-                first.thread.join(1_000);
-                second.thread.join(1_000);
-                assertFalse(first.thread.isAlive());
-                assertFalse(second.thread.isAlive());
             }
         } finally {
             restoreProperty("sun.java.command", savedCommand);
@@ -78,11 +74,54 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
         }
     }
 
-    private static LoadedReleaser loadReleaser(ClassLoader loader) throws Exception {
-        final Class<?> type = Class.forName(BackgroundResourceReleaser.class.getName(), true, loader);
-        final Field field = type.getDeclaredField("RELEASER");
-        field.setAccessible(true);
-        return new LoadedReleaser((Thread) field.get(null), type.getMethod("stop"));
+    @Test
+    void partialClassLoaderSetupStopsTheAcquiredReleaser() throws Exception {
+        final URL classes = BackgroundResourceReleaser.class.getProtectionDomain().getCodeSource().getLocation();
+        final ClassNotFoundException failure = new ClassNotFoundException("second loader failed");
+        final ClassLoader failingLoader = new ClassLoader(null) {
+            @Override
+            protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+                throw failure;
+            }
+        };
+        try (ChildFirstLoader loader = new ChildFirstLoader(classes)) {
+            final LoadedReleaser first = new LoadedReleaser(loader);
+            assertSame(failure, assertThrows(ClassNotFoundException.class, () -> {
+                try (LoadedReleaser owned = first) {
+                    owned.start();
+                    try (LoadedReleaser second = new LoadedReleaser(failingLoader)) {
+                        fail("Second loader must fail before starting a releaser");
+                    }
+                }
+            }));
+            assertFalse(first.thread.isAlive());
+        }
+    }
+
+    @Test
+    void interruptedCleanupStopsBothReleasersAndPreservesTheFailure() throws Exception {
+        final URL classes = BackgroundResourceReleaser.class.getProtectionDomain().getCodeSource().getLocation();
+        final AssertionError failure = new AssertionError("test body failed");
+        try (ChildFirstLoader firstLoader = new ChildFirstLoader(classes);
+             ChildFirstLoader secondLoader = new ChildFirstLoader(classes)) {
+            final LoadedReleaser first = new LoadedReleaser(firstLoader);
+            final LoadedReleaser second = new LoadedReleaser(secondLoader);
+            try {
+                assertSame(failure, assertThrows(AssertionError.class, () -> {
+                    try (LoadedReleaser ownedFirst = first; LoadedReleaser ownedSecond = second) {
+                        ownedFirst.start();
+                        ownedSecond.start();
+                        Thread.currentThread().interrupt();
+                        throw failure;
+                    }
+                }));
+                assertTrue(Thread.currentThread().isInterrupted(), "Cleanup must restore interruption");
+                assertFalse(first.thread.isAlive());
+                assertFalse(second.thread.isAlive());
+            } finally {
+                Thread.interrupted();
+            }
+        }
     }
 
     private static void restoreProperty(String propertyName, String value) {
@@ -92,13 +131,52 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
             System.setProperty(propertyName, value);
     }
 
-    private static final class LoadedReleaser {
-        private final Thread thread;
+    private static final class LoadedReleaser implements AutoCloseable {
+        private final Field threadField;
         private final Method stop;
+        private Thread thread;
+        private boolean startAttempted;
 
-        private LoadedReleaser(Thread thread, Method stop) {
-            this.thread = thread;
-            this.stop = stop;
+        private LoadedReleaser(ClassLoader loader) throws Exception {
+            // Resolve cleanup before class initialisation can start its worker.
+            final Class<?> type = Class.forName(BackgroundResourceReleaser.class.getName(), false, loader);
+            stop = type.getMethod("stop");
+            threadField = type.getDeclaredField("RELEASER");
+            threadField.setAccessible(true);
+        }
+
+        private void start() throws IllegalAccessException {
+            startAttempted = true;
+            thread = (Thread) threadField.get(null);
+            assertNotNull(thread, "This test requires the background releaser thread");
+        }
+
+        @Override
+        public void close() {
+            if (!startAttempted)
+                return;
+            final AtomicBoolean interrupted = new AtomicBoolean(Thread.interrupted());
+            try {
+                // Always attempt the join, even when stop fails. Try-with-resources
+                // preserves the test failure and also closes the other releaser.
+                assertAll(() -> stop.invoke(null), () -> {
+                    final Thread worker = (Thread) threadField.get(null);
+                    if (worker == null)
+                        return;
+                    final long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+                    while (worker.isAlive() && System.nanoTime() < deadline) {
+                        try {
+                            worker.join(100);
+                        } catch (InterruptedException e) {
+                            interrupted.set(true);
+                        }
+                    }
+                    assertFalse(worker.isAlive(), "Releaser did not terminate: " + worker.getName());
+                });
+            } finally {
+                if (interrupted.get())
+                    Thread.currentThread().interrupt();
+            }
         }
     }
 
