@@ -265,6 +265,8 @@
                 <configuration>
                     <argLine>${argLine} ${jvm.requiredArgs}</argLine>
                     <forkCount>4</forkCount>
+                    <!-- Keep failures visible even when CI requests retries on the command line. -->
+                    <rerunFailingTestsCount>0</rerunFailingTestsCount>
                     <reuseForks>true</reuseForks>
                     <runOrder>hourly</runOrder>
                 </configuration>
