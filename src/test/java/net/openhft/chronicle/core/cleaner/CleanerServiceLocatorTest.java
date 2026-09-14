@@ -14,6 +14,8 @@ import net.openhft.chronicle.core.onoes.LogLevel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.Reference;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -40,6 +42,17 @@ class CleanerServiceLocatorTest {
                 .filter(k -> k.message != null && k.message.contains(needle))
                 .mapToInt(k -> 1)
                 .sum();
+    }
+
+    private static void assertNoErrors(Map<ExceptionKey, Integer> recorded) {
+        assertFalse(recorded.keySet().stream().anyMatch(k -> k.level == LogLevel.ERROR),
+                "verification and fallback cleanup must not report errors; recorded=" + recorded.keySet());
+    }
+
+    private static void assertProbeCleaned(ByteBuffer buffer) throws ReflectiveOperationException {
+        assertNotNull(buffer, "the provider must receive the probe");
+        assertTrue(CleanerServiceLocator.isCleanerInvoked(Jvm.getValue(buffer, "cleaner")),
+                "the probe must be cleaned before verification returns, before the test's safety cleanup");
     }
 
     @AfterEach
@@ -83,6 +96,7 @@ class CleanerServiceLocatorTest {
                 "a cleaner that genuinely frees memory must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
                 "expected a debug line naming the verified cleaner; recorded=" + recorded.keySet());
+        assertNoErrors(recorded);
     }
 
     @Test
@@ -102,6 +116,7 @@ class CleanerServiceLocatorTest {
             assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
                     "another buffer's allocation must not be attributed to the cleaner");
             assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1);
+            assertNoErrors(recorded);
         } finally {
             if (other[0] != null)
                 cleanup.clean(other[0]);
@@ -109,7 +124,7 @@ class CleanerServiceLocatorTest {
     }
 
     @Test
-    void anotherReleaseDoesNotHideNoOpCleaner() {
+    void anotherReleaseDoesNotHideNoOpCleaner() throws ReflectiveOperationException {
         final WorkingCleaner cleanup = new WorkingCleaner();
         final ByteBuffer other = ByteBuffer.allocateDirect(1 << 12);
         final ByteBuffer[] probe = new ByteBuffer[1];
@@ -125,6 +140,8 @@ class CleanerServiceLocatorTest {
             });
             assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
                     "another buffer's release must not conceal the no-op cleaner");
+            assertNoErrors(recorded);
+            assertProbeCleaned(probe[0]);
         } finally {
             cleanup.clean(other);
             if (probe[0] != null)
@@ -141,16 +158,59 @@ class CleanerServiceLocatorTest {
     }
 
     @Test
-    void probeExceptionDoesNotBreakSelection() {
+    void probeRuntimeExceptionIsContainedAndProbeIsCleaned() throws ReflectiveOperationException {
+        assertThrowingProbeIsCleaned(new RuntimeException("probe should swallow this"));
+    }
+
+    @Test
+    void probeErrorIsContainedAndProbeIsCleaned() throws ReflectiveOperationException {
+        assertThrowingProbeIsCleaned(new AssertionError("probe should also swallow errors"));
+    }
+
+    private static void assertThrowingProbeIsCleaned(Throwable failure) throws ReflectiveOperationException {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
-        final ThrowingCleaner cleaner = new ThrowingCleaner();
-        assertDoesNotThrow(() ->
-                CleanerServiceLocator.verifySelectedCleaner(cleaner));
-        assertTrue(recorded.keySet().stream().anyMatch(k -> k.level == LogLevel.ERROR
-                        && k.message != null
-                        && k.message.contains("Could not verify ByteBuffer cleaner " + ThrowingCleaner.class.getName())
-                        && k.throwable == cleaner.failure),
-                "the diagnostic must name the cleaner and retain its actual failure; recorded=" + recorded.keySet());
+        final ThrowingCleaner cleaner = new ThrowingCleaner(failure);
+        try {
+            assertDoesNotThrow(() -> CleanerServiceLocator.verifySelectedCleaner(cleaner));
+            assertTrue(recorded.keySet().stream().anyMatch(k -> k.level == LogLevel.ERROR
+                            && k.clazz == CleanerServiceLocator.class
+                            && k.message != null
+                            && k.message.contains("Could not verify ByteBuffer cleaner " + ThrowingCleaner.class.getName())
+                            && k.throwable == failure),
+                    "the diagnostic must name the cleaner and retain its actual failure; recorded=" + recorded.keySet());
+            assertEquals(0, countFrom(recorded, LogLevel.ERROR, "Could not release"));
+            assertProbeCleaned(cleaner.probe);
+        } finally {
+            if (cleaner.probe != null)
+                new WorkingCleaner().clean(cleaner.probe);
+        }
+    }
+
+    @Test
+    void inheritedReferenceNextLeavesUnknownLayoutUnverified() throws ReflectiveOperationException {
+        final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
+        final ByteBuffer[] probe = new ByteBuffer[1];
+        try {
+            assertDoesNotThrow(() -> CleanerServiceLocator.verifySelectedCleaner(new WorkingCleaner(), buffer -> {
+                probe[0] = buffer;
+                return new PhantomReference<>(buffer, null);
+            }));
+            // The old superclass search would silently find this unrelated queue-link field.
+            assertEquals(Reference.class, Jvm.getField(PhantomReference.class, "next").getDeclaringClass());
+            assertTrue(recorded.keySet().stream().anyMatch(k -> k.level == LogLevel.ERROR
+                            && k.clazz == CleanerServiceLocator.class
+                            && k.message.startsWith("Could not verify ByteBuffer cleaner ")
+                            && k.throwable instanceof UnsupportedOperationException
+                            && k.throwable.getMessage().contains("Unrecognised direct buffer cleaner layout")),
+                    "an unknown layout must be reported as unverified; recorded=" + recorded.keySet());
+            assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"));
+            assertEquals(0, countFrom(recorded, LogLevel.DEBUG, "Selected"));
+            assertEquals(0, countFrom(recorded, LogLevel.ERROR, "Could not release"));
+            assertProbeCleaned(probe[0]);
+        } finally {
+            if (probe[0] != null)
+                new WorkingCleaner().clean(probe[0]);
+        }
     }
 
     @Test
@@ -178,6 +238,7 @@ class CleanerServiceLocatorTest {
                 "a working SOME_IMPACT cleaner must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
                 "expected a debug line naming the verified cleaner; recorded=" + recorded.keySet());
+        assertNoErrors(recorded);
     }
 
     @Test
@@ -189,6 +250,7 @@ class CleanerServiceLocatorTest {
                 "the real JDK9 cleaner must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
                 "expected a debug line for the verified JDK9 cleaner; recorded=" + recorded.keySet());
+        assertNoErrors(recorded);
     }
 
     /** Reports SOME_IMPACT but genuinely frees (delegates to WorkingCleaner). */
@@ -221,7 +283,12 @@ class CleanerServiceLocatorTest {
 
     /** Reports NO_IMPACT (so it reaches the probe) but throws on clean(). */
     private static final class ThrowingCleaner implements ByteBufferCleanerService {
-        private final RuntimeException failure = new RuntimeException("probe should swallow this");
+        private final Throwable failure;
+        private ByteBuffer probe;
+
+        private ThrowingCleaner(Throwable failure) {
+            this.failure = failure;
+        }
 
         @Override
         public Impact impact() {
@@ -230,7 +297,10 @@ class CleanerServiceLocatorTest {
 
         @Override
         public void clean(ByteBuffer buffer) {
-            throw failure;
+            probe = buffer;
+            if (failure instanceof Error)
+                throw (Error) failure;
+            throw (RuntimeException) failure;
         }
     }
 
