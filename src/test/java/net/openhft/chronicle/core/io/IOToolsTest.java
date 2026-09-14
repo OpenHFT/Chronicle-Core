@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -51,9 +52,11 @@ class IOToolsTest extends CoreTestCommon {
     void testIsClosedException() {
         Exception closedConnectionException = new IOException("Connection reset by peer");
         assertTrue(IOTools.isClosedException(closedConnectionException));
+        assertTrue(IOTools.isClosedException(new SocketException("Connection reset by peer (Write failed)")));
 
         Exception otherException = new IOException("Some other IO error");
         assertFalse(IOTools.isClosedException(otherException));
+        assertFalse(IOTools.isClosedException(new IllegalStateException("Connection reset by peer (Write failed)")));
     }
 
     @Test

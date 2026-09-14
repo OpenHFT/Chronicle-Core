@@ -60,6 +60,8 @@ public final class IOTools {
                             "Connection reset",
                             // isALinuxJava12OrLessConnectionResetException
                             "Connection reset by peer",
+                            // macOS reports this variant when a write detects the reset
+                            "Connection reset by peer (Write failed)",
                             "Remotely Closed",
                             // Timeout of a WinSock write on Windows
                             "Software caused connection abort: socket write error",
