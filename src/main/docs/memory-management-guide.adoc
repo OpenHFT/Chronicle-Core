@@ -144,6 +144,12 @@ While Chronicle Core often uses its own `Memory` abstraction, you might interact
 * **Caution**: Manually cleaning `ByteBuffer`s can be dangerous if the buffer (or its memory region) is still in use.
 This should be done with extreme care.
 
+The selection diagnostic checks whether the selected service invoked the probe buffer's JDK cleaner.
+Process-wide direct-memory totals cannot establish this: unrelated allocations can hide a release, and unrelated releases can hide a no-op cleaner.
+The diagnostic uses the JDK cleaner's internal invocation state; an inaccessible or changed layout reports a verification error without changing service selection.
+Invocation state is not independent proof that an asynchronous provider has finished deallocation.
+The probe buffer is also cleaned through the built-in service, including when the selected provider does nothing or throws.
+
 == 5. Freeing Memory and Debugging Issues
 
 * **Rule 1**: Always call `OS.memory().freeMemory(address, size)` for each corresponding `OS.memory().allocate(capacity)` call.

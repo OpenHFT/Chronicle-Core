@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.function.LongSupplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -79,11 +78,58 @@ class CleanerServiceLocatorTest {
     @Test
     void verifiedWorkingCleanerLogsAtDebugAndDoesNotWarn() {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
-        CleanerServiceLocator.verifySelectedCleaner(new WorkingCleaner(), Jvm::usedDirectMemory);
+        CleanerServiceLocator.verifySelectedCleaner(new WorkingCleaner());
         assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
                 "a cleaner that genuinely frees memory must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
                 "expected a debug line naming the verified cleaner; recorded=" + recorded.keySet());
+    }
+
+    @Test
+    void anotherAllocationDoesNotHideSuccessfulCleanup() {
+        final WorkingCleaner cleanup = new WorkingCleaner();
+        final ByteBuffer[] other = new ByteBuffer[1];
+        final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
+        try {
+            CleanerServiceLocator.verifySelectedCleaner(new WorkingCleaner() {
+                @Override
+                public void clean(ByteBuffer buffer) {
+                    super.clean(buffer);
+                    // Place another allocation between probe cleanup and its observation.
+                    other[0] = ByteBuffer.allocateDirect(buffer.capacity());
+                }
+            });
+            assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
+                    "another buffer's allocation must not be attributed to the cleaner");
+            assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1);
+        } finally {
+            if (other[0] != null)
+                cleanup.clean(other[0]);
+        }
+    }
+
+    @Test
+    void anotherReleaseDoesNotHideNoOpCleaner() {
+        final WorkingCleaner cleanup = new WorkingCleaner();
+        final ByteBuffer other = ByteBuffer.allocateDirect(1 << 12);
+        final ByteBuffer[] probe = new ByteBuffer[1];
+        final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
+        try {
+            CleanerServiceLocator.verifySelectedCleaner(new WorkingCleaner() {
+                @Override
+                public void clean(ByteBuffer buffer) {
+                    probe[0] = buffer;
+                    // Release only the unrelated buffer; the probe remains allocated.
+                    cleanup.clean(other);
+                }
+            });
+            assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
+                    "another buffer's release must not conceal the no-op cleaner");
+        } finally {
+            cleanup.clean(other);
+            if (probe[0] != null)
+                cleanup.clean(probe[0]);
+        }
     }
 
     @Test
@@ -99,7 +145,7 @@ class CleanerServiceLocatorTest {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         final ThrowingCleaner cleaner = new ThrowingCleaner();
         assertDoesNotThrow(() ->
-                CleanerServiceLocator.verifySelectedCleaner(cleaner, Jvm::usedDirectMemory));
+                CleanerServiceLocator.verifySelectedCleaner(cleaner));
         assertTrue(recorded.keySet().stream().anyMatch(k -> k.level == LogLevel.ERROR
                         && k.message != null
                         && k.message.contains("Could not verify ByteBuffer cleaner " + ThrowingCleaner.class.getName())
@@ -108,18 +154,9 @@ class CleanerServiceLocatorTest {
     }
 
     @Test
-    void noFalseWarningWhenAccountingUnavailable() {
-        final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
-        final LongSupplier accountingOff = () -> 0L; // 0 == direct-memory accounting unavailable
-        CleanerServiceLocator.verifySelectedCleaner(new AllowedCleaner(), accountingOff);
-        assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
-                "must not warn when accounting is unavailable; recorded=" + recorded.keySet());
-    }
-
-    @Test
     void allowedCleanerProbedDirectlyWarns() {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
-        CleanerServiceLocator.verifySelectedCleaner(new AllowedCleaner(), Jvm::usedDirectMemory);
+        CleanerServiceLocator.verifySelectedCleaner(new AllowedCleaner());
         assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
                 "AllowedCleaner (NO_IMPACT, no-op) must be detected as leaking; recorded=" + recorded.keySet());
     }
@@ -128,7 +165,7 @@ class CleanerServiceLocatorTest {
     void someImpactNoOpCleanerStillWarns() {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
         // the probe ignores self-reported impact, so a SOME_IMPACT no-op is still caught
-        CleanerServiceLocator.verifySelectedCleaner(new SomeImpactCleaner(), Jvm::usedDirectMemory);
+        CleanerServiceLocator.verifySelectedCleaner(new SomeImpactCleaner());
         assertTrue(countFrom(recorded, LogLevel.WARN, "does not free direct memory") >= 1,
                 "a SOME_IMPACT cleaner that frees nothing must still warn; recorded=" + recorded.keySet());
     }
@@ -136,7 +173,7 @@ class CleanerServiceLocatorTest {
     @Test
     void someImpactWorkingCleanerDoesNotWarn() {
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
-        CleanerServiceLocator.verifySelectedCleaner(new SomeImpactWorkingCleaner(), Jvm::usedDirectMemory);
+        CleanerServiceLocator.verifySelectedCleaner(new SomeImpactWorkingCleaner());
         assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
                 "a working SOME_IMPACT cleaner must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
@@ -147,7 +184,7 @@ class CleanerServiceLocatorTest {
     void realJdk9CleanerVerifiedSilent() {
         assumeTrue(Jvm.isJava9Plus()); // Jdk9 cleaner only frees on Java 9+
         final Map<ExceptionKey, Integer> recorded = Jvm.recordExceptions();
-        CleanerServiceLocator.verifySelectedCleaner(new Jdk9ByteBufferCleanerService(), Jvm::usedDirectMemory);
+        CleanerServiceLocator.verifySelectedCleaner(new Jdk9ByteBufferCleanerService());
         assertEquals(0, countFrom(recorded, LogLevel.WARN, "does not free direct memory"),
                 "the real JDK9 cleaner must not warn; recorded=" + recorded.keySet());
         assertTrue(countFrom(recorded, LogLevel.DEBUG, "Selected") >= 1,
