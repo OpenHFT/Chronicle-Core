@@ -136,7 +136,7 @@ System.out.println("Requested offset " + fileOffset + ", Aligned offset: " + ali
 While Chronicle Core often uses its own `Memory` abstraction, you might interact with direct `ByteBuffer`s from other libraries.
 
 * **Creation**: `ByteBuffer.allocateDirect(capacity)` allocates off-heap memory.
-* **Cleanup**: Relies on `sun.misc.Cleaner` and GC, which can be unpredictable.
+* **Automatic cleanup**: Relies on a JDK cleaner and GC, which can be unpredictable.
 * **Chronicle Core Utilities for Direct `ByteBuffer`s**:
 ** `IOTools.clean(ByteBuffer bb)`: Attempts to invoke the cleaner of a direct `ByteBuffer` more promptly using `CleanerServiceLocator`.
 ** `CleanerServiceLocator`: Dynamically finds a `ByteBufferCleanerService` (e.g., `Jdk9ByteBufferCleanerService` or `ReflectionBasedByteBufferCleanerService`) to invoke the `clean()` method of a `DirectBuffer`'s cleaner.
@@ -146,9 +146,13 @@ This should be done with extreme care.
 
 The selection diagnostic checks whether the selected service invoked the probe buffer's JDK cleaner.
 Process-wide direct-memory totals cannot establish this: unrelated allocations can hide a release, and unrelated releases can hide a no-op cleaner.
-The diagnostic uses the JDK cleaner's internal invocation state; an inaccessible or changed layout reports a verification error without changing service selection.
+The diagnostic recognises the declared `next` field in `sun.misc.Cleaner` and `jdk.internal.ref.Cleaner`, which points to the cleaner itself after removal from its list.
+For Java 26's `java.nio.BufferCleaner$PhantomCleaner`, it checks the declared `node` field, which becomes `null` when that cleaner is removed from its list.
+It does not search superclasses for invocation state: the inherited `java.lang.ref.Reference.next` field tracks reference-queue linkage, not cleaner invocation.
+An unrecognised or inaccessible layout leaves the result unverified and reports a verification error without changing service selection or concluding that the provider leaks.
 Invocation state is not independent proof that an asynchronous provider has finished deallocation.
-The probe buffer is also cleaned through the built-in service, including when the selected provider does nothing or throws.
+Before the diagnostic returns, it also attempts to clean the probe buffer through the built-in service, including when verification is inconclusive or the selected provider does nothing or throws a `RuntimeException` or `Error`.
+Failure of this fallback cleanup is reported separately.
 
 == 5. Freeing Memory and Debugging Issues
 
