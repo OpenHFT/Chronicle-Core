@@ -51,11 +51,9 @@ public final class WindowsProcessProbe {
         //! Only use the configured system directory; unavailable configuration stays UNKNOWN.
         //! tasklistUsesOnlyTheAbsoluteSystemDirectory and missingOrRelativeSystemRootIsRejected cover this choice.
         //! missingSystemTasklistStaysUnknown prevents falling back to a searched executable when the system file is absent.
-        if (systemRoot == null || systemRoot.isEmpty() || !new File(systemRoot).isAbsolute())
+        if (systemRoot == null || !new File(systemRoot).isAbsolute())
             throw new IOException("SystemRoot must name an absolute Windows directory");
         File executable = new File(new File(systemRoot, "System32"), "tasklist.exe");
-        if (!executable.isFile())
-            throw new IOException("System tasklist executable is missing: " + executable);
         return new ProcessBuilder(executable.getPath(), "/FO", "CSV", "/NH").redirectErrorStream(true);
     }
 
@@ -64,7 +62,6 @@ public final class WindowsProcessProbe {
         long started = System.nanoTime();
         try {
             process = starter.start();
-            process.getOutputStream().close();
             InputStream input = process.getInputStream();
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             byte[] buffer = new byte[4096];
@@ -112,22 +109,18 @@ public final class WindowsProcessProbe {
             Thread.currentThread().interrupt();
             return unknown(pid, UnknownReason.INTERRUPTED);
         } finally {
-            if (process != null) {
-                //! Windows destruction does not close pipe handles. Destroy first to stop writers,
-                //! then close every stream without adding a termination wait, even if destruction throws.
-                //! successfulEnumerationEstablishesDeathAndProbeIsCleaned and
-                //! interruptedProbePreservesInterruptAndDestroysChild assert closure and ordering.
-                //! destructionFailureStillClosesStreams covers the exceptional cleanup path.
-                //! realWindowsQueryClosesOutputPipe verifies native closure, and
-                //! streamCloseFailureDoesNotMaskResultOrSkipOtherStreams covers a failed close.
-                try {
-                    process.destroyForcibly();
-                } finally {
-                    Closeable.closeQuietly(process.getInputStream());
-                    Closeable.closeQuietly(process.getErrorStream());
-                    Closeable.closeQuietly(process.getOutputStream());
-                }
-            }
+            if (process != null)
+                destroyAndClose(process);
+        }
+    }
+
+    private static void destroyAndClose(Process process) {
+        //! Windows destruction does not close pipe handles. Stop writers before closing
+        //! all streams, even when destruction or a close fails; do not add a termination wait.
+        try {
+            process.destroyForcibly();
+        } finally {
+            Closeable.closeQuietly(process.getInputStream(), process.getErrorStream(), process.getOutputStream());
         }
     }
 

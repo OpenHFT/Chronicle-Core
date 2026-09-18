@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.internal.WindowsProcessProbe;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.onoes.NullExceptionHandler;
@@ -227,6 +228,39 @@ class JvmTest extends CoreTestCommon {
             assertTrue(Jvm.isProcessAlive(1)); // the kernel
         assertFalse(Jvm.isProcessAlive(0));
         assertFalse(Jvm.isProcessAlive(-1));
+        assertFalse(Jvm.isProcessAlive(Long.MAX_VALUE));
+    }
+
+    @Test
+    void windowsProcessAbsenceAndUncertaintyReachTheBooleanApi() {
+        assumeTrue(OS.isWindows());
+        assertFalse(Jvm.isProcessAlive(Long.MAX_VALUE));
+        Thread.currentThread().interrupt();
+        try {
+            assertTrue(Jvm.isProcessAlive(Long.MAX_VALUE), "An interrupted query cannot prove absence");
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void currentProcessBypassesWindowsProbeEvenWhenInterrupted() {
+        assumeTrue(OS.isWindows());
+        RecordingExceptionHandlerStub recording = new RecordingExceptionHandlerStub();
+        ThreadLocalisedExceptionHandler debug = (ThreadLocalisedExceptionHandler) Jvm.debug();
+        ExceptionHandler previous = ThreadLocalisedExceptionHandler.unwrap(debug);
+        debug.threadLocalHandler(recording);
+        Thread.currentThread().interrupt();
+        try {
+            assertTrue(Jvm.isProcessAlive(OS.getProcessId()));
+            assertTrue(Thread.currentThread().isInterrupted());
+            assertTrue(recording.events().stream().noneMatch(event -> event.clazz() == WindowsProcessProbe.class),
+                    "The known current process must bypass an interruptible OS query");
+        } finally {
+            Thread.interrupted();
+            debug.threadLocalHandler(previous);
+        }
     }
 
     @Test

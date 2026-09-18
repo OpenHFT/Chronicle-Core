@@ -1396,8 +1396,8 @@ public final class Jvm {
         if (pid <= 0)
             return false;
         //! Repeated tasklist launches for self-owned queue locks can stall Windows replication.
-        //! JvmTest.isProcessAliveTest and WindowsProcessProbeTest.realWindowsQueryFindsThisJvm
-        //! cover the result; they do not independently measure the avoided child-process launch.
+        //! The known owner also needs no interruptible OS query; the public API test
+        //! verifies that cancellation cannot send this shortcut through the probe.
         if (pid == OS.getProcessId())
             return true;
         //! An inconclusive Windows probe must not authorise recovery of another process's lock.

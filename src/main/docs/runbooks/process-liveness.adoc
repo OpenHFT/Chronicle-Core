@@ -8,8 +8,8 @@ This avoids repeating Windows process enumeration while checking queue locks
 owned by the same JVM. Non-positive process IDs are absent.
 
 Other Windows process IDs use `%SystemRoot%\System32\tasklist.exe /FO CSV /NH` directly.
-The executable path must be absolute and the file must exist; there is no working-directory
-or PATH fallback. A complete,
+The executable path must be absolute; a failed launch reports the missing or inaccessible
+file without a separate existence check. There is no working-directory or PATH fallback. A complete,
 successful enumeration with valid CSV rows establishes presence or absence using
 the PID column only. Failed starts, access denial, nonzero exits, malformed or
 empty output, interruption, more than 1 MiB output, and a five-second deadline
@@ -21,14 +21,25 @@ of all three process streams on every completion path; interruption is retained.
 Windows process destruction alone does not release its pipe handles. Stream
 closure is attempted even if destruction fails, and a close failure does not
 mask the query result or prevent closure of the remaining streams.
+`tasklist` does not consume stdin, so that stream is closed once during cleanup.
 
 The deadline bounds the output-collection loop; it does not pre-empt an operating
 system call to start the child or access its streams. CSV matching uses iterative
 repetition so that a long field below the output cap cannot exhaust the regex stack.
+CSV bytes are decoded as ASCII independently of the JVM's default charset.
 
 `WindowsProcessProbeTest` covers these outcomes and a native Windows enumeration.
 Linux `/proc` and Unix `ps` enumeration retain their existing implementation.
 The non-positive and current-JVM PID shortcuts apply on every platform.
+
+Mutation checks exercise removal of each safeguard, CSV backtracking, and the
+conservative boolean result. Boundary tests accept a complete response of exactly
+1 MiB and reject one additional byte. Other regressions cover overflowing PIDs,
+blank rows, EOF after an availability check, deadline expiry before polling,
+disabled logging, retained launch exceptions and a non-ASCII JVM default charset.
+The missing-executable test exercises launch and the UNKNOWN result; it
+does not require a redundant filesystem preflight. The platform guard also needs
+a non-Windows run, since forcing it true is indistinguishable on Windows alone.
 
 == Locks are not recovered on Windows
 

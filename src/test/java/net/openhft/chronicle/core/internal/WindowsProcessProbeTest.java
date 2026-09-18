@@ -9,6 +9,7 @@ import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.test.RecordingExceptionHandlerStub;
+import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,9 +18,11 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -43,6 +46,21 @@ class WindowsProcessProbeTest {
     void malformedOrEmptyEnumerationIsUnknown() {
         for (String output : new String[]{"", "Access is denied", "INFO: No tasks are running", ROWS + "truncated"})
             assertEquals(UNKNOWN, WindowsProcessProbe.parse(2, output), output);
+        assertEquals(UNKNOWN, WindowsProcessProbe.parse(42, ROWS + "truncated"));
+    }
+
+    @Test
+    void blankRowsAndWhitespaceDoNotHideAProcess() {
+        String output = " \t\r\n" + ROWS.replace("\r\n", "  \r\n\t") + "\n";
+        assertEquals(ALIVE, WindowsProcessProbe.parse(42, output));
+        assertEquals(DEAD, WindowsProcessProbe.parse(2, output));
+        assertEquals(UNKNOWN, WindowsProcessProbe.parse(2, " \t\r\n\n"));
+    }
+
+    @Test
+    void overflowingPidCannotEstablishDeath() {
+        assertEquals(UNKNOWN, WindowsProcessProbe.parse(2,
+                ROWS.replace("\"142\"", "\"9223372036854775808\"")));
     }
 
     @ParameterizedTest
@@ -162,6 +180,88 @@ class WindowsProcessProbeTest {
         assertCleaned(process);
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1})
+    void completeOutputHonoursTheExactLimit(int excess) {
+        String suffix = "\",\"42\",\"Console\",\"1\",\"1 K\"\r\n";
+        char[] image = new char[1024 * 1024 - 1 - suffix.length() + excess];
+        Arrays.fill(image, 'x');
+        StubProcess process = new StubProcess("\"" + new String(image) + suffix, 0, false);
+        assertEquals(excess == 0 ? ALIVE : UNKNOWN, run(process, 42));
+        assertCleaned(process);
+    }
+
+    @Test
+    void endOfStreamAfterAvailabilityDoesNotCorruptCollectedOutput() {
+        InputStream input = new ByteArrayInputStream(ROWS.getBytes(StandardCharsets.US_ASCII)) {
+            private boolean reportedEnd;
+
+            @Override
+            public synchronized int available() {
+                int available = super.available();
+                if (available == 0 && !reportedEnd) {
+                    reportedEnd = true;
+                    return 1;
+                }
+                return available;
+            }
+        };
+        StubProcess process = new StubProcess(input, 0, false);
+        assertEquals(ALIVE, run(process, 42));
+        assertCleaned(process);
+    }
+
+    @Test
+    void waitsForOutputWithoutBusySpinningOrLongUninterruptiblePolls() {
+        boolean[] waited = {false};
+        InputStream input = new ByteArrayInputStream(ROWS.getBytes(StandardCharsets.US_ASCII)) {
+            @Override
+            public synchronized int available() {
+                return waited[0] ? super.available() : 0;
+            }
+        };
+        StubProcess process = new StubProcess(input, 0, true) {
+            @Override
+            public boolean waitFor(long timeout, TimeUnit unit) {
+                assertEquals(TimeUnit.NANOSECONDS, unit);
+                assertTrue(timeout > 0 && timeout <= TimeUnit.MILLISECONDS.toNanos(10));
+                waited[0] = true;
+                return true;
+            }
+
+            @Override
+            public boolean isAlive() {
+                return !waited[0];
+            }
+        };
+        assertEquals(ALIVE, run(process, 42));
+        assertTrue(waited[0]);
+        assertCleaned(process);
+    }
+
+    @Test
+    void expiryDuringAvailabilityCheckDoesNotStartAnotherWait() {
+        InputStream input = new ByteArrayInputStream(new byte[0]) {
+            @Override
+            public synchronized int available() {
+                long started = System.nanoTime();
+                do {
+                    LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1));
+                } while (System.nanoTime() - started < TimeUnit.MILLISECONDS.toNanos(50));
+                return 0;
+            }
+        };
+        StubProcess process = new StubProcess(input, 0, true) {
+            @Override
+            public boolean waitFor(long timeout, TimeUnit unit) {
+                fail("The collection deadline expired before this wait");
+                return false;
+            }
+        };
+        assertEquals(UNKNOWN, WindowsProcessProbe.query(42, TimeUnit.MILLISECONDS.toNanos(20), () -> process));
+        assertCleaned(process);
+    }
+
     @Test
     void realWindowsQueryFindsThisJvm() {
         assumeTrue(OS.isWindows());
@@ -189,6 +289,30 @@ class WindowsProcessProbeTest {
                     Closeable.closeQuietly(child[0].getInputStream(), child[0].getErrorStream(), child[0].getOutputStream());
                 }
             }
+        }
+    }
+
+    @Test
+    void csvDecodingDoesNotDependOnTheDefaultCharset() throws Exception {
+        Process process = JavaProcessBuilder.create(NonAsciiCharsetProbe.class)
+                .withJvmArguments("-Dfile.encoding=UTF-16").inheritingIO().start();
+        try {
+            assertTrue(process.waitFor(10, TimeUnit.SECONDS), "charset probe did not terminate");
+            assertEquals(0, process.exitValue(), "ASCII tasklist output used the JVM default charset");
+        } finally {
+            try {
+                process.destroyForcibly();
+            } finally {
+                Closeable.closeQuietly(process.getInputStream(), process.getErrorStream(), process.getOutputStream());
+            }
+        }
+    }
+
+    public static final class NonAsciiCharsetProbe {
+        public static void main(String[] args) {
+            assertEquals(StandardCharsets.UTF_16, Charset.defaultCharset());
+            assertEquals(ALIVE, run(new StubProcess(ROWS, 0, false), 42));
+            assertEquals(DEAD, run(new StubProcess(ROWS, 0, false), 2));
         }
     }
 
@@ -293,9 +417,47 @@ class WindowsProcessProbeTest {
 
     @Test
     void missingSystemTasklistStaysUnknown(@TempDir Path directory) {
-        assertThrows(IOException.class, () -> WindowsProcessProbe.tasklistCommand(directory.toString()));
+        IOException failure = assertThrows(IOException.class,
+                () -> WindowsProcessProbe.tasklistCommand(directory.toString()).start());
+        assertTrue(failure.getMessage().contains(directory.toString()));
         assertEquals(UNKNOWN, WindowsProcessProbe.query(42, TimeUnit.SECONDS.toNanos(1),
                 () -> WindowsProcessProbe.tasklistCommand(directory.toString()).start()));
+    }
+
+    @Test
+    void relativeSystemRootIsRejectedEvenWhenTasklistExists() throws IOException {
+        // The system temp directory can be on a different Windows drive from the checkout.
+        Path directory = Files.createTempDirectory(Paths.get("").toAbsolutePath(), "relative-system-root-");
+        Path system32 = directory.resolve("System32");
+        Path executable = system32.resolve("tasklist.exe");
+        try {
+            Files.createFile(Files.createDirectory(system32).resolve("tasklist.exe"));
+            Path relative = directory.getFileName();
+            assertFalse(relative.isAbsolute());
+            assertThrows(IOException.class, () -> WindowsProcessProbe.tasklistCommand(relative.toString()));
+        } finally {
+            Files.deleteIfExists(executable);
+            Files.deleteIfExists(system32);
+            Files.deleteIfExists(directory);
+        }
+    }
+
+    @Test
+    void disabledDiagnosticsDoNotInvokeTheHandler() {
+        RecordingExceptionHandlerStub recording = new RecordingExceptionHandlerStub();
+        recording.enabled(false);
+        withDebugHandler(recording, () -> assertEquals(UNKNOWN, WindowsProcessProbe.parse(42, "invalid")));
+        assertEquals(0, recording.eventCount());
+    }
+
+    @Test
+    void launchDiagnosticPreservesTheOriginalFailure() {
+        IOException failure = new IOException("tasklist launch failed");
+        RecordingExceptionHandlerStub recording = new RecordingExceptionHandlerStub();
+        withDebugHandler(recording, () -> assertEquals(UNKNOWN, WindowsProcessProbe.query(42,
+                TimeUnit.SECONDS.toNanos(1), () -> { throw failure; })));
+        assertEquals(1, recording.eventCount());
+        assertSame(failure, recording.event(0).thrown());
     }
 
     @Test
