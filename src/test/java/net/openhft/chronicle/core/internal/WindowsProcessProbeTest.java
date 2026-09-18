@@ -94,9 +94,15 @@ class WindowsProcessProbeTest {
 
     @Test
     void interruptedProbePreservesInterruptAndDestroysChild() {
-        StubProcess process = new StubProcess("", 0, true);
-        Thread.currentThread().interrupt();
+        StubProcess process = new StubProcess("", 0, true) {
+            @Override
+            public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException {
+                Thread.currentThread().interrupt();
+                return super.waitFor(timeout, unit);
+            }
+        };
         try {
+            assertFalse(Thread.currentThread().isInterrupted());
             assertEquals(UNKNOWN, run(process, 42));
             assertTrue(Thread.currentThread().isInterrupted());
             assertTrue(process.destroyed);
@@ -158,7 +164,7 @@ class WindowsProcessProbeTest {
         return WindowsProcessProbe.query(pid, TimeUnit.SECONDS.toNanos(1), () -> process);
     }
 
-    private static final class StubProcess extends Process {
+    private static class StubProcess extends Process {
         private final InputStream input;
         private final int status;
         private final boolean running;
