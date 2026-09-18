@@ -5,14 +5,23 @@ package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.onoes.ExceptionHandler;
+import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
+import net.openhft.chronicle.core.test.RecordingExceptionHandlerStub;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 import static net.openhft.chronicle.core.internal.WindowsProcessProbe.Result.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,14 +82,14 @@ class WindowsProcessProbeTest {
     void nonzeroExitCannotEstablishDeathAndProbeIsCleaned() {
         StubProcess process = new StubProcess(ROWS, 1, false);
         assertEquals(UNKNOWN, run(process, 2));
-        assertTrue(process.destroyed);
+        assertCleaned(process);
     }
 
     @Test
     void successfulEnumerationEstablishesDeathAndProbeIsCleaned() {
         StubProcess process = new StubProcess(ROWS, 0, false);
         assertEquals(DEAD, run(process, 2));
-        assertTrue(process.destroyed);
+        assertCleaned(process);
     }
 
     @Test
@@ -89,7 +98,7 @@ class WindowsProcessProbeTest {
         long start = System.nanoTime();
         assertEquals(UNKNOWN, WindowsProcessProbe.query(42, TimeUnit.MILLISECONDS.toNanos(20), () -> process));
         assertTrue(System.nanoTime() - start < TimeUnit.SECONDS.toNanos(2));
-        assertTrue(process.destroyed);
+        assertCleaned(process);
     }
 
     @Test
@@ -105,7 +114,7 @@ class WindowsProcessProbeTest {
             assertFalse(Thread.currentThread().isInterrupted());
             assertEquals(UNKNOWN, run(process, 42));
             assertTrue(Thread.currentThread().isInterrupted());
-            assertTrue(process.destroyed);
+            assertCleaned(process);
         } finally {
             Thread.interrupted();
         }
@@ -118,7 +127,7 @@ class WindowsProcessProbeTest {
         try {
             assertEquals(UNKNOWN, run(process, 2));
             assertTrue(Thread.currentThread().isInterrupted());
-            assertTrue(process.destroyed);
+            assertCleaned(process);
         } finally {
             Thread.interrupted();
         }
@@ -138,7 +147,7 @@ class WindowsProcessProbeTest {
         try {
             assertEquals(UNKNOWN, run(process, 2));
             assertTrue(Thread.currentThread().isInterrupted());
-            assertTrue(process.destroyed);
+            assertCleaned(process);
         } finally {
             Thread.interrupted();
         }
@@ -149,7 +158,7 @@ class WindowsProcessProbeTest {
         char[] chars = new char[1024 * 1024 + 1];
         StubProcess process = new StubProcess(new String(chars), 0, false);
         assertEquals(UNKNOWN, run(process, 42));
-        assertTrue(process.destroyed);
+        assertCleaned(process);
     }
 
     @Test
@@ -160,12 +169,165 @@ class WindowsProcessProbeTest {
         assertEquals(DEAD, WindowsProcessProbe.query(Long.MAX_VALUE));
     }
 
+    @Test
+    void drainsOutputPublishedAtTheExitCheck() {
+        boolean[] exited = {false};
+        InputStream input = new ByteArrayInputStream(ROWS.getBytes(StandardCharsets.US_ASCII)) {
+            @Override
+            public synchronized int available() {
+                return exited[0] ? super.available() : 0;
+            }
+        };
+        StubProcess process = new StubProcess(input, 0, false) {
+            @Override
+            public boolean isAlive() {
+                exited[0] = true;
+                return false;
+            }
+        };
+        assertEquals(ALIVE, run(process, 42));
+        assertCleaned(process);
+    }
+
+    @Test
+    @Timeout(5)
+    void tricklingOutputStillHonoursTheDeadline() {
+        InputStream input = new InputStream() {
+            @Override
+            public int available() {
+                return 1;
+            }
+
+            @Override
+            public int read() {
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1));
+                return 'x';
+            }
+        };
+        StubProcess process = new StubProcess(input, 0, true);
+        long started = System.nanoTime();
+        assertEquals(UNKNOWN, WindowsProcessProbe.query(42, TimeUnit.MILLISECONDS.toNanos(20), () -> process));
+        assertTrue(System.nanoTime() - started < TimeUnit.SECONDS.toNanos(2));
+        assertCleaned(process);
+    }
+
+    @Test
+    void destructionFailureStillClosesStreams() {
+        RuntimeException expected = new IllegalStateException("destroy failed");
+        StubProcess process = new StubProcess(ROWS, 0, false) {
+            @Override
+            public Process destroyForcibly() {
+                super.destroyForcibly();
+                throw expected;
+            }
+        };
+        assertSame(expected, assertThrows(IllegalStateException.class, () -> run(process, 42)));
+        assertCleaned(process);
+    }
+
+    @Test
+    void tasklistUsesOnlyTheAbsoluteSystemDirectory(@TempDir Path directory) throws IOException {
+        Path windows = Files.createDirectory(directory.resolve("Windows with spaces"));
+        Path system32 = Files.createDirectory(windows.resolve("System32"));
+        Path executable = Files.createFile(system32.resolve("tasklist.exe"));
+        ProcessBuilder command = WindowsProcessProbe.tasklistCommand(windows.toString());
+        assertEquals(Arrays.asList(executable.toString(), "/FO", "CSV", "/NH"), command.command());
+        assertTrue(command.redirectErrorStream());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"Windows"})
+    void missingOrRelativeSystemRootIsRejected(String systemRoot) {
+        assertThrows(IOException.class, () -> WindowsProcessProbe.tasklistCommand(systemRoot));
+        assertEquals(UNKNOWN, WindowsProcessProbe.query(42, TimeUnit.SECONDS.toNanos(1),
+                () -> WindowsProcessProbe.tasklistCommand(systemRoot).start()));
+    }
+
+    @Test
+    void missingSystemTasklistStaysUnknown(@TempDir Path directory) {
+        assertThrows(IOException.class, () -> WindowsProcessProbe.tasklistCommand(directory.toString()));
+        assertEquals(UNKNOWN, WindowsProcessProbe.query(42, TimeUnit.SECONDS.toNanos(1),
+                () -> WindowsProcessProbe.tasklistCommand(directory.toString()).start()));
+    }
+
+    @Test
+    void unknownReasonsAreReportedAtDebug() {
+        RecordingExceptionHandlerStub recording = new RecordingExceptionHandlerStub();
+        withDebugHandler(recording, () -> {
+            assertEquals(UNKNOWN, WindowsProcessProbe.query(42, TimeUnit.SECONDS.toNanos(1),
+                    () -> { throw new IOException("missing tasklist"); }));
+            assertEquals(UNKNOWN, WindowsProcessProbe.query(42, TimeUnit.SECONDS.toNanos(1),
+                    () -> { throw new SecurityException("denied"); }));
+            assertEquals(UNKNOWN, run(new StubProcess(ROWS, 1, false), 42));
+            assertEquals(UNKNOWN, WindowsProcessProbe.parse(42, "malformed"));
+            assertEquals(UNKNOWN, run(new StubProcess(new String(new char[1024 * 1024 + 1]), 0, false), 42));
+            assertEquals(UNKNOWN, WindowsProcessProbe.query(42, 0, () -> new StubProcess("", 0, true)));
+            Thread.currentThread().interrupt();
+            try {
+                assertEquals(UNKNOWN, run(new StubProcess(ROWS, 0, false), 42));
+                assertTrue(Thread.currentThread().isInterrupted());
+            } finally {
+                Thread.interrupted();
+            }
+        });
+        for (String reason : new String[]{"IO_FAILURE", "ACCESS_DENIED", "NONZERO_EXIT", "INVALID_OUTPUT",
+                "OUTPUT_LIMIT", "DEADLINE", "INTERRUPTED"}) {
+            assertTrue(recording.events().stream().anyMatch(event -> event.clazz() == WindowsProcessProbe.class
+                    && event.message().contains("Process 42 liveness UNKNOWN: " + reason)), reason);
+        }
+    }
+
+    @Test
+    void diagnosticFailureDoesNotChangeUnknownOrCleanup() {
+        RecordingExceptionHandlerStub recording = new RecordingExceptionHandlerStub();
+        recording.throwFromClassHandler(new IllegalStateException("logger failed"));
+        StubProcess process = new StubProcess(ROWS, 1, false);
+        withDebugHandler(recording, () -> assertEquals(UNKNOWN, run(process, 42)));
+        assertCleaned(process);
+    }
+
+    private static void withDebugHandler(ExceptionHandler handler, Runnable body) {
+        ThreadLocalisedExceptionHandler debug = (ThreadLocalisedExceptionHandler) Jvm.debug();
+        ExceptionHandler previous = ThreadLocalisedExceptionHandler.unwrap(debug);
+        debug.threadLocalHandler(handler);
+        try {
+            body.run();
+        } finally {
+            debug.threadLocalHandler(previous);
+        }
+    }
+
+    private static void assertCleaned(StubProcess process) {
+        assertTrue(process.destroyed, "child was not destroyed");
+        assertTrue(process.inputClosedAfterDestroy, "stdout was not closed after destruction");
+        assertTrue(process.errorClosedAfterDestroy, "stderr was not closed after destruction");
+        assertTrue(process.outputClosed, "stdin was not closed");
+    }
+
     private static WindowsProcessProbe.Result run(StubProcess process, long pid) {
         return WindowsProcessProbe.query(pid, TimeUnit.SECONDS.toNanos(1), () -> process);
     }
 
     private static class StubProcess extends Process {
         private final InputStream input;
+        private boolean inputClosedAfterDestroy;
+        private boolean errorClosedAfterDestroy;
+        private boolean outputClosed;
+        private final InputStream error = new ByteArrayInputStream(new byte[0]) {
+            @Override
+            public void close() throws IOException {
+                errorClosedAfterDestroy = destroyed;
+                super.close();
+            }
+        };
+        private final OutputStream output = new ByteArrayOutputStream() {
+            @Override
+            public void close() throws IOException {
+                outputClosed = true;
+                super.close();
+            }
+        };
         private final int status;
         private final boolean running;
         private boolean destroyed;
@@ -175,14 +337,20 @@ class WindowsProcessProbeTest {
         }
 
         StubProcess(InputStream input, int status, boolean running) {
-            this.input = input;
+            this.input = new FilterInputStream(input) {
+                @Override
+                public void close() throws IOException {
+                    inputClosedAfterDestroy = destroyed;
+                    super.close();
+                }
+            };
             this.status = status;
             this.running = running;
         }
 
-        @Override public OutputStream getOutputStream() { return new ByteArrayOutputStream(); }
+        @Override public OutputStream getOutputStream() { return output; }
         @Override public InputStream getInputStream() { return input; }
-        @Override public InputStream getErrorStream() { return new ByteArrayInputStream(new byte[0]); }
+        @Override public InputStream getErrorStream() { return error; }
         @Override public int waitFor() { throw new AssertionError("Unbounded wait"); }
         @Override public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException {
             unit.sleep(timeout);
