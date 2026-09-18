@@ -52,12 +52,12 @@ class AffinityFixtureIsolationTest {
             try {
                 switch (args[0]) {
                     case "earlyBaseline":
-                        assertEquals(original, AffinityLock.BASE_AFFINITY);
+                        assertBaselineAffinity(original);
                         new CpuCoolersTest().testAffinity();
                         break;
                     case "lateBaseline":
                         new CpuCoolersTest().testAffinity();
-                        assertEquals(original, AffinityLock.BASE_AFFINITY);
+                        assertBaselineAffinity(original);
                         break;
                     case "failingBody":
                         AssertionError expected = new AssertionError("fixture failed after pinning");
@@ -66,7 +66,7 @@ class AffinityFixtureIsolationTest {
                                     Affinity.setAffinity(original.nextSetBit(0));
                                     throw expected;
                                 })));
-                        assertEquals(original, AffinityLock.BASE_AFFINITY);
+                        assertBaselineAffinity(original);
                         break;
                     case "restrictedMask":
                         // Choose from the supported mask; CPU 1 need not be available.
@@ -84,6 +84,12 @@ class AffinityFixtureIsolationTest {
             } finally {
                 Affinity.setAffinity(original);
             }
+        }
+
+        private static void assertBaselineAffinity(BitSet expectedAffinity) {
+            // Initialise AffinityLock only when the scenario is ready to inspect its baseline.
+            BitSet actualBaseline = AffinityLock.BASE_AFFINITY;
+            assertEquals(expectedAffinity, actualBaseline, "AffinityLock captured a contaminated baseline");
         }
     }
 }
