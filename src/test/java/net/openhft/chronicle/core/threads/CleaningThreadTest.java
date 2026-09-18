@@ -13,6 +13,7 @@ import java.util.BitSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -42,19 +43,33 @@ class CleaningThreadTest extends CoreTestCommon {
     @Test
     void resetThreadAffinity() throws InterruptedException {
         assumeFalse(OS.isMacOSX(), "macOS does not support thread affinity");
-        final BitSet affinity = Affinity.getAffinity();
+        final BitSet affinity = (BitSet) Affinity.getAffinity().clone();
         final BitSet baseAffinity = AffinityLock.BASE_AFFINITY;
         int cpu = baseAffinity.nextSetBit(0);
         assumeTrue(cpu >= 0, "Base affinity must expose at least one CPU");
-        try {
-            Affinity.setAffinity(cpu);
-            BitSet[] nestedAffinity = {null};
-            CleaningThread ct = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity());
-            ct.start();
-            ct.join();
-            assertEquals(baseAffinity, nestedAffinity[0]);
-        } finally {
-            Affinity.setAffinity(affinity);
-        }
+        BitSet[] nestedAffinity = {null};
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        CleaningThread ct = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity()) {
+            @Override
+            public void run() {
+                BitSet original = (BitSet) Affinity.getAffinity().clone();
+                try {
+                    // Windows caches affinity per thread: explicitly pin the child
+                    // before exercising CleaningThread's reset, rather than its parent.
+                    Affinity.setAffinity(cpu);
+                    super.run();
+                } catch (Throwable t) {
+                    failure.set(t);
+                } finally {
+                    Affinity.setAffinity(original);
+                }
+            }
+        };
+        ct.start();
+        ct.join(TimeUnit.SECONDS.toMillis(10));
+        assertFalse(ct.isAlive(), "Cleaning thread did not terminate");
+        assertNull(failure.get(), () -> "Cleaning thread failed: " + failure.get());
+        assertEquals(baseAffinity, nestedAffinity[0]);
+        assertEquals(affinity, Affinity.getAffinity(), "Parent affinity changed");
     }
 }
