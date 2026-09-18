@@ -49,9 +49,12 @@ failure cleanup and a supported restricted mask in fresh JVMs. The cleaning-thre
 reset test explicitly pins the child before `CleaningThread.run`: Windows caches
 affinity per thread, so pinning only the parent does not exercise that reset.
 
-The harness drains stdout and stderr while the child runs, preserving assertion
-diagnostics even when output exceeds the pipe buffers. The reset check is skipped
-when the baseline has one CPU or the affinity provider cannot pin the child.
+The harness drains stdout and stderr to EOF while the child runs, preserving
+assertion diagnostics even when output exceeds the pipe buffers. Both streams
+are buffered before calling `IOTools.readAsBytes`: Windows stderr can be a
+`FileInputStream`, whose regular-file shortcut reads only the bytes currently
+available and can discard later pipe output. The reset check is skipped when the
+baseline has one CPU or the affinity provider cannot pin the child.
 
 On Windows these assertions observe `WindowsJNAAffinity`'s thread-local mask.
 They verify restoration of the library state used by `AffinityLock`; they do not
