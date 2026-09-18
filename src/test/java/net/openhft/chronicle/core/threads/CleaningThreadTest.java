@@ -45,8 +45,11 @@ class CleaningThreadTest extends CoreTestCommon {
         assumeFalse(OS.isMacOSX(), "macOS does not support thread affinity");
         final BitSet affinity = (BitSet) Affinity.getAffinity().clone();
         final BitSet baseAffinity = AffinityLock.BASE_AFFINITY;
+        assumeTrue(baseAffinity.cardinality() > 1, "Reset requires a baseline with more than one CPU");
         int cpu = baseAffinity.nextSetBit(0);
-        assumeTrue(cpu >= 0, "Base affinity must expose at least one CPU");
+        BitSet expectedPinned = new BitSet();
+        expectedPinned.set(cpu);
+        BitSet[] pinnedAffinity = {null};
         BitSet[] nestedAffinity = {null};
         AtomicReference<Throwable> failure = new AtomicReference<>();
         CleaningThread ct = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity()) {
@@ -57,6 +60,7 @@ class CleaningThreadTest extends CoreTestCommon {
                     // Windows caches affinity per thread: explicitly pin the child
                     // before exercising CleaningThread's reset, rather than its parent.
                     Affinity.setAffinity(cpu);
+                    pinnedAffinity[0] = (BitSet) Affinity.getAffinity().clone();
                     super.run();
                 } catch (Throwable t) {
                     failure.set(t);
@@ -69,6 +73,7 @@ class CleaningThreadTest extends CoreTestCommon {
         ct.join(TimeUnit.SECONDS.toMillis(10));
         assertFalse(ct.isAlive(), "Cleaning thread did not terminate");
         assertNull(failure.get(), () -> "Cleaning thread failed: " + failure.get());
+        assumeTrue(expectedPinned.equals(pinnedAffinity[0]), "Native affinity did not pin the child to the requested CPU");
         assertEquals(baseAffinity, nestedAffinity[0]);
         assertEquals(affinity, Affinity.getAffinity(), "Parent affinity changed");
     }

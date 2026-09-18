@@ -48,3 +48,11 @@ as `BASE_AFFINITY`.
 failure cleanup and a supported restricted mask in fresh JVMs. The cleaning-thread
 reset test explicitly pins the child before `CleaningThread.run`: Windows caches
 affinity per thread, so pinning only the parent does not exercise that reset.
+
+The harness drains stdout and stderr while the child runs, preserving assertion
+diagnostics even when output exceeds the pipe buffers. The reset check is skipped
+when the baseline has one CPU or the affinity provider cannot pin the child.
+
+On Windows these assertions observe `WindowsJNAAffinity`'s thread-local mask.
+They verify restoration of the library state used by `AffinityLock`; they do not
+independently verify the operating system's thread-affinity mask.

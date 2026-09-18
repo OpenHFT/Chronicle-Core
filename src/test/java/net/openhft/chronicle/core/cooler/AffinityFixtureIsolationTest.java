@@ -9,11 +9,17 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,11 +34,34 @@ class AffinityFixtureIsolationTest {
         assumeTrue(Runtime.getRuntime().availableProcessors() >= 2);
         Process process = JavaProcessBuilder.create(AffinityProbe.class)
                 .withProgramArguments(scenario).start();
+        String output = awaitProbe(process);
+        assertEquals(0, process.exitValue(), scenario + ": " + output);
+    }
+
+    @Test
+    @Timeout(10)
+    void capturesLargeFailureOutputWithoutBlockingTheChild() throws Exception {
+        Process process = JavaProcessBuilder.create(NoisyFailureProbe.class).start();
+        String output = awaitProbe(process);
+        assertNotEquals(0, process.exitValue());
+        assertTrue(output.contains("stdout complete"));
+        assertTrue(output.contains("stderr complete"));
+        assertTrue(output.contains("noisy probe assertion"));
+    }
+
+    private static String awaitProbe(Process process) throws Exception {
+        ExecutorService readers = Executors.newFixedThreadPool(2, task -> {
+            Thread thread = new Thread(task, "affinity-probe-output");
+            thread.setDaemon(true);
+            return thread;
+        });
+        // Drain both pipes while the child runs so assertion output cannot block its exit.
+        Future<byte[]> stdout = readers.submit(() -> IOTools.readAsBytes(process.getInputStream()));
+        Future<byte[]> stderr = readers.submit(() -> IOTools.readAsBytes(process.getErrorStream()));
         try {
             assertTrue(process.waitFor(30, TimeUnit.SECONDS), "affinity probe did not terminate");
-            String output = new String(IOTools.readAsBytes(process.getInputStream()), StandardCharsets.UTF_8)
-                    + new String(IOTools.readAsBytes(process.getErrorStream()), StandardCharsets.UTF_8);
-            assertEquals(0, process.exitValue(), scenario + ": " + output);
+            return new String(stdout.get(10, TimeUnit.SECONDS), StandardCharsets.UTF_8)
+                    + new String(stderr.get(10, TimeUnit.SECONDS), StandardCharsets.UTF_8);
         } finally {
             try {
                 if (process.isAlive()) {
@@ -41,7 +70,23 @@ class AffinityFixtureIsolationTest {
                 }
             } finally {
                 Closeable.closeQuietly(process.getInputStream(), process.getErrorStream(), process.getOutputStream());
+                readers.shutdownNow();
+                assertTrue(readers.awaitTermination(10, TimeUnit.SECONDS), "probe output readers did not stop");
             }
+        }
+    }
+
+    public static final class NoisyFailureProbe {
+        public static void main(String[] args) throws Exception {
+            byte[] output = new byte[64 * 1024];
+            Arrays.fill(output, (byte) 'x');
+            for (int i = 0; i < 16; i++) {
+                System.out.write(output);
+                System.err.write(output);
+            }
+            System.out.println("stdout complete");
+            System.err.println("stderr complete");
+            throw new AssertionError("noisy probe assertion");
         }
     }
 
