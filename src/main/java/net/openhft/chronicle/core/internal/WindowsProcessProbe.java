@@ -16,9 +16,15 @@ import java.util.regex.Pattern;
  * can establish absence: access denial, malformed output and timeout are unknown.
  */
 public final class WindowsProcessProbe {
+    //! A verbose or corrupt tasklist response must not allocate unbounded storage.
+    //! WindowsProcessProbeTest.oversizedOutputIsUnknown covers the cap and child cleanup.
     private static final int MAX_OUTPUT = 1024 * 1024;
+    //! Greedy repeated alternatives overflow the regex stack on fields below MAX_OUTPUT.
+    //! Possessive repetition keeps matching iterative; longCsvFieldsRemainParseable and
+    //! malformedLongCsvFieldIsUnknown fail without it. escapedQuotesPreservePidMatching
+    //! preserves the CSV quoting contract while changing the matching strategy.
     private static final Pattern ROW = Pattern.compile(
-            "\"(?:[^\"]|\"\")*\",\"([0-9]+)\",\"(?:[^\"]|\"\")*\",\"[0-9]+\",\"(?:[^\"]|\"\")*\"");
+            "\"(?:[^\"]|\"\")*+\",\"([0-9]+)\",\"(?:[^\"]|\"\")*+\",\"[0-9]+\",\"(?:[^\"]|\"\")*+\"");
 
     public enum Result { ALIVE, DEAD, UNKNOWN }
 
@@ -26,8 +32,9 @@ public final class WindowsProcessProbe {
     }
 
     public static Result query(long pid) {
-        // Enumerate all rows: a filtered no-match result is localised prose, not
-        // a machine-readable indication of absence. Avoid a cmd.exe intermediary.
+        //! A filtered no-match response is localised prose, so enumerate CSV rows directly.
+        //! realWindowsQueryFindsThisJvm covers native enumeration; malformedOrEmptyEnumerationIsUnknown
+        //! rejects prose as proof of death, and recognisesExactPidAndConfirmedAbsence checks the PID column.
         return query(pid, TimeUnit.SECONDS.toNanos(5), () -> new ProcessBuilder(
                 "tasklist.exe", "/FO", "CSV", "/NH").redirectErrorStream(true).start());
     }
@@ -42,6 +49,14 @@ public final class WindowsProcessProbe {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             byte[] buffer = new byte[4096];
             for (;;) {
+                //! Buffered output and an exited child can avoid waitFor entirely, so its
+                //! InterruptedException cannot be the only cancellation check. Both
+                //! interruptedCompletedProbeCannotEstablishDeath and
+                //! interruptionDuringReadCannotEstablishDeath returned DEAD without this check.
+                if (Thread.currentThread().isInterrupted())
+                    return Result.UNKNOWN;
+                //! Avoid an unbounded pipe read or wait while checking another process's lock.
+                //! stalledProbeIsBoundedAndDestroyed exercises the collection deadline.
                 if (System.nanoTime() - started >= timeoutNanos)
                     return Result.UNKNOWN;
                 int available = input.available();
@@ -68,19 +83,27 @@ public final class WindowsProcessProbe {
                 }
             }
         } catch (IOException | SecurityException failure) {
+            //! An unavailable query cannot authorise lock recovery. failedStartAndDenialAreUnknown
+            //! covers failed launch/access checks; nonzeroExitCannotEstablishDeathAndProbeIsCleaned
+            //! covers an unsuccessful child. Interruption likewise preserves UNKNOWN and the flag.
             return Result.UNKNOWN;
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             return Result.UNKNOWN;
         } finally {
             if (process != null) {
-                // Do not read to EOF or wait indefinitely for an unresponsive child.
+                //! Always destroy the child without an unbounded EOF read or termination wait.
+                //! successfulEnumerationEstablishesDeathAndProbeIsCleaned and
+                //! interruptedProbePreservesInterruptAndDestroysChild assert cleanup on both outcomes.
                 process.destroyForcibly();
             }
         }
     }
 
     static Result parse(long pid, String output) {
+        //! A substring match can confuse image names, memory sizes and other PIDs with the owner.
+        //! Require every nonblank row to be valid before proving absence, even if an earlier row matched.
+        //! recognisesExactPidAndConfirmedAbsence and malformedOrEmptyEnumerationIsUnknown cover this policy.
         boolean found = false;
         boolean any = false;
         for (String line : output.split("\\r?\\n")) {
@@ -96,7 +119,9 @@ public final class WindowsProcessProbe {
                 return Result.UNKNOWN;
             }
         }
-        return !any ? Result.UNKNOWN : found ? Result.ALIVE : Result.DEAD;
+        if (!any)
+            return Result.UNKNOWN;
+        return found ? Result.ALIVE : Result.DEAD;
     }
 
     @FunctionalInterface

@@ -1,4 +1,7 @@
 = Windows process liveness
+:toc:
+:sectnums:
+:lang: en-GB
 
 `Jvm.isProcessAlive` returns true for the current JVM without launching a process.
 This avoids repeating Windows process enumeration while checking queue locks
@@ -9,8 +12,13 @@ successful enumeration with valid CSV rows establishes presence or absence using
 the PID column only. Failed starts, access denial, nonzero exits, malformed or
 empty output, interruption, more than 1 MiB output, and a five-second deadline
 all produce an unknown result, which the public boolean API treats as alive.
+Interruption is checked while consuming ready output as well as while waiting.
 An unknown query must never authorise recovery of another process's lock.
 The child is forcibly destroyed on every completion path; interruption is retained.
+
+The deadline bounds the output-collection loop; it does not pre-empt an operating
+system call to start the child or access its streams. CSV matching uses iterative
+repetition so that a long field below the output cap cannot exhaust the regex stack.
 
 `WindowsProcessProbeTest` covers these outcomes and a native Windows enumeration.
 Linux `/proc` and Unix `ps` enumeration retain their existing implementation.

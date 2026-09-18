@@ -225,6 +225,7 @@ class JvmTest extends CoreTestCommon {
         assertTrue(Jvm.isProcessAlive(pid));
         if (OS.isLinux())
             assertTrue(Jvm.isProcessAlive(1)); // the kernel
+        assertFalse(Jvm.isProcessAlive(0));
         assertFalse(Jvm.isProcessAlive(-1));
     }
 
