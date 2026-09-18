@@ -1384,14 +1384,27 @@ public final class Jvm {
     }
 
     /**
-     * Returns if a process with the provided {@code pid} process id is alive.
+     * Returns whether a process is alive. Windows queries conservatively treat
+     * an unsuccessful query as alive; only confirmed absence permits stale-lock recovery.
      *
      * @param pid the process id (pid) of the process to check
      * @return if a process with the provided {@code pid} process id is alive
      */
     public static boolean isProcessAlive(long pid) {
+        //! Non-positive IDs do not identify lock owners. Reject them before an unknown
+        //! OS query could turn an invalid sentinel into a live owner; JvmTest.isProcessAliveTest covers these inputs.
+        if (pid <= 0)
+            return false;
+        //! Repeated tasklist launches for self-owned queue locks can stall Windows replication.
+        //! The known owner also needs no interruptible OS query; the public API test
+        //! verifies that cancellation cannot send this shortcut through the probe.
+        if (pid == OS.getProcessId())
+            return true;
+        //! An inconclusive Windows probe must not authorise recovery of another process's lock.
+        //! WindowsProcessProbeTest covers successful absence, failedStartAndDenialAreUnknown,
+        //! malformedOrEmptyEnumerationIsUnknown and interruptedCompletedProbeCannotEstablishDeath.
         if (isWindows())
-            return isProcessAlive0(pid, "cmd", "/c", "tasklist", "/NH", "/FI", "PID eq " + pid);
+            return WindowsProcessProbe.query(pid) != WindowsProcessProbe.Result.DEAD;
         if (isLinux() && PROC_EXISTS)
             return new File("/proc/" + pid).exists();
         if (isMacOSX() || isLinux())
