@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.test.RecordingExceptionHandlerStub;
@@ -167,6 +168,52 @@ class WindowsProcessProbeTest {
         assertTrue(Jvm.isProcessAlive(OS.getProcessId()));
         assertEquals(ALIVE, WindowsProcessProbe.query(OS.getProcessId()));
         assertEquals(DEAD, WindowsProcessProbe.query(Long.MAX_VALUE));
+    }
+
+    @Test
+    void realWindowsQueryClosesOutputPipe() {
+        assumeTrue(OS.isWindows());
+        Process[] child = new Process[1];
+        try {
+            assertEquals(DEAD, WindowsProcessProbe.query(Long.MAX_VALUE, TimeUnit.SECONDS.toNanos(5), () -> {
+                child[0] = WindowsProcessProbe.tasklistCommand(System.getenv("SystemRoot")).start();
+                return child[0];
+            }));
+            assertThrows(IOException.class, () -> child[0].getInputStream().available(),
+                    "The native stdout pipe remains open after successful enumeration");
+        } finally {
+            if (child[0] != null) {
+                try {
+                    child[0].destroyForcibly();
+                } finally {
+                    Closeable.closeQuietly(child[0].getInputStream(), child[0].getErrorStream(), child[0].getOutputStream());
+                }
+            }
+        }
+    }
+
+    @Test
+    void failedReadIsUnknownAndProbeIsCleaned() {
+        InputStream input = new InputStream() {
+            @Override public int available() { return 1; }
+            @Override public int read() throws IOException { throw new IOException("read failed"); }
+        };
+        StubProcess process = new StubProcess(input, 0, false);
+        assertEquals(UNKNOWN, run(process, 2));
+        assertCleaned(process);
+    }
+
+    @Test
+    void streamCloseFailureDoesNotMaskResultOrSkipOtherStreams() {
+        InputStream input = new ByteArrayInputStream(ROWS.getBytes(StandardCharsets.US_ASCII)) {
+            @Override
+            public void close() throws IOException {
+                throw new IOException("stdout close failed");
+            }
+        };
+        StubProcess process = new StubProcess(input, 0, false);
+        assertEquals(DEAD, run(process, 2));
+        assertCleaned(process);
     }
 
     @Test

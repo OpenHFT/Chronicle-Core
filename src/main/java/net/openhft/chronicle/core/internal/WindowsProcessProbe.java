@@ -105,7 +105,8 @@ public final class WindowsProcessProbe {
         } catch (IOException | SecurityException failure) {
             //! An unavailable query cannot authorise lock recovery. failedStartAndDenialAreUnknown
             //! covers failed launch/access checks; nonzeroExitCannotEstablishDeathAndProbeIsCleaned
-            //! covers an unsuccessful child. Interruption likewise preserves UNKNOWN and the flag.
+            //! covers an unsuccessful child. failedReadIsUnknownAndProbeIsCleaned covers a pipe read failure.
+            //! Interruption likewise preserves UNKNOWN and the flag.
             return unknown(pid, failure instanceof SecurityException ? UnknownReason.ACCESS_DENIED : UnknownReason.IO_FAILURE, failure);
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
@@ -117,6 +118,8 @@ public final class WindowsProcessProbe {
                 //! successfulEnumerationEstablishesDeathAndProbeIsCleaned and
                 //! interruptedProbePreservesInterruptAndDestroysChild assert closure and ordering.
                 //! destructionFailureStillClosesStreams covers the exceptional cleanup path.
+                //! realWindowsQueryClosesOutputPipe verifies native closure, and
+                //! streamCloseFailureDoesNotMaskResultOrSkipOtherStreams covers a failed close.
                 try {
                     process.destroyForcibly();
                 } finally {
