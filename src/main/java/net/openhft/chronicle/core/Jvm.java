@@ -1384,14 +1384,22 @@ public final class Jvm {
     }
 
     /**
-     * Returns if a process with the provided {@code pid} process id is alive.
+     * Returns whether a process is alive, conservatively treating an unsuccessful
+     * process query as alive. Only confirmed absence permits stale-lock recovery.
      *
      * @param pid the process id (pid) of the process to check
      * @return if a process with the provided {@code pid} process id is alive
      */
     public static boolean isProcessAlive(long pid) {
+        if (pid <= 0)
+            return false;
+        // A live JVM need not launch tasklist to prove its own existence. Doing
+        // so for each queue lock can stall a replication handshake on Windows.
+        if (pid == OS.getProcessId())
+            return true;
         if (isWindows())
-            return isProcessAlive0(pid, "cmd", "/c", "tasklist", "/NH", "/FI", "PID eq " + pid);
+            return net.openhft.chronicle.core.internal.WindowsProcessProbe.query(pid)
+                    != net.openhft.chronicle.core.internal.WindowsProcessProbe.Result.DEAD;
         if (isLinux() && PROC_EXISTS)
             return new File("/proc/" + pid).exists();
         if (isMacOSX() || isLinux())

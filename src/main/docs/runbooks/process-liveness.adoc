@@ -1,0 +1,16 @@
+= Windows process liveness
+
+`Jvm.isProcessAlive` returns true for the current JVM without launching a process.
+This avoids repeating Windows process enumeration while checking queue locks
+owned by the same JVM. Non-positive process IDs are absent.
+
+Other Windows process IDs use `tasklist.exe /FO CSV /NH` directly. A complete,
+successful enumeration with valid CSV rows establishes presence or absence using
+the PID column only. Failed starts, access denial, nonzero exits, malformed or
+empty output, interruption, more than 1 MiB output, and a five-second deadline
+all produce an unknown result, which the public boolean API treats as alive.
+An unknown query must never authorise recovery of another process's lock.
+The child is forcibly destroyed on every completion path; interruption is retained.
+
+`WindowsProcessProbeTest` covers these outcomes and a native Windows enumeration.
+Linux `/proc` and Unix `ps` enumeration retain their existing implementation.
