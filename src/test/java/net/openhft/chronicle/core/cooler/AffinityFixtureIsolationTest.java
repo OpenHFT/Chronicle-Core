@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.BufferedInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -44,9 +45,9 @@ class AffinityFixtureIsolationTest {
         Process process = JavaProcessBuilder.create(NoisyFailureProbe.class).start();
         String output = awaitProbe(process);
         assertNotEquals(0, process.exitValue());
-        assertTrue(output.contains("stdout complete"));
-        assertTrue(output.contains("stderr complete"));
-        assertTrue(output.contains("noisy probe assertion"));
+        assertTrue(output.contains("stdout complete"), "Missing stdout completion marker");
+        assertTrue(output.contains("stderr complete"), "Missing stderr completion marker");
+        assertTrue(output.contains("noisy probe assertion"), "Missing child assertion message");
     }
 
     private static String awaitProbe(Process process) throws Exception {
@@ -55,9 +56,12 @@ class AffinityFixtureIsolationTest {
             thread.setDaemon(true);
             return thread;
         });
-        // Drain both pipes while the child runs so assertion output cannot block its exit.
-        Future<byte[]> stdout = readers.submit(() -> IOTools.readAsBytes(process.getInputStream()));
-        Future<byte[]> stderr = readers.submit(() -> IOTools.readAsBytes(process.getErrorStream()));
+        // Drain both pipes to EOF while the child runs. Windows stderr is a FileInputStream:
+        // buffer it to avoid readAsBytes' available()-sized regular-file read.
+        Future<byte[]> stdout = readers.submit(
+                () -> IOTools.readAsBytes(new BufferedInputStream(process.getInputStream())));
+        Future<byte[]> stderr = readers.submit(
+                () -> IOTools.readAsBytes(new BufferedInputStream(process.getErrorStream())));
         try {
             assertTrue(process.waitFor(30, TimeUnit.SECONDS), "affinity probe did not terminate");
             return new String(stdout.get(10, TimeUnit.SECONDS), StandardCharsets.UTF_8)
