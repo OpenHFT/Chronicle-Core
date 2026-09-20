@@ -1,0 +1,53 @@
+# Static FIX-292 isolation snapshot, 2026-09-20. Provisional entries require review before removal.
+# process-global-setting
+net/openhft/chronicle/core/ChronicleInitTest.java
+# process-global-setting
+net/openhft/chronicle/core/JvmFlagsTest.java
+# references an isolated test or inherited/shared fixture
+net/openhft/chronicle/core/JvmFormatSizeTest.java
+# process-global-setting
+net/openhft/chronicle/core/JvmParseSizeInvalidTest.java
+# process-global-setting
+net/openhft/chronicle/core/JvmParseSizeTest.java
+# Open PRs #876; affinity-or-global-handler
+net/openhft/chronicle/core/JvmTest.java
+# process-global-setting
+net/openhft/chronicle/core/JvmUtilitiesTest.java
+# affinity-or-global-handler; process-global-setting
+net/openhft/chronicle/core/LicenceCheckTest.java
+# references changed/named test fixture
+net/openhft/chronicle/core/UnsafeMemoryByteTest.java
+# Open PRs #860
+net/openhft/chronicle/core/UnsafeMemoryIntTest.java
+# Open PRs #860
+net/openhft/chronicle/core/UnsafeMemoryLongTest.java
+# references changed/named test fixture
+net/openhft/chronicle/core/UnsafeMemoryShortTest.java
+# process-global-setting
+net/openhft/chronicle/core/analytics/AnalyticsFacadeTest.java
+# process-global-setting
+net/openhft/chronicle/core/analytics/AnalyticsFallbackTest.java
+# affinity-or-global-handler
+net/openhft/chronicle/core/cleaner/CleanerServiceLocatorTest.java
+# Open PRs #875
+net/openhft/chronicle/core/cooler/CpuCoolersTest.java
+# Open PRs #876
+net/openhft/chronicle/core/internal/CpuClassTest.java
+# process-global-setting
+net/openhft/chronicle/core/internal/analytics/AnalyticsFacadeTest.java
+# process-global-setting
+net/openhft/chronicle/core/internal/analytics/MuteBuilderApiNoopsTest.java
+# process-global-setting
+net/openhft/chronicle/core/internal/announcer/InternalAnnouncerConcurrencyTest.java
+# process-global-setting
+net/openhft/chronicle/core/internal/announcer/InternalAnnouncerTest.java
+# affinity-or-global-handler
+net/openhft/chronicle/core/io/AbstractCloseableTest.java
+# references changed/named test fixture
+net/openhft/chronicle/core/onoes/ChainedExceptionHandlerTest.java
+# references changed/named test fixture
+net/openhft/chronicle/core/onoes/ThreadLocalisedExceptionHandlerTest.java
+# Open PRs #875; affinity-or-global-handler
+net/openhft/chronicle/core/threads/CleaningThreadTest.java
+# process-global-setting
+net/openhft/chronicle/core/util/StringUtilsFlagsTest.java
