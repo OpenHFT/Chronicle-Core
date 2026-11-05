@@ -39,13 +39,6 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
         assertEquals(0, bgr.refCount());
 
         long start0 = System.currentTimeMillis();
-        WaitingCloseable wc = new WaitingCloseable();
-        new Thread(wc::close).start();
-        wc.close();
-        long time0 = System.currentTimeMillis() - start0;
-        int error = Jvm.isAzulZing() || Jvm.isAzulZulu() || Jvm.isMacArm() ? 45 : 20;
-        assertBetween(10, time0, 20 + 3 * error);
-
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;
         if (BackgroundResourceReleaser.BG_RELEASER) {
@@ -55,6 +48,27 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
+    }
+
+    @Test
+    void testConcurrentCloseWaitsForClosed() throws InterruptedException {
+        WaitingCloseable wc = new WaitingCloseable();
+        Thread closer = new Thread(wc::close);
+        closer.start();
+        // ensure the other thread does the close, so this thread exercises waitForClosed()
+        long deadline = System.currentTimeMillis() + 5_000;
+        while (!wc.isClosing()) {
+            assertTrue(System.currentTimeMillis() < deadline, "closer thread never started closing");
+            Thread.yield();
+        }
+        long waitStart = System.nanoTime();
+        wc.close();
+        long waitedMs = (System.nanoTime() - waitStart) / 1_000_000;
+        assertTrue(wc.isClosed(), "close() returned before the concurrent close completed");
+        // expected wait is ~10 ms (the closer's performClose); 500 ms allows for OS and GC stalls
+        // while still catching a regression in waitForClosed() polling or its abort path
+        assertTrue(waitedMs < 500, "close() waited " + waitedMs + " ms");
+        closer.join();
     }
 
     @Test
