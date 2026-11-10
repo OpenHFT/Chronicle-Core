@@ -20,6 +20,8 @@ A separate Build-All Eight project can select `chronicle.ci.mode=build-all`, ini
 
 Surefire reports are separated under each module's `target/ci-reports/surefire/<execution>`. Import all executions and compare full testcase multisets including module, execution/mode, class, parameter identity, outcome and skip identity. A green Maven exit or equal total alone is not a completeness certificate. Keep package/artifact checks and intentional mode repetitions.
 
+The managed profiles inherit JVM arguments from the active build configuration. With `-Psonar`, the Sonar profile supplies late JaCoCo binding and the coverage marker; managed profiles must not override `argLine`. Combining the modes retains the managed fork limits and report directories, so CI report import must include `target/ci-reports/surefire/**`.
+
 The selected allocation was measured on native Linux with Java 21 and unchanged declared dependencies. Other JDKs, operating systems, explicit Snapshot profiles, targeted `-Dtest` and `test-serial` routes need their own qualification before activation. Use the complete command above for this trial. No retries are introduced.
 
 == Retiring protected exceptions

@@ -332,6 +332,20 @@
 
     <profiles>
         <profile>
+            <id>sonar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>@{surefireArgLine} ${jvm.requiredArgs} -Djvm.coverage=true</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>chronicle-ci-policy</id>
             <activation>
                 <property>
@@ -387,7 +401,6 @@
                             <rerunFailingTestsCount>0</rerunFailingTestsCount>
                             <runOrder>alphabetical</runOrder>
                             <reportsDirectory>${project.build.directory}/ci-reports/surefire/default-cli</reportsDirectory>
-                            <argLine>${argLine} ${jvm.requiredArgs}</argLine>
                             <reuseForks>true</reuseForks>
                         </configuration>
                     </plugin>
