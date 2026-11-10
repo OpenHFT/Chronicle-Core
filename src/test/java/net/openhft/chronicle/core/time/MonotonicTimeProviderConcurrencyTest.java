@@ -106,8 +106,9 @@ class MonotonicTimeProviderConcurrencyTest extends CoreTestCommon {
             otherEntered.countDown();
             return 0;
         };
+        ThreadFactory factory = trackingFactory(workers);
         AssertionError failure = assertThrows(AssertionError.class,
-                () -> runRound(provider, 2, Long.MAX_VALUE, trackingFactory(workers)));
+                () -> runRound(provider, 2, Long.MAX_VALUE, factory));
         assertSame(cause, failure.getCause());
         assertStopped(workers);
     }
