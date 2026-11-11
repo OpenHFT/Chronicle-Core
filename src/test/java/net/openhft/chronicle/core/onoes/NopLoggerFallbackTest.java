@@ -41,12 +41,14 @@ class NopLoggerFallbackTest {
         public IMarkerFactory getMarkerFactory() { return new BasicMarkerFactory(); }
         public MDCAdapter getMDCAdapter() { return new NOPMDCAdapter(); }
         public String getRequestedApiVersion() { return "2.0.99"; }
-        public void initialize() { }
+        public void initialize() { /* Stateless provider: nothing to initialise. */ }
     }
 
     public static class Disposable { }
 
     public static class Events {
+        // GC has no completion signal; bounded polling tests eventual class-loader reclamation.
+        @SuppressWarnings("java:S2925")
         public static void main(String[] args) throws Exception {
             if ("unload".equals(args[0])) {
                 WeakReference<ClassLoader> reference = logFromDisposableLoader();

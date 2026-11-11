@@ -37,6 +37,8 @@ final class NopLoggerFallback {
                 || "t".equalsIgnoreCase(value) || "y".equalsIgnoreCase(value);
     }
 
+    // This is the fallback for a missing logging provider; logging here would discard the event.
+    @SuppressWarnings("java:S106")
     static void write(String level, String source, String message, Throwable thrown) {
         PrintStream out = System.err;
         // Keep each event and its stack trace together, including concurrent callers.
@@ -44,7 +46,7 @@ final class NopLoggerFallback {
             if (ANNOUNCED.compareAndSet(false, true))
                 out.println("Chronicle stderr fallback enabled: SLF4J is using a NOP logger factory; " +
                         "install a provider or set -Dchronicle.logging.disableStderrFallback=true to stop this fallback.");
-            out.println("[" + level + "] " + source + " - " + String.valueOf(message));
+            out.println("[" + level + "] " + source + " - " + message);
             if (thrown != null)
                 thrown.printStackTrace(out);
         }
