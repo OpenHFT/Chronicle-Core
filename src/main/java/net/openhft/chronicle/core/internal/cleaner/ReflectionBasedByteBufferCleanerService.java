@@ -38,16 +38,25 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
             // Don't want to record this in tests so just send to slf4j
             final Logger logger = Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName());
             if (logger.isLoggable(Level.WARNING)) {
-                Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName())
-                        .warning("Make sure you have set the command line option " +
-                                "\"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\" " +
-                                "to enable " + ReflectionBasedByteBufferCleanerService.class.getSimpleName());
+                logger.warning("Unable to access " + cleanerClassname + " (" + e + "). " +
+                        accessAdvice(Jvm.isJava9Plus(), e));
             }
             impact = Impact.UNAVAILABLE;
         }
         CLEAN_METHOD = clean;
         CLEANER_METHOD = cleaner;
         IMPACT = impact;
+    }
+
+    static String accessAdvice(boolean java9Plus, Throwable error) {
+        if (!java9Plus)
+            return "Check the underlying error; Java 8 does not support module flags.";
+        if (!(error instanceof IllegalAccessException || error instanceof IllegalAccessError))
+            return "Check JDK compatibility and the underlying error.";
+        return "On Java 9+ with Core on the classpath, add " +
+                "--add-exports java.base/jdk.internal.ref=ALL-UNNAMED " +
+                "--add-exports java.base/sun.nio.ch=ALL-UNNAMED to this JVM; " +
+                "for a named Core module, replace ALL-UNNAMED with its module name.";
     }
 
     @Override
