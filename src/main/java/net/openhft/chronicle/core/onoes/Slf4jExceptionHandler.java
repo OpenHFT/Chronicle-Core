@@ -16,6 +16,12 @@ import org.slf4j.LoggerFactory;
  * method on the SLF4J {@link Logger}. When SLF4J fails to initialise, or
  * the logger throws at runtime, the implementation writes to
  * {@code System.err} instead.
+ * <p>Unless {@code -Dchronicle.logging.disableStderrFallback=true}, WARN and ERROR also
+ * write to stderr when both the supplied logger and the active SLF4J factory
+ * are NOP implementations. This explicitly overrides an installed NOP provider,
+ * but does not bypass filtering by a real provider. Direct SLF4J calls are not covered.
+ * <p>Set the disable property on the JVM command line for early logging. The fallback
+ * reads system properties directly; it does not initialise Jvm or load system.properties.
  */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     ERROR(Logger::error),
@@ -38,7 +44,10 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown) {
         try {
-            logMethod.log(logger, message, thrown);
+            if ((this == WARN || this == ERROR) && NopLoggerFallback.enabled(logger))
+                NopLoggerFallback.write(name(), logger.getName(), message, thrown);
+            else
+                logMethod.log(logger, message, thrown);
         } catch (Throwable t) {
             System.err.println("Failed to write to logger: " + logger.getName() + ", message: " + message);
             if (thrown != null) {
@@ -52,7 +61,11 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     @Override
     public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         try {
-            on(getLogger(clazz), message, thrown);
+            Logger logger = getLogger(clazz);
+            if ((this == WARN || this == ERROR) && NopLoggerFallback.enabled(logger))
+                NopLoggerFallback.write(name(), clazz.getName(), message, thrown);
+            else
+                on(logger, message, thrown);
         } catch (Throwable t) {
             System.err.println("Failed to write to logger: " + clazz + ", message: " + message);
             if (thrown != null) {
