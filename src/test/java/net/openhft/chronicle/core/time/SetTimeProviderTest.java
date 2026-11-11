@@ -138,8 +138,10 @@ class SetTimeProviderTest extends CoreTestCommon {
         for (Instant outside : new Instant[]{min.minusNanos(1), max.plusNanos(1), Instant.MIN, Instant.MAX}) {
             assertThrows(ArithmeticException.class, () -> new SetTimeProvider(outside));
         }
-        for (Instant outside : new Instant[]{min.minusNanos(1), max.plusNanos(1)})
-            assertThrows(ArithmeticException.class, () -> new SetTimeProvider(outside.toString()));
+        for (Instant outside : new Instant[]{min.minusNanos(1), max.plusNanos(1)}) {
+            String text = outside.toString();
+            assertThrows(ArithmeticException.class, () -> new SetTimeProvider(text));
+        }
         assertEquals(-1, new SetTimeProvider("1969-12-31T23:59:59.999999999Z").currentTimeNanos());
     }
 

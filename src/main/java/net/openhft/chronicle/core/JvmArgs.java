@@ -19,6 +19,8 @@ public final class JvmArgs {
      * Runs the compiler probe in this JVM. Exit status is 0 for supported, 1 for
      * denied/unavailable/failed, and 2 for invalid command-line usage.
      */
+    // CLI/startup diagnostics must work without an SLF4J provider or initialised Jvm.
+    @SuppressWarnings("java:S106")
     public static void main(String[] args) {
         if (args.length != 1 || !"--check".equals(args[0])) {
             System.err.println("Usage: net.openhft.chronicle.core.JvmArgs --check");
@@ -32,6 +34,8 @@ public final class JvmArgs {
     }
 
     // Called once during Jvm initialisation, after resource properties have been loaded.
+    // CLI/startup diagnostics must work without an SLF4J provider or initialised Jvm.
+    @SuppressWarnings("java:S106")
     static void checkAtStartup() {
         String mode = System.getProperty("chronicle.jvm.args.check", "off");
         if ("off".equals(mode))
@@ -51,20 +55,24 @@ public final class JvmArgs {
         try {
             // Java 8 has no modules. A probe in Core's named module cannot establish
             // grants to a separately named runtime-compiler module.
-            try {
-                Object module = Class.class.getMethod("getModule").invoke(JvmArgs.class);
-                if ((Boolean) module.getClass().getMethod("isNamed").invoke(module))
-                    return "UNAVAILABLE: compiler probe supports classpath deployment only; " +
-                            "check access from the runtime compiler's named module";
-            } catch (NoSuchMethodException java8) {
-                // Java 8 classpath deployment.
-            }
+            if (isNamedModule())
+                return "UNAVAILABLE: compiler probe supports classpath deployment only; " +
+                        "check access from the runtime compiler's named module";
             return CompilerAccessProbe.check();
         } catch (LinkageError unavailable) {
             return "UNAVAILABLE: compiler APIs are not available: " + unavailable;
         } catch (Exception failure) {
             Throwable cause = failure instanceof InvocationTargetException ? failure.getCause() : failure;
             return "FAILED: compiler probe could not run: " + cause;
+        }
+    }
+
+    private static boolean isNamedModule() throws ReflectiveOperationException {
+        try {
+            Object module = Class.class.getMethod("getModule").invoke(JvmArgs.class);
+            return Boolean.TRUE.equals(module.getClass().getMethod("isNamed").invoke(module));
+        } catch (NoSuchMethodException java8) {
+            return false;
         }
     }
 }

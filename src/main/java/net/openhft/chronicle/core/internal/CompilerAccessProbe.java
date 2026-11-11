@@ -19,7 +19,9 @@ public final class CompilerAccessProbe {
     }
 
     /** Checks the reflective javac operation used by runtime compilation and compiles in memory. */
-    public static String check() throws Exception {
+    // Probe exactly the reflective access runtime compilation needs; Java 8 has no module exception type.
+    @SuppressWarnings({"java:S3011", "java:S1872"})
+    public static String check() throws IOException, ReflectiveOperationException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         if (compiler == null)
             return "UNAVAILABLE: no system Java compiler; use a JDK with the compiler installed/resolved";
