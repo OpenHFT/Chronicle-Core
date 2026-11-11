@@ -30,7 +30,16 @@ public final class ClassUtil {
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
                      IllegalArgumentException e) {
                 Logger logger = LoggerFactory.getLogger(ClassUtil.class);
-                logger.error("Chronicle products may require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
+                Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
+                if (cause instanceof IllegalAccessException)
+                    logger.error("Unable to access AccessibleObject.setAccessible0 ({}). " +
+                            "With Core on the classpath, add --add-opens java.base/java.lang.reflect=ALL-UNNAMED " +
+                            "to this JVM and any JVM it launches, with the other Chronicle module flags. " +
+                            "For a named Core module, replace ALL-UNNAMED with its module name; " +
+                            "see https://chronicle.software/chronicle-support-java-17", String.valueOf(cause));
+                else
+                    logger.error("Unable to initialise access to AccessibleObject.setAccessible0 ({}); " +
+                            "check JDK compatibility and the underlying error", String.valueOf(cause));
                 return null;
             }
         }

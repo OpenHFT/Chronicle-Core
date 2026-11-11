@@ -44,6 +44,14 @@ public final class OS {
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
     static final String SUN_NIO_CH_FILE_DISPATCHER_IMPL = "sun.nio.ch.FileDispatcherImpl";
+    // Module flags without which map0/unmap0 cannot be reached: setAccessible0 needs java.lang.reflect opened
+    static final String MAPPING_ACCESS_FLAGS = "--add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED";
+    static String mappingAccessAdvice(boolean java9Plus) {
+        return java9Plus
+                ? "with Core on the classpath, add " + MAPPING_ACCESS_FLAGS + " to this JVM and any JVM it launches; " +
+                  "for a named Core module, replace ALL-UNNAMED with its module name"
+                : "check the underlying access failure (Java 8 does not support module flags)";
+    }
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
@@ -59,7 +67,8 @@ public final class OS {
             }
             return MethodHandles.lookup().unreflect(map0);
         } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Unable to access map0 to memory-map files; " +
+                    mappingAccessAdvice(Jvm.isJava9Plus()), e);
         }
     });
     private static final String USER_DIR = Jvm.getProperty("user.dir");
@@ -808,7 +817,8 @@ public final class OS {
             try {
                 UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
             } catch (IllegalAccessException e) {
-                throw new IORuntimeException(e);
+                throw new IORuntimeException("Unable to access unmap0 to unmap files; " +
+                        mappingAccessAdvice(Jvm.isJava9Plus()), e);
             }
         }
     }
