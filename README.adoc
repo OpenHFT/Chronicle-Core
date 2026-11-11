@@ -30,6 +30,59 @@ mvn clean install
 
 The most recent runs completed successfully; see `build-java8.log` and `build-java21.log` in the repository root for full output and warnings.
 
+== Logging providers and the stderr fallback
+
+Applications should configure exactly one SLF4J provider compatible with their
+resolved `slf4j-api` version. Core supplies the API, not an application logging
+provider. Verify that a known warning reaches the intended destination: SLF4J's
+missing-provider banner does not mean that application warnings are being logged.
+Do not infer provider absence from a disabled log level; a real provider may
+intentionally filter a category.
+
+The stderr fallback is enabled by default. To disable it, set:
+
+[source,shell]
+----
+-Dchronicle.logging.disableStderrFallback=true
+----
+
+A bare `-Dchronicle.logging.disableStderrFallback` also disables the fallback,
+following `Jvm.getBoolean` conventions (an empty value means true; trimmed
+`true`, `yes`, `t` and `y` are recognised case-insensitively).
+Unlike `Jvm.getBoolean`, this check reads `System.getProperty` directly and
+does not initialise `Jvm` or load `system.properties`. Set the property on the
+JVM command line to reliably disable the fallback from the first logging event;
+do not rely on a `system.properties` entry for early logging. If `Jvm` later
+loads that file into the JVM system properties, or application code sets the
+property, subsequent events see the updated value.
+
+The disable property defaults to false. Unless disabled, `Slf4jExceptionHandler.WARN` and `.ERROR`
+write to `System.err` only if both the supplied logger and the active SLF4J
+factory are NOP implementations. This covers the default `Jvm.warn()` and
+`Jvm.error()` handlers, but not direct calls to SLF4J loggers, such as some
+class-initialisation diagnostics. Application-installed handlers are not replaced.
+INFO/PERF and DEBUG are not promoted to stderr. A real provider's filtering
+is respected, and its events are not duplicated.
+
+The default fallback also overrides an intentionally installed NOP provider such as
+`slf4j-nop`. Set the disable property to true if that provider is intended to silence
+these diagnostics. The property is read for each WARN/ERROR event, without
+initialising `Jvm` from the logging implementation.
+
+The fallback prints one explanatory notice per loaded Core classloader, then
+every warning/error with its level, source and original throwable stack trace.
+Only the notice is limited to once; repeated or concurrent errors are not
+suppressed. Each event and its stack trace are written together under the stderr
+stream's lock. Nothing is written to stdout, and the fallback retains no source
+classes, messages or throwables. A directly supplied NOP logger has the source
+name supplied by SLF4J (typically `NOP`); the class overload preserves the source
+class name.
+
+This is synchronous diagnostic output and can block on stderr; it is not a
+low-latency logging replacement. High-volume applications should install and
+configure a suitable provider. The pre-existing stderr reporting when a logger
+throws remains in place, independently of this disable property.
+
 == About Chronicle-Core
 
 Chronicle-Core is an advanced low-level library that equips developers with powerful tools to interact with the operating system, manage memory, handle resources, and more.
