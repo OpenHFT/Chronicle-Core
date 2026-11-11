@@ -15,7 +15,14 @@ package net.openhft.chronicle.core.time;
  * This interface is crucial in contexts where precise time measurements are vital, such as in performance
  * monitoring, timestamping events, or handling time-sensitive operations.
  *
- * <p>Use {@link UniqueMicroTimeProvider} if monotonic timestamps are required.
+ * <p>Use {@link MonotonicTimeProvider} for non-decreasing nanosecond and
+ * microsecond timestamps, or {@link UniqueMicroTimeProvider} for unique
+ * microsecond timestamps within one JVM. Consult each provider's contract
+ * for ordering, clock-adjustment and resolution guarantees.
+ * {@link SystemTimeProvider#CLOCK} selects the monotonic provider when
+ * {@code -Dchronicle.time.monotonic=true}; the default is false in 2026.x
+ * and may change in 2027.x.
+ * @see MonotonicTimeProvider
  * @see PosixTimeProvider
  * @see SystemTimeProvider
  */

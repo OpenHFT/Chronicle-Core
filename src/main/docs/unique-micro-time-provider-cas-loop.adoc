@@ -58,9 +58,12 @@ NOTE: The *nanosecond* and *millisecond* methods follow the same logic; the ns f
 == 5. Common Pitfalls
 
 * **Micro vs Nano confusion** - `currentTimeNanos()` *may* return a value that is *not* strictly greater than the previous nano call if both happen inside the same microsecond.
-If you need monotonic **ns** resolution, add another CAS layer or use `DistributedUniqueTimeProvider`.
+For non-decreasing nanosecond timestamps without uniqueness, use `MonotonicTimeProvider`.
+For unique nanosecond timestamps, use the appropriate Chronicle Bytes provider, such as `DistributedUniqueTimeProvider`.
+The Bytes providers retain their own uniqueness mechanism; they do not need an additional monotonic wrapper.
 * **Clock leap-back** - When the system clock jumps backwards by &gt; 1 s the provider will "run hot" (issue future-looking timestamps) until real time catches up.
 This is usually harmless but can surprise log readers.
+`MonotonicTimeProvider` can instead repeat its previous maximum until the clock-derived estimate catches up; it cannot promise a fixed wall-clock error after a backward adjustment.
 * **Mis-configuring tests** - Using `SetTimeProvider` under `UniqueMicroTimeProvider` can break determinism unless you freeze the backing clock (`autoIncrement(0, NANOSECONDS)`).
 
 == 6. Usage Examples
@@ -79,6 +82,16 @@ SingleChronicleQueue queue = SingleChronicleQueueBuilder
         .timeProvider(clock)
         .build();
 ----
+
+For consumers of `SystemTimeProvider.CLOCK`, `-Dchronicle.time.monotonic=true`
+selects `MonotonicTimeProvider` once during class initialisation, using `Jvm.getBoolean`.
+The absent or false property retains `SystemTimeProvider` in 2026.x.
+`MonotonicTimeProvider` may become the default in 2027.x.
+Direct uses of `SystemTimeProvider.INSTANCE` retain the existing implementation.
+The monotonic provider guarantees non-decreasing nanos and micros when one call
+finishes before the next starts, including across threads; overlapping calls can
+return in a different order from their atomic updates. Its millis still follows
+wall time directly and can move backwards.
 
 == 7. Testing Strategy
 
