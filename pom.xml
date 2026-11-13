@@ -311,6 +311,7 @@
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Export-Package>net.openhft.chronicle.core.*;-noimport:=true</Export-Package>
                         <Import-Package>software.chronicle.enterprise.core;resolution:=optional,
+                            javax.tools;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>
