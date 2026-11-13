@@ -27,4 +27,19 @@ class ReflectionBasedByteBufferCleanerServiceTest {
         Impact impact = cleanerService.impact();
         assertTrue(impact == Impact.SOME_IMPACT || impact == Impact.UNAVAILABLE, "Impact should be either SOME_IMPACT or UNAVAILABLE");
     }
+
+    @Test
+    void adviceDistinguishesJava8AndMissingJdkMethodsFromModuleAccess() {
+        String java8 = ReflectionBasedByteBufferCleanerService.accessAdvice(false, new IllegalAccessException());
+        assertTrue(java8.contains("Java 8"));
+        assertFalse(java8.contains("--add-exports"));
+        String missing = ReflectionBasedByteBufferCleanerService.accessAdvice(true, new NoSuchMethodException());
+        assertTrue(missing.contains("compatibility"));
+        assertFalse(missing.contains("--add-exports"));
+        for (Throwable denied : new Throwable[]{new IllegalAccessException(), new IllegalAccessError()}) {
+            String advice = ReflectionBasedByteBufferCleanerService.accessAdvice(true, denied);
+            assertTrue(advice.contains("--add-exports java.base/jdk.internal.ref=ALL-UNNAMED"));
+            assertTrue(advice.contains("--add-exports java.base/sun.nio.ch=ALL-UNNAMED"));
+        }
+    }
 }
