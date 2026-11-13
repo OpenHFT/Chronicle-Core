@@ -1,5 +1,6 @@
 = Runbook: Handling Missing Native Affinity Libraries
 :toc:
+:sectnums:
 :lang: en-GB
 
 Related requirements: CORE-OPS-002, CORE-OPS-008.
@@ -35,3 +36,26 @@ action is required.
 == Rollback
 * If installing JNA introduces instability, revert to the previous package state and rely on dummy
   affinity while investigating further.
+
+== Test fixture isolation
+
+Any test that changes the calling thread's affinity must restore a cloned copy of
+its original mask in `finally`, including when its assertions fail. Otherwise a
+later first use of `AffinityLock` in a reused fork can capture that temporary mask
+as `BASE_AFFINITY`.
+
+`AffinityFixtureIsolationTest` exercises early and late baseline initialisation,
+failure cleanup and a supported restricted mask in fresh JVMs. The cleaning-thread
+reset test explicitly pins the child before `CleaningThread.run`: Windows caches
+affinity per thread, so pinning only the parent does not exercise that reset.
+
+The harness drains stdout and stderr to EOF while the child runs, preserving
+assertion diagnostics even when output exceeds the pipe buffers. Both streams
+are buffered before calling `IOTools.readAsBytes`: Windows stderr can be a
+`FileInputStream`, whose regular-file shortcut reads only the bytes currently
+available and can discard later pipe output. The reset check is skipped when the
+baseline has one CPU or the affinity provider cannot pin the child.
+
+On Windows these assertions observe `WindowsJNAAffinity`'s thread-local mask.
+They verify restoration of the library state used by `AffinityLock`; they do not
+independently verify the operating system's thread-affinity mask.

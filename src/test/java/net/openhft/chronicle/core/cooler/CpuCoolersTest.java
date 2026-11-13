@@ -3,7 +3,10 @@
  */
 package net.openhft.chronicle.core.cooler;
 
+import net.openhft.affinity.Affinity;
 import org.junit.jupiter.api.Test;
+
+import java.util.BitSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
@@ -94,7 +97,18 @@ class CpuCoolersTest {
     @Test
     void testAffinity() {
         assumeFalse(Runtime.getRuntime().availableProcessors() < 2);
-        assertDoesNotThrow(CpuCoolers.AFFINITY::disturb);
+        withRestoredAffinity(() -> assertDoesNotThrow(CpuCoolers.AFFINITY::disturb));
+    }
+
+    // A reused test fork may initialise AffinityLock after this fixture has run.
+    // Do not let it capture the cooler's single-CPU mask as the process baseline.
+    static void withRestoredAffinity(Runnable body) {
+        BitSet original = (BitSet) Affinity.getAffinity().clone();
+        try {
+            body.run();
+        } finally {
+            Affinity.setAffinity(original);
+        }
     }
 
     @Test
