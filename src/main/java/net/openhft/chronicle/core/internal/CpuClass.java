@@ -36,10 +36,12 @@ public final class CpuClass {
                             .findFirst().orElse(model);
                 }
             } else if (Bootstrap.IS_WIN) {
-                model = readModelFromCommand(model, "wmic cpu get name", line ->
-                        !"Name".equals(line) && !line.isEmpty() ? line : null);
+                model = readModelFromCommand(model, new String[]{
+                        "powershell.exe", "-NoProfile", "-NonInteractive", "-Command",
+                        "Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty Name"
+                }, line -> !line.isEmpty() ? line : null);
             } else if (Bootstrap.IS_MAC) {
-                model = readModelFromCommand(model, "sysctl -a", line ->
+                model = readModelFromCommand(model, new String[]{"sysctl", "-a"}, line ->
                         line.startsWith("machdep.cpu.brand_string") ? removingTag().apply(line) : null);
             }
 
@@ -49,8 +51,9 @@ public final class CpuClass {
         CPU_MODEL = model;
     }
 
-    private static String readModelFromCommand(String fallback, String cmd, Function<String, String> mapping) throws IOException {
-        Process process = new ProcessBuilder(cmd.split(" "))
+    private static String readModelFromCommand(String fallback, String[] command, Function<String, String> mapping) throws IOException {
+        String cmd = String.join(" ", command);
+        Process process = new ProcessBuilder(command)
                 .redirectErrorStream(true)
                 .start();
         try {

@@ -636,3 +636,11 @@ JLBH has moved home and now lives in its own project, see https://github.com/Ope
 The tool to summarise the thread stack traces is here.
 
 `net.openhft.chronicle.core.threads.MonitorProfileAnalyserMain`
+
+== Building on Windows
+
+Use a full JDK and Maven, and set `JAVA_HOME` to the JDK installation directory.
+Run `mvn clean verify` from the repository root.
+Windows CPU-model detection uses Windows PowerShell with `Get-CimInstance Win32_Processor`.
+It does not require the optional legacy `wmic` executable.
+If CPU information cannot be queried, detection falls back to `os.arch`.
