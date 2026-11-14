@@ -5,8 +5,6 @@ package net.openhft.chronicle.core.benchmark;
 
 import net.openhft.chronicle.core.Jvm;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.BigMatrix;
-import org.apache.commons.math.linear.BigMatrixImpl;
 import org.apache.commons.math.linear.RealMatrix;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
@@ -89,6 +87,8 @@ MatrixMain.DoubleMatrix:DoubleMatrix·p0.9999          sample               13.3
 MatrixMain.DoubleMatrix:DoubleMatrix·p1.00            sample             2037.760          us/op
 */
 @State(Scope.Thread)
+// Deliberately benchmarks the legacy BigMatrix API for historical comparison.
+@SuppressWarnings("deprecation")
 public class MatrixMain {
 
     BigDecimal[][] values = new BigDecimal[32][32];
@@ -135,9 +135,9 @@ public class MatrixMain {
 
 //    @Benchmark
 //    @BenchmarkMode({Mode.SampleTime, Mode.Throughput})
-    public BigMatrix BigDecimalMatrix() {
-        BigMatrix matrix = new BigMatrixImpl(values);
-        BigMatrix matrix2 = new BigMatrixImpl(vector);
+    public org.apache.commons.math.linear.BigMatrix BigDecimalMatrix() {
+        org.apache.commons.math.linear.BigMatrix matrix = new org.apache.commons.math.linear.BigMatrixImpl(values);
+        org.apache.commons.math.linear.BigMatrix matrix2 = new org.apache.commons.math.linear.BigMatrixImpl(vector);
         return matrix.multiply(matrix2);
     }
 

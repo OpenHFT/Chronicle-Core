@@ -87,6 +87,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerVersion>1.8</compilerVersion>
+                    <proc>full</proc>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
@@ -95,15 +96,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>run-jmh</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <classpathScope>test</classpathScope>
                     <executable>java</executable>
@@ -306,6 +298,13 @@
                                     <commandlineArgs>${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath %classpath net.openhft.chronicle.core.AsDoubleImplementationPerfJLBH
                                     </commandlineArgs>
                                 </configuration>
+                            </execution>
+                            <execution>
+                                <id>run-jmh</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
