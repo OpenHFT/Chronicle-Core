@@ -3,24 +3,21 @@
  */
 package net.openhft.chronicle.core.internal;
 
-import net.openhft.chronicle.core.io.IOTools;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Function;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public final class CpuClass {
     static final String CPU_MODEL;
 
-    private static final String PROCESS = "process ";
     private static final Logger LOGGER = LoggerFactory.getLogger(CpuClass.class);
 
     static {
@@ -38,7 +35,7 @@ public final class CpuClass {
             } else if (Bootstrap.IS_WIN) {
                 model = readModelFromCommand(model, new String[]{
                         "powershell.exe", "-NoProfile", "-NonInteractive", "-Command",
-                        "Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty Name"
+                        "$ErrorActionPreference = 'Stop'; Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty Name"
                 }, line -> !line.isEmpty() ? line : null);
             } else if (Bootstrap.IS_MAC) {
                 model = readModelFromCommand(model, new String[]{"sysctl", "-a"}, line ->
@@ -52,30 +49,39 @@ public final class CpuClass {
     }
 
     private static String readModelFromCommand(String fallback, String[] command, Function<String, String> mapping) throws IOException {
-        String cmd = String.join(" ", command);
-        Process process = new ProcessBuilder(command)
-                .redirectErrorStream(true)
-                .start();
+        return readModelFromCommand(fallback, command, mapping, 5, TimeUnit.SECONDS);
+    }
+
+    static String readModelFromCommand(String fallback, String[] command, Function<String, String> mapping,
+                                       long timeout, TimeUnit unit) throws IOException {
+        Path output = Files.createTempFile("chronicle-cpu-", ".out");
+        Process process = null;
         try {
-            String result = fallback;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                result = reader.lines()
-                        .map(String::trim)
-                        .map(mapping)
-                        .filter(s -> s != null && !s.isEmpty())
-                        .findFirst().orElse(fallback);
+            // Redirect both streams so output cannot fill a pipe while waiting for completion.
+            // Only stdout is eligible as a model name; PowerShell diagnostics are not CPU names.
+            process = new ProcessBuilder(command).redirectOutput(output.toFile())
+                    .redirectError(ProcessBuilder.Redirect.INHERIT).start();
+            if (!process.waitFor(timeout, unit) || process.exitValue() != 0)
+                return fallback;
+            if (Files.size(output) > 1024 * 1024)
+                return fallback;
+            try (Stream<String> lines = Files.lines(output)) {
+                return lines.map(String::trim).map(mapping)
+                        .filter(s -> s != null && !s.isEmpty()).findFirst().orElse(fallback);
             }
-            try {
-                int ret = process.waitFor();
-                if (ret != 0)
-                    LOGGER.warn(PROCESS + cmd + " returned " + ret);
-            } catch (InterruptedException e) {
-                LOGGER.warn(PROCESS + cmd + " waitFor threw ", e);
-                Thread.currentThread().interrupt();
-            }
-            return result;
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            return fallback;
         } finally {
-            IOTools.destroyProcess(process);
+            if (process != null) {
+                process.destroyForcibly();
+                try {
+                    process.waitFor(1, TimeUnit.SECONDS);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            Files.deleteIfExists(output);
         }
     }
 
