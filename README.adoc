@@ -132,7 +132,7 @@ static {
 
 The choice of file to load can be overridden on the command line with `-Dsystem.properties=my.properties`
 
-In link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/Jvm.java[Jvm.java] it can be seen how to guarantee that JVM class is initialized before the system property is read.
+In link:https://github.com/OpenHFT/Chronicle-Core/blob/HEAD/src/main/java/net/openhft/chronicle/core/Jvm.java[Jvm.java] it can be seen how to guarantee that JVM class is initialized before the system property is read.
 For example with Jvm.getInteger or Jvm.getLong.
 
 A number of relevant system properties are listed in link:docs/systemProperties.adoc[systemProperties.adoc].
@@ -141,7 +141,7 @@ NOTE: Command line-specified system properties override those in the `system.pro
 
 == Chronicle-Core Initialization
 
-Chronicle-Core offers an initialization class, link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/ChronicleInit.java[`ChronicleInit`], that enables developers to run their own code at startup.
+Chronicle-Core offers an initialization class, link:https://github.com/OpenHFT/Chronicle-Core/blob/HEAD/src/main/java/net/openhft/chronicle/core/ChronicleInit.java[`ChronicleInit`], that enables developers to run their own code at startup.
 This code can be executed before and/or after the execution of Chronicle's static initializers, which perform tasks such as system property loading.
 
 `ChronicleInit` allows the developer to hook in their own code to be run at startup before and/or after the Chronicle static initialisers are run.

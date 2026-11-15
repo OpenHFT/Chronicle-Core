@@ -4,7 +4,7 @@
 :source-highlighter: rouge
 
 This document captures all *CORE*-scoped functional requirements for the Chronicle Core library.
-It follows the global https://github.com/OpenHFT/Main/blob/ea/DOCS_PLAYBOOK.md[DOCS Playbook], using
+It uses
 the company-wide *Nine-Box* taxonomy. Identifiers have the form `<Scope>-<Tag>-nnn`
 (e.g. `CORE-FN-015`). The table below lists each domain area and the sections that satisfy it.
 
