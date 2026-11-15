@@ -170,4 +170,6 @@ Validation::
 
 CPU model discovery accepts stdout only after successful process completion.
 PowerShell and sysctl have a five-second deadline and fall back to the architecture
-when unavailable, interrupted or unsuccessful. Redirected output prevents pipe backpressure.
+when unavailable, interrupted or unsuccessful. A daemon reader drains stdout concurrently
+to prevent pipe backpressure and accepts at most 1 MiB. Output is kept in memory,
+avoiding shared temporary files and Windows file-lock cleanup races.

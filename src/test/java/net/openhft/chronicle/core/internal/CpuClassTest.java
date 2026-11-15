@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.internal;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.jupiter.api.Test;
 import java.io.File;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,6 +56,7 @@ class CpuClassTest {
         assertEquals("fallback", query("stderr", 5));
         assertEquals("fallback", query("failure", 5));
         assertEquals("fixture CPU", query("flood", 5));
+        assertEquals("fallback", query("oversized", 5));
         long start = System.nanoTime();
         assertEquals("fallback", query("hang", 1));
         assertTrue(System.nanoTime() - start < TimeUnit.SECONDS.toNanos(5));
@@ -71,7 +73,10 @@ class CpuClassTest {
         public static void main(String[] args) throws Exception {
             switch (args[0]) {
                 case "stderr": System.err.println("fixture error"); return;
-                case "hang": Thread.sleep(60_000); return;
+                case "hang": new CountDownLatch(1).await(); return;
+                case "oversized":
+                    for (int i = 0; i < 100000; i++) System.out.println("ignored output line");
+                    break;
                 case "flood":
                     for (int i = 0; i < 10000; i++) System.out.println("ignored output line");
                     break;
