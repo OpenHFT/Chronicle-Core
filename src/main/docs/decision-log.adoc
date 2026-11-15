@@ -165,3 +165,11 @@ Validation::
 * Check the effective POM with a non-zero command-line retry count, including the `sonar` and `run-all-tests` profiles.
 * Run ordinary and dynamic JUnit tests that fail on their first invocation and would pass on a second invocation.
 * With `-Dsurefire.rerunFailingTestsCount=3`, both `test` and direct `surefire:test` must execute each probe once and report failure.
+
+=== Bound CPU model commands
+
+CPU model discovery accepts stdout only after successful process completion.
+PowerShell and sysctl have a five-second deadline and fall back to the architecture
+when unavailable, interrupted or unsuccessful. A daemon reader drains stdout concurrently
+to prevent pipe backpressure and accepts at most 1 MiB. Output is kept in memory,
+avoiding shared temporary files and Windows file-lock cleanup races.
