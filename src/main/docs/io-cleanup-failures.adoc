@@ -1,0 +1,12 @@
+= I/O cleanup failure contracts
+:sectnums:
+:lang: en-GB
+
+`IOTools.readAsBytes` closes the supplied input on success or failure.
+File reads can return fewer bytes than requested. The file path accumulates these reads and returns the data obtained if the file reaches EOF before the original size estimate.
+
+If gzip initialisation fails, that original failure is rethrown after closing the input.
+A checked or unchecked close failure is attached as a suppressed exception, except when it is the same throwable instance.
+
+`Closeable.closeQuietly` logs a failed HTTP disconnect and continues closing later resources, as it already does for other closeable resources.
+`CleanupFailureTest` covers short reads, setup/read failures and nested cleanup with failing resources.
