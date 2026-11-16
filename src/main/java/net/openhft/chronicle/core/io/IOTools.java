@@ -336,8 +336,9 @@ public final class IOTools {
             } catch (IOException | RuntimeException | Error t) {
                 try {
                     in.close();
-                } catch (IOException ioe2) {
-                    t.addSuppressed(ioe2);
+                } catch (Throwable closeFailure) {
+                    if (closeFailure != t)
+                        t.addSuppressed(closeFailure);
                 }
                 throw t;
             }
@@ -376,9 +377,13 @@ public final class IOTools {
         if (is instanceof FileInputStream) {
             try (FileInputStream fis = (FileInputStream) is) {
                 byte[] bytes = new byte[fis.available()];
-                int read = fis.read(bytes);
-                if (read != bytes.length)
-                    throw new AssertionError();
+                int offset = 0;
+                while (offset < bytes.length) {
+                    int read = fis.read(bytes, offset, bytes.length - offset);
+                    if (read < 0)
+                        return Arrays.copyOf(bytes, offset);
+                    offset += read;
+                }
                 return bytes;
             }
         }
