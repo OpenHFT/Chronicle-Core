@@ -90,7 +90,8 @@ public final class OS {
 
     private static Class<?> findClass(String name) {
         try {
-            return Thread.currentThread().getContextClassLoader().loadClass(name);
+            // JDK cleaner threads can have no context loader; native dispatchers belong to the JDK.
+            return Class.forName(name, false, OS.class.getClassLoader());
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Not found: " + name, e);
         }
