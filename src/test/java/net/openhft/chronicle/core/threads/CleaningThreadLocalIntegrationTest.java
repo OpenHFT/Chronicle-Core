@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -108,6 +109,48 @@ class CleaningThreadLocalIntegrationTest {
             releaseWorkers.countDown();
             for (Thread worker : workers)
                 worker.join(10_000);
+        }
+    }
+
+    @Test
+    void orphanCallbackAllowsUnrelatedThreadLocalOperations() throws Exception {
+        CountDownLatch callbackStarted = new CountDownLatch(1);
+        CountDownLatch releaseCallback = new CountDownLatch(1);
+        AtomicInteger orphanCleanups = new AtomicInteger();
+        AtomicInteger unrelatedCleanups = new AtomicInteger();
+        CleaningThreadLocal<Object> orphan = new CleaningThreadLocal<>(Object::new, value -> {
+            orphanCleanups.incrementAndGet();
+            callbackStarted.countDown();
+            releaseCallback.await();
+        }, UnaryOperator.identity(), true);
+        CleaningThreadLocal<Object> unrelated = new CleaningThreadLocal<>(
+                Object::new, value -> unrelatedCleanups.incrementAndGet(), UnaryOperator.identity(), true);
+
+        Thread owner = new Thread(orphan::get, "ctl-orphan-owner");
+        owner.start();
+        owner.join(10_000);
+        assertFalse(owner.isAlive(), "owner must exit before the sweep");
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            Future<?> sweep = executor.submit(() -> CleaningThreadLocal.cleanupNonCleaningThreads());
+            assertTrue(callbackStarted.await(10, TimeUnit.SECONDS), "orphan callback did not start");
+            Future<?> operations = executor.submit(() -> {
+                unrelated.get();
+                unrelated.set(new Object());
+                unrelated.remove();
+            });
+            operations.get(10, TimeUnit.SECONDS);
+            assertEquals(2, unrelatedCleanups.get(), "set and remove must finish while the callback waits");
+
+            releaseCallback.countDown();
+            sweep.get(10, TimeUnit.SECONDS);
+            CleaningThreadLocal.cleanupNonCleaningThreads();
+            assertEquals(1, orphanCleanups.get());
+        } finally {
+            releaseCallback.countDown();
+            executor.shutdown();
+            assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS), "cleanup workers did not finish");
         }
     }
 
