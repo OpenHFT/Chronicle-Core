@@ -360,6 +360,15 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         }
     }
 
+    // Explicit cleanup of a live ordinary thread must also detach its orphan entry:
+    // otherwise the registry retains supplier/fixture graphs and later cleans the value twice.
+    // Tests: CleaningThreadExplicitCleanupTest, including quiescent-peer and null-value cases.
+    void cleanupForThread(Thread thread, @Nullable T value) {
+        if (trackNonCleaningThreads && !(thread instanceof CleaningThread))
+            value = removeTrackedValue(thread);
+        cleanup(value);
+    }
+
     /**
      * Idempotent helper that applies {@link #cleanup} to {@code value}.
      * Any exception thrown by user code is swallowed and logged so that
