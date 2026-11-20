@@ -82,8 +82,10 @@ public class CleaningThread extends Thread {
      * entries we created. If garbage collection has cleared a weak key the value
      * cannot be located and remains until the table is resized.
      *
-     * @param thread the thread whose {@code CleaningThreadLocal} instances are to be
-     *               cleared
+     * Both the thread-local map and orphan tracking are cleared before cleanup runs.
+     * Call only on the current thread or a thread whose thread-local access is quiescent.
+     *
+     * @param thread the thread whose {@code CleaningThreadLocal} instances are to be cleared
      */
     public static void performCleanup(Thread thread) {
         performCleanup(thread, null);
@@ -126,13 +128,14 @@ public class CleaningThread extends Thread {
         Method remove = getRemoveMethod(o);
         if (remove == null) return;
 
-        scanReferences(ctl, table, o, remove);
+        scanReferences(thread, ctl, table, o, remove);
     }
 
     /**
      * Iterates through the references in the table, cleaning up and removing the CleaningThreadLocal instances.
      */
-    private static void scanReferences(CleaningThreadLocal<?> ctl, WeakReference<?>[] table, Object o, Method remove) {
+    private static void scanReferences(Thread thread, CleaningThreadLocal<?> ctl,
+                                       WeakReference<?>[] table, Object o, Method remove) {
         for (WeakReference<?> reference : table.clone()) {
             try {
                 Object key = reference != null ? reference.get() : null;
@@ -140,13 +143,9 @@ public class CleaningThread extends Thread {
                     continue;
 
                 Object value = VALUE.get(reference);
-                if (value == null)
-                    continue;
-
                 CleaningThreadLocal<Object> ctlKey = uncheckedCast(key);
-                ctlKey.cleanup(value);
-
                 remove.invoke(o, key);
+                ctlKey.cleanupForThread(thread, value);
                 if (ctl != null)
                     break;
             } catch (IllegalAccessException e) {
