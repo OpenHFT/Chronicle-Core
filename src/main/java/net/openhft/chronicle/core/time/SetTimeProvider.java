@@ -5,8 +5,10 @@ package net.openhft.chronicle.core.time;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -31,7 +33,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
     /**
      * Constructs a time provider starting at a specific time in nanoseconds.
      *
-     * @param initialNanos starting time in nanoseconds, non-negative
+     * @param initialNanos starting time in nanoseconds since the epoch (may be negative)
      */
     public SetTimeProvider(long initialNanos) {
         super(initialNanos);
@@ -39,8 +41,16 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
 
     /**
      * Constructs a time provider starting at a time specified in ISO8601 format.
+     * <p>
+     * Text with {@code Z} or a numeric offset, such as {@code 2026-01-01T00:00:00Z} or
+     * {@code 2026-01-01T01:00:00+01:00}, is an instant. Text without an offset, such as
+     * {@code 2026-01-01T00:00:00}, is read as UTC. The date may use {@code /} in place of {@code -}.
+     * A bracketed zone id after the offset, as {@link java.time.ZonedDateTime#toString()} prints,
+     * is accepted; the offset gives the instant.
      *
      * @param timestamp ISO8601 timestamp, not {@code null}
+     * @throws java.time.format.DateTimeParseException if the text is not such a timestamp
+     * @throws ArithmeticException if the instant is outside the signed-long nanosecond range
      */
     public SetTimeProvider(String timestamp) {
         super(initialNanos(timestamp));
@@ -50,6 +60,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Constructs a time provider starting at a given {@link Instant}.
      *
      * @param instant initial time instant, not {@code null}
+     * @throws ArithmeticException if the instant is outside the signed-long nanosecond range
      */
     public SetTimeProvider(Instant instant) {
         super(initialNanos(instant));
@@ -64,18 +75,27 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
         return new SetTimeProvider(SystemTimeProvider.CLOCK.currentTimeNanos());
     }
 
-    // Helper method to convert timestamp to initial nanoseconds
+    // Helper method to convert timestamp to initial nanoseconds; text without an offset is UTC
     static long initialNanos(String timestamp) {
-        LocalDateTime dateTime = LocalDateTime.parse(timestamp.replace("/", "-"));
-        return initialNanos(dateTime.toInstant(ZoneOffset.UTC));
+        // '/' may stand for '-' in the date, but not in a zone id such as [Europe/London]
+        final int zone = timestamp.indexOf('[');
+        final String text = zone < 0 ? timestamp.replace("/", "-")
+                : timestamp.substring(0, zone).replace("/", "-") + timestamp.substring(zone);
+        TemporalAccessor parsed = DateTimeFormatter.ISO_DATE_TIME
+                .parseBest(text, OffsetDateTime::from, LocalDateTime::from);
+        return initialNanos(parsed instanceof OffsetDateTime
+                ? ((OffsetDateTime) parsed).toInstant()
+                : ((LocalDateTime) parsed).toInstant(ZoneOffset.UTC));
     }
 
     // Helper method to convert instant to initial nanoseconds
     static long initialNanos(Instant instant) {
-        long initialNanos = instant.getEpochSecond() * 1_000_000_000L;
-        if (instant.isSupported(ChronoField.NANO_OF_SECOND))
-            initialNanos += instant.getLong(ChronoField.NANO_OF_SECOND);
-        return initialNanos;
+        final long seconds = instant.getEpochSecond();
+        final int nanos = instant.getNano();
+        // At the negative boundary, seconds * 1e9 can overflow even when the sum fits.
+        if (seconds < 0 && nanos > 0)
+            return Math.addExact(Math.multiplyExact(seconds + 1, 1_000_000_000L), nanos - 1_000_000_000L);
+        return Math.addExact(Math.multiplyExact(seconds, 1_000_000_000L), nanos);
     }
 
     /**
