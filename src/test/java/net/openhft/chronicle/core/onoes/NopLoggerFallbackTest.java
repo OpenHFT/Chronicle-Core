@@ -187,7 +187,8 @@ class NopLoggerFallbackTest {
         Path directory = Files.createTempDirectory("nop logger fallback ");
         Path stdout = directory.resolve("stdout.log"), stderr = directory.resolve("stderr.log"), jar = directory.resolve("provider.jar");
         StringBuilder cp = new StringBuilder();
-        for (String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
+        String testClasspath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
+        for (String entry : testClasspath.split(File.pathSeparator)) {
             if (!"simple".equals(provider) && entry.contains("slf4j-simple")) continue;
             if (cp.length() > 0) cp.append(File.pathSeparator);
             cp.append(Paths.get(entry).toAbsolutePath());
