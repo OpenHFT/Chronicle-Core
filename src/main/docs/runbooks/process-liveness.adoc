@@ -1,0 +1,77 @@
+= Windows process liveness
+:toc:
+:sectnums:
+:lang: en-GB
+
+`Jvm.isProcessAlive` returns true for the current JVM without launching a process.
+This avoids repeating Windows process enumeration while checking queue locks
+owned by the same JVM. Non-positive process IDs are absent.
+
+Other Windows process IDs use `%SystemRoot%\System32\tasklist.exe /FO CSV /NH` directly.
+The executable path must be absolute; a failed launch reports the missing or inaccessible
+file without a separate existence check. There is no working-directory or PATH fallback. A complete,
+successful enumeration with valid CSV rows establishes presence or absence using
+the PID column only. Failed starts, access denial, nonzero exits, malformed or
+empty output, interruption, more than 1 MiB output, and a five-second deadline
+all produce an unknown result, which the public boolean API treats as alive.
+Interruption is checked while consuming ready output as well as while waiting.
+An unknown query must never authorise recovery of another process's lock.
+For every started child, cleanup attempts forcible destruction followed by closure
+of all three process streams on every completion path; interruption is retained.
+Windows process destruction alone does not release its pipe handles. Stream
+closure is attempted even if destruction fails, and a close failure does not
+mask the query result or prevent closure of the remaining streams.
+`tasklist` does not consume stdin, so that stream is closed once during cleanup.
+
+The deadline bounds the output-collection loop; it does not pre-empt an operating
+system call to start the child or access its streams. CSV matching uses iterative
+repetition so that a long field below the output cap cannot exhaust the regex stack.
+CSV bytes are decoded as ASCII independently of the JVM's default charset.
+
+`WindowsProcessProbeTest` covers these outcomes and a native Windows enumeration.
+Linux `/proc` and Unix `ps` enumeration retain their existing implementation.
+The non-positive and current-JVM PID shortcuts apply on every platform.
+
+Mutation checks exercise removal of each safeguard, CSV backtracking, and the
+conservative boolean result. Boundary tests accept a complete response of exactly
+1 MiB and reject one additional byte. Other regressions cover overflowing PIDs,
+blank rows, EOF after an availability check, deadline expiry before polling,
+disabled logging, retained launch exceptions and a non-ASCII JVM default charset.
+The missing-executable test exercises launch and the UNKNOWN result; it
+does not require a redundant filesystem preflight. The platform guard also needs
+a non-Windows run, since forcing it true is indistinguishable on Windows alone.
+
+== Locks are not recovered on Windows
+
+An `UNKNOWN` probe means the owner could not be verified; it is treated as alive.
+Enable DEBUG for `net.openhft.chronicle.core.internal.WindowsProcessProbe` in the
+application's logging configuration. Each uncertain query reports the requested
+PID and a reason code; launch/access failures also include their exception.
+This is deliberately DEBUG because lock acquisition can poll repeatedly.
+
+Run the same command under the service account to inspect the host response:
+
+[source,powershell]
+----
+$probeTasklist = Join-Path $env:SystemRoot 'System32\tasklist.exe'
+Test-Path -LiteralPath $probeTasklist -PathType Leaf
+& $probeTasklist /FO CSV /NH
+$LASTEXITCODE
+----
+
+[cols="1,3",options="header"]
+|===
+| Reason | Diagnosis and action
+| `IO_FAILURE` | Read the logged exception. Check `SystemRoot`, the system executable, and process-pipe access; repair missing OS tooling.
+| `ACCESS_DENIED` | Check execution permissions and security policy for the actual service account.
+| `NONZERO_EXIT` | Inspect the command's error output and exit status; fix the host enumeration failure.
+| `INVALID_OUTPUT` | Inspect empty, malformed or unexpected CSV rows. Keep the conservative result while qualifying the format.
+| `OUTPUT_LIMIT` | The complete response exceeds 1 MiB. Check the process count; changing the cap needs a resource-budget review.
+| `DEADLINE` | Output collection exceeded five seconds, including a completed response received too late.
+Check command duration and host health.
+| `INTERRUPTED` | The caller cancelled the check. Inspect shutdown/cancellation handling; the interrupt flag remains set.
+|===
+
+Do not treat an uncertain query as proof that the lock owner is dead. The native
+`realWindowsQueryFindsThisJvm` test checks the current process and confirmed absence
+of `Long.MAX_VALUE`; its absence result requires every observed row to parse.
