@@ -71,6 +71,13 @@ CORE-FN-041 :: Single-threaded components shall perform runtime checks for concu
 CORE-FN-042 :: The single-threaded check shall be resettable to enable safe thread hand-off.
 CORE-FN-043 :: The library shall document and support the *initialise -> reset -> hand-off* pattern for such objects.
 
+Explicit thread-local cleanup (CORE-60)::
+`CleaningThread.performCleanup` shall detach the selected thread's values from both its
+thread-local map and orphan tracking before invoking cleanup. Repeated cleanup, later
+`remove`, and orphan sweeping shall not clean a detached value again. Null values shall
+also be detached. Other threads' values shall remain registered. The caller must own
+the target thread or ensure its thread-local access is quiescent.
+
 === Low-Level Utilities
 
 CORE-FN-044 :: The system shall provide mechanisms for pooling and reusing `String` instances.
