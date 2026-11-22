@@ -591,99 +591,128 @@ public final class IOTools {
         return false;
     }
 
-    private static final class Language {
-        static {
-            if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage())) {
+    private static void collectRegionalMessages() {
+        // The interrupted-channel probe must never interrupt an application thread.
+        Throwable[] failure = {null};
+        Thread collector = new Thread(() -> {
+            try {
+                addRegionalMessages();
+            } catch (Throwable t) {
+                failure[0] = t;
+            }
+        }, "chronicle-io-locale");
+        collector.setDaemon(true);
+        collector.start();
+        boolean interrupted = false;
+        try {
+            while (collector.isAlive()) {
                 try {
-                    addRegionalMessages();
-                } catch (IOException ioe) {
-                    Jvm.warn().on(IOTools.class,
-                            "Running under non-English locale '" + Locale.getDefault().getLanguage() +
-                                    "', transient exceptions will be reported with higher level than necessary.", ioe);
+                    collector.join();
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                    collector.interrupt();
                 }
             }
+        } finally {
+            if (interrupted)
+                Thread.currentThread().interrupt();
         }
+        if (failure[0] instanceof IOException) {
+            Jvm.warn().on(IOTools.class,
+                    "Running under non-English locale '" + Locale.getDefault().getLanguage() +
+                            "', transient exceptions will be reported with higher level than necessary.", failure[0]);
+        } else if (failure[0] != null) {
+            throw Jvm.rethrow(failure[0]);
+        }
+    }
 
-        static void addRegionalMessages() throws IOException {
-            try (ServerSocketChannel ssc = ServerSocketChannel.open()) {
-                ssc.bind(new InetSocketAddress(0));
-                final int port = ssc.socket().getLocalPort();
-                final InetSocketAddress address = new InetSocketAddress("localhost", port);
-                try (Socket s = new Socket("localhost", port);
-                     SocketChannel s2 = ssc.accept()) {
-                    final OutputStream os = s.getOutputStream();
-                    closeQuietly(s2);
-                    final byte[] bytes = new byte[512];
-                    try {
-                        for (int i = 0; i < 100; i++) {
-                            os.write(bytes);
-                        }
-                    } catch (IOException ioe) {
-                        CLOSED_MESSAGES.add(ioe.getMessage());
-                    } finally {
-                        closeQuietly(s);
+    private static void addRegionalMessages() throws IOException {
+        try (ServerSocketChannel ssc = ServerSocketChannel.open()) {
+            ssc.bind(new InetSocketAddress(0));
+            final int port = ssc.socket().getLocalPort();
+            final InetSocketAddress address = new InetSocketAddress("localhost", port);
+            try (Socket s = new Socket("localhost", port);
+                 SocketChannel s2 = ssc.accept()) {
+                final OutputStream os = s.getOutputStream();
+                closeQuietly(s2);
+                final byte[] bytes = new byte[512];
+                try {
+                    for (int i = 0; i < 100; i++) {
+                        os.write(bytes);
                     }
-                    try {
-                        s.getOutputStream().write(bytes);
-                    } catch (IOException ioe) {
-                        CLOSED_MESSAGES.add(ioe.getMessage());
-                    }
+                } catch (IOException ioe) {
+                    CLOSED_MESSAGES.add(ioe.getMessage());
+                } finally {
+                    closeQuietly(s);
                 }
-                try (Socket s = new Socket("localhost", port);
-                     SocketChannel s2 = ssc.accept()) {
-                    assert s2 != null;
-                    OutputStream os = s.getOutputStream();
-                    os.close();
-                    os.write(1);
+                try {
+                    s.getOutputStream().write(bytes);
                 } catch (IOException ioe) {
                     CLOSED_MESSAGES.add(ioe.getMessage());
                 }
-                ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
-                try (SocketChannel sc = SocketChannel.open(address);
-                     SocketChannel s2 = ssc.accept()) {
-                    assert s2 != null;
-                    try {
-                        for (int i = 0; i < 100; i++) {
-                            bytes.clear();
-                            sc.write(bytes);
-                        }
-                    } catch (IOException ioe) {
-                        CLOSED_MESSAGES.add(ioe.getMessage());
+            }
+            try (Socket s = new Socket("localhost", port);
+                 SocketChannel s2 = ssc.accept()) {
+                assert s2 != null;
+                OutputStream os = s.getOutputStream();
+                os.close();
+                os.write(1);
+            } catch (IOException ioe) {
+                CLOSED_MESSAGES.add(ioe.getMessage());
+            }
+            ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+            try (SocketChannel sc = SocketChannel.open(address);
+                 SocketChannel s2 = ssc.accept()) {
+                assert s2 != null;
+                try {
+                    for (int i = 0; i < 100; i++) {
+                        bytes.clear();
+                        sc.write(bytes);
                     }
+                } catch (IOException ioe) {
+                    CLOSED_MESSAGES.add(ioe.getMessage());
                 }
-                try (SocketChannel sc = SocketChannel.open(address);
-                     SocketChannel s2 = ssc.accept()) {
-                    Thread t = new Thread(close3(sc, s2), "close~3");
-                    t.setDaemon(true);
-                    t.start();
-                    try {
-                        for (int i = 0; i < 10000; i++) {
-                            bytes.clear();
-                            final int write = sc.write(bytes);
-                            assert write > 0;
-                        }
-                    } catch (IOException ioe) {
-                        CLOSED_MESSAGES.add(ioe.getMessage());
+            }
+            try (SocketChannel sc = SocketChannel.open(address);
+                 SocketChannel s2 = ssc.accept()) {
+                Thread t = new Thread(close3(sc, s2), "close~3");
+                t.setDaemon(true);
+                t.start();
+                try {
+                    for (int i = 0; i < 10000; i++) {
+                        bytes.clear();
+                        final int write = sc.write(bytes);
+                        assert write > 0;
                     }
+                } catch (IOException ioe) {
+                    CLOSED_MESSAGES.add(ioe.getMessage());
                 }
-                try (SocketChannel sc = SocketChannel.open(address);
-                     SocketChannel s2 = ssc.accept()) {
-                    Thread main = Thread.currentThread();
-                    Thread t = new Thread(close4(sc, s2, main), "close~4");
-                    t.setDaemon(true);
-                    t.start();
-                    try {
-                        for (int i = 0; i < 10000; i++) {
-                            bytes.clear();
-                            final int write = sc.write(bytes);
-                            assert write > 0;
-                        }
-                    } catch (IOException ioe) {
-                        CLOSED_MESSAGES.add(ioe.getMessage());
+            }
+            try (SocketChannel sc = SocketChannel.open(address);
+                 SocketChannel s2 = ssc.accept()) {
+                Thread main = Thread.currentThread();
+                Thread t = new Thread(close4(sc, s2, main), "close~4");
+                t.setDaemon(true);
+                t.start();
+                try {
+                    for (int i = 0; i < 10000; i++) {
+                        bytes.clear();
+                        final int write = sc.write(bytes);
+                        assert write > 0;
                     }
+                } catch (IOException ioe) {
+                    CLOSED_MESSAGES.add(ioe.getMessage());
                 }
             }
         }
+    }
+
+    private static final class Language {
+        static {
+            if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage()))
+                collectRegionalMessages();
+        }
+
 
         @SuppressWarnings("EmptyMethod")
         static void warnOnce() {
