@@ -2194,12 +2194,16 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Compares the substring of the given string with the string represented in the memory at the specified address.
+     * Compares 8-bit text held in memory at the specified address with the leading characters of the given string.
+     * <p>
+     * Each byte is read as an unsigned value, so it matches the character with the same code-point in the range
+     * 0 to 255. This is the inverse of {@link #write8bit(String, int, Object, long, int)}. A character above 255
+     * cannot be represented in one byte and never matches.
      *
-     * @param addr   the memory address of the source string.
-     * @param s      the target string.
+     * @param addr   the memory address of the 8-bit text.
+     * @param s      the target string, which must have at least {@code length} characters.
      * @param length the number of characters to be compared.
-     * @return true if strings are equal, false otherwise.
+     * @return true if the first {@code length} characters equal the bytes at {@code addr}, false otherwise.
      */
     public boolean isEqual(long addr, String s, int length) {
         if (CachedReflection.STRING_VALUE_OFFSET == 0) {
@@ -2207,7 +2211,7 @@ public class UnsafeMemory implements Memory {
         }
         char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.STRING_VALUE_OFFSET);
         for (int i = 0; i < length; i++)
-            if (UNSAFE.getByte(addr + i) != chars[i])
+            if ((UNSAFE.getByte(addr + i) & 0xFF) != chars[i])
                 return false;
         return true;
     }
@@ -2223,7 +2227,7 @@ public class UnsafeMemory implements Memory {
      */
     private boolean isEqualJava9(long addr, String s, int length) {
         for (int i = 0; i < length; i++)
-            if (UNSAFE.getByte(addr + i) != s.charAt(i))
+            if ((UNSAFE.getByte(addr + i) & 0xFF) != s.charAt(i))
                 return false;
         return true;
     }
