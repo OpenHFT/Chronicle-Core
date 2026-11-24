@@ -132,8 +132,9 @@ class UnsafeMemoryOrderingLifecycleTest {
             };
             try (UnsafeMemoryTestMixin.Variant variant = new UnsafeMemoryTestMixin.Variant(
                     Arguments.of("diagnostic control", memory, UnsafeMemoryTestMixin.Mode.NATIVE_ADDRESS))) {
+                final UnsafeMemoryDoubleTest test = new UnsafeMemoryDoubleTest();
                 final AssertionError reported = assertThrows(AssertionError.class,
-                        () -> new UnsafeMemoryDoubleTest().exerciseMisalignedVolatileOrdering(variant, 1));
+                        () -> test.exerciseMisalignedVolatileOrdering(variant, 1));
                 assertTrue(reported.getMessage().contains("diagnostic control, mode=NATIVE_ADDRESS, type=Double, offset=1"));
                 assertTrue(Arrays.asList(reported.getSuppressed()).contains(workerFailure), "Retain the original worker exception");
                 assertTrue(Arrays.stream(reported.getSuppressed()).anyMatch(t -> t.getMessage().contains(
