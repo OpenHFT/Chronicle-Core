@@ -327,7 +327,8 @@ public final class IOTools {
      * @return an InputStream
      * @throws IOException if the URL cannot be opened
      */
-    @SuppressWarnings("java:S2095")
+    // Ownership transfers on success; every close failure must be suppressed behind the original error.
+    @SuppressWarnings({"java:S2095", "java:S1181"})
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();
         if (url.getPath().endsWith(".gz")) {
