@@ -73,7 +73,7 @@ public final class CpuClass {
             if (!process.waitFor(timeout, unit) || process.exitValue() != 0)
                 return fallback;
             byte[] bytes = output.get(1, TimeUnit.SECONDS);
-            String model = bytes == null ? null : modelFromOutput(bytes, mapping);
+            String model = bytes.length == 0 ? null : modelFromOutput(bytes, mapping);
             return model == null ? fallback : model;
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
@@ -118,7 +118,7 @@ public final class CpuClass {
                 int length;
                 while ((length = stream.read(buffer)) != -1) {
                     if (bytes.size() + length > 1024 * 1024)
-                        return null;
+                        return new byte[0];
                     bytes.write(buffer, 0, length);
                 }
                 return bytes.toByteArray();
