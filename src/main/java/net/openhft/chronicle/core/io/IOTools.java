@@ -327,7 +327,8 @@ public final class IOTools {
      * @return an InputStream
      * @throws IOException if the URL cannot be opened
      */
-    @SuppressWarnings("java:S2095")
+    // Ownership transfers on success; every close failure must be suppressed behind the original error.
+    @SuppressWarnings({"java:S2095", "java:S1181"})
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();
         if (url.getPath().endsWith(".gz")) {
@@ -336,8 +337,9 @@ public final class IOTools {
             } catch (IOException | RuntimeException | Error t) {
                 try {
                     in.close();
-                } catch (IOException ioe2) {
-                    t.addSuppressed(ioe2);
+                } catch (Throwable closeFailure) {
+                    if (closeFailure != t)
+                        t.addSuppressed(closeFailure);
                 }
                 throw t;
             }
@@ -376,9 +378,13 @@ public final class IOTools {
         if (is instanceof FileInputStream) {
             try (FileInputStream fis = (FileInputStream) is) {
                 byte[] bytes = new byte[fis.available()];
-                int read = fis.read(bytes);
-                if (read != bytes.length)
-                    throw new AssertionError();
+                int offset = 0;
+                while (offset < bytes.length) {
+                    int read = fis.read(bytes, offset, bytes.length - offset);
+                    if (read < 0)
+                        return Arrays.copyOf(bytes, offset);
+                    offset += read;
+                }
                 return bytes;
             }
         }
