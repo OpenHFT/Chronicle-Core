@@ -586,6 +586,10 @@ public final class IOTools {
         return false;
     }
 
+    // Keep the worker lambda outside Language: its class initialiser waits for this worker,
+    // so a worker method on Language would deadlock on the class initialisation lock.
+    // Propagate all worker failures, including Errors, back to the initialising caller.
+    @SuppressWarnings({"java:S3398", "java:S1181"})
     private static void collectRegionalMessages() {
         // The interrupted-channel probe must never interrupt an application thread.
         Throwable[] failure = {null};
