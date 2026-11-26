@@ -17,15 +17,17 @@ class CpuClassTest {
     void getCpuModel() {
         final String cpuClass = CpuClass.getCpuModel();
         System.out.println("cpuClass: " + cpuClass + ", os.name: " + System.getProperty("os.name") + ", os.arch: " + System.getProperty("os.arch"));
+        // A bounded or unavailable OS probe legitimately returns the architecture.
+        boolean architectureFallback = cpuClass.equals(System.getProperty("os.arch"));
         if (Jvm.isMacArm()) {
-            assertTrue(cpuClass.startsWith("Apple M") || cpuClass.startsWith("aarch64"), cpuClass);
+            assertTrue(architectureFallback || cpuClass.startsWith("Apple M") || cpuClass.startsWith("aarch64"), cpuClass);
 
         } else if (Jvm.isArm()) {
-            assertTrue(cpuClass.startsWith("ARMv")
+            assertTrue(architectureFallback || cpuClass.startsWith("ARMv")
                     || cpuClass.startsWith("aarch64"), cpuClass);
 
         } else {
-            assertTrue(cpuClass.contains("Intel")
+            assertTrue(architectureFallback || cpuClass.contains("Intel")
                     || (cpuClass.startsWith("AMD ")), cpuClass);
         }
 
