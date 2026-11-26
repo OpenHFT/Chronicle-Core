@@ -40,17 +40,18 @@ class CleanupFailureTest extends CoreTestCommon {
     }
     @Test void shortFileReadDoesNotLoseRemainingBytes() throws Exception {
         Path file = directory.resolve("short.bin"); Files.write(file, new byte[]{1,2,3});
-        FileInputStream in = new FileInputStream(file.toFile()) {
+        try (FileInputStream in = new FileInputStream(file.toFile()) {
             @Override public int read(byte[] b) throws IOException { return read(b, 0, b.length); }
             @Override public int read(byte[] b, int off, int len) throws IOException { return super.read(b, off, Math.min(1, len)); }
-        };
-        try { assertArrayEquals(new byte[]{1,2,3}, IOTools.readAsBytes(in)); }
-        finally { in.close(); }
+        }) {
+            assertArrayEquals(new byte[]{1,2,3}, IOTools.readAsBytes(in));
+        }
     }
+    @SuppressWarnings("java:S1874") // Java 8 requires this constructor to install a per-URL test handler.
     private URL gzipURL(InputStream in) throws Exception {
         return new URL(null, "test:/broken.gz", new URLStreamHandler() {
             @Override protected URLConnection openConnection(URL u) { return new URLConnection(u) {
-                @Override public void connect() { }
+                @Override public void connect() { /* In-memory fixture; no network connection is opened. */ }
                 @Override public InputStream getInputStream() { return in; }
             }; }
         });
@@ -58,7 +59,7 @@ class CleanupFailureTest extends CoreTestCommon {
     @Test void fileShrinkingDuringReadReturnsTheAvailablePrefix() throws Exception {
         Path file = directory.resolve("shrinking.bin");
         Files.write(file, new byte[]{1, 2, 3});
-        FileInputStream in = new FileInputStream(file.toFile()) {
+        try (FileInputStream in = new FileInputStream(file.toFile()) {
             boolean first = true;
             @Override public int read(byte[] b, int off, int len) throws IOException {
                 if (first) {
@@ -67,11 +68,8 @@ class CleanupFailureTest extends CoreTestCommon {
                 }
                 return super.read(b, off, len);
             }
-        };
-        try {
+        }) {
             assertArrayEquals(new byte[]{1, 2}, IOTools.readAsBytes(in));
-        } finally {
-            in.close();
         }
     }
     @Test void sameFailureDuringGzipReadAndCloseIsNotSelfSuppressed() throws Exception {
@@ -101,10 +99,10 @@ class CleanupFailureTest extends CoreTestCommon {
     }
     @Test void disconnectFailureDoesNotAbandonLaterResources() throws Exception {
         expectException("Error occurred closing resources");
-        HttpURLConnection connection = new HttpURLConnection(new URL("http://localhost/")) {
+        HttpURLConnection connection = new HttpURLConnection(java.net.URI.create("http://localhost/").toURL()) {
             @Override public void disconnect() { throw new IllegalStateException("disconnect"); }
             @Override public boolean usingProxy() { return false; }
-            @Override public void connect() { }
+            @Override public void connect() { /* In-memory fixture; no network connection is opened. */ }
         };
         AtomicInteger closed = new AtomicInteger();
         Closeable.closeQuietly(connection, (AutoCloseable) closed::incrementAndGet);

@@ -327,7 +327,8 @@ public final class IOTools {
      * @return an InputStream
      * @throws IOException if the URL cannot be opened
      */
-    @SuppressWarnings("java:S2095")
+    // Ownership transfers on success; every close failure must be suppressed behind the original error.
+    @SuppressWarnings({"java:S2095", "java:S1181"})
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();
         if (url.getPath().endsWith(".gz")) {
@@ -591,6 +592,10 @@ public final class IOTools {
         return false;
     }
 
+    // Keep the worker lambda outside Language: its class initialiser waits for this worker,
+    // so a worker method on Language would deadlock on the class initialisation lock.
+    // Propagate all worker failures, including Errors, back to the initialising caller.
+    @SuppressWarnings({"java:S3398", "java:S1181"})
     private static void collectRegionalMessages() {
         // The interrupted-channel probe must never interrupt an application thread.
         Throwable[] failure = {null};

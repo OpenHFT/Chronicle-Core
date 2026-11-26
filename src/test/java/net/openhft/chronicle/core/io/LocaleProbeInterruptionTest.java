@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class LocaleProbeInterruptionTest {
     public static class Child {
-        public static void main(String[] args) throws Exception {
+        public static void main(String[] args) {
             boolean interrupted = args[0].equals("interrupted");
             if (interrupted) Thread.currentThread().interrupt();
             boolean closed =
@@ -35,7 +35,9 @@ public class LocaleProbeInterruptionTest {
         args.add(new File(System.getProperty("java.home"), "bin/java").getPath());
         for (String arg :
                 java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments())
-            if (arg.startsWith("--add-opens") || arg.startsWith("--add-exports")) args.add(arg);
+            if (arg.startsWith("--add-opens") || arg.startsWith("--add-exports")
+                    || arg.startsWith("-javaagent:") && arg.contains("jacoco"))
+                args.add(arg); // Include the isolated locale probe in coverage when the parent is instrumented.
         args.add("-ea");
         args.add("-Duser.language=" + language);
         args.add("-cp");
@@ -70,32 +72,32 @@ public class LocaleProbeInterruptionTest {
     }
 
     @Test
-    public void englishDoesNotInterruptCaller() throws Exception {
+    void englishDoesNotInterruptCaller() throws Exception {
         child("en", "ordinary");
     }
 
     @Test
-    public void germanDoesNotInterruptCaller() throws Exception {
+    void germanDoesNotInterruptCaller() throws Exception {
         child("de", "ordinary");
     }
 
     @Test
-    public void frenchDoesNotInterruptCaller() throws Exception {
+    void frenchDoesNotInterruptCaller() throws Exception {
         child("fr", "ordinary");
     }
 
     @Test
-    public void japaneseDoesNotInterruptCaller() throws Exception {
+    void japaneseDoesNotInterruptCaller() throws Exception {
         child("ja", "ordinary");
     }
 
     @Test
-    public void preexistingInterruptIsPreserved() throws Exception {
+    void preexistingInterruptIsPreserved() throws Exception {
         child("de", "interrupted");
     }
 
     @Test
-    public void closedChannelIsRecognisedAfterLocaleInit() throws Exception {
+    void closedChannelIsRecognisedAfterLocaleInit() throws Exception {
         child("de", "closed");
     }
 }
