@@ -1,0 +1,5 @@
+= Keep locale probes from interrupting callers
+:sectnums:
+:lang: en-GB
+
+Learning localised closed-channel messages runs on a dedicated collector thread because the probe deliberately interrupts its reader. Initialisation waits for collection to finish before publishing the message set. Caller interruption cancels the collector and is restored after it has terminated. Probe failures retain the existing I/O warning or unchecked-failure behaviour.

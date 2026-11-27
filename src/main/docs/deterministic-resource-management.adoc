@@ -112,6 +112,12 @@ The `BackgroundResourceReleaser` queue is not used.
 * `BackgroundResourceReleaser.stop()`: Releases pending resources and attempts to stop the background thread if it's running.
 This is registered with a `PriorityHook` (priority 99) to run during JVM shutdown.
 
+Tests of queue draining should assert completed close/release callbacks, not a narrow
+elapsed-time range: OS scheduling can delay callbacks without changing correctness.
+To verify queued state before a drain, use a separate JVM with
+`background.releaser=true` and `background.releaser.thread=false`; disabling
+`background.releaser` instead tests synchronous release and bypasses the queue.
+
 == 5. Reservation Example
 
 [source,java]

@@ -30,6 +30,124 @@ mvn clean install
 
 The most recent runs completed successfully; see `build-java8.log` and `build-java21.log` in the repository root for full output and warnings.
 
+== Optional runtime-compiler startup check
+
+For classpath applications that require runtime compilation, set
+`-Dchronicle.jvm.args.check=warn` or `-Dchronicle.jvm.args.check=fail` before
+Chronicle Core's `Jvm` class is first initialised. The default is `off`.
+`warn` prints a failed check to standard error and continues; `fail` throws
+from `Jvm` initialisation, preventing that initialisation from completing.
+An invalid mode is rejected. A successful startup check is silent.
+Properties loaded from `system.properties` are considered, with explicit
+`-D` values taking precedence. Existing JVMs are not reconfigured by changing
+this property after `Jvm` has initialised.
+
+The check attempts javac file-manager access and a small in-memory compilation,
+with annotation processing disabled. It uses the current JVM's effective access,
+including inherited options, rather than searching argument strings. Normal
+startup with the check off does not load the compiler probe. The probe does not
+write class files, but it does initialise compiler machinery when opted in.
+
+A standalone check can be run with Core and its dependencies on the classpath:
+
+[source,shell]
+----
+java -cp "$CLASSPATH" net.openhft.chronicle.core.JvmArgs --check
+----
+
+The CLI writes one result to standard error: `SUPPORTED`, `DENIED`, `UNAVAILABLE`
+or `FAILED`. Exit codes are 0 for supported, 1 for an unsuccessful check, and
+2 for incorrect CLI usage. An unavailable compiler is not diagnosed as a missing
+export. On Java 9+ a denied classpath javac file-manager operation suggests
+`--add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED` for this JVM
+and compiler-using child JVMs. Java 8 does not accept module flags.
+
+For production classpath deployments, follow the
+https://github.com/OpenHFT/OpenHFT/blob/ea/docs/Java-Version-Support.adoc[OpenHFT Java Version Support recommendations].
+The guide recommends the same nine module options for Java 11, 17, 21 and 25,
+even where a particular JDK or application does not strictly need all of them.
+Java 8 needs none of these module options.
+
+The suggested `jdk.compiler/com.sun.tools.javac.file` export is one of those
+nine options. The guide additionally recommends exports for
+`java.base/jdk.internal.ref`, `java.base/sun.nio.ch` and
+`jdk.unsupported/sun.misc`, and opens for `jdk.compiler/com.sun.tools.javac`
+and `java.base/java.lang`, `java.base/java.lang.reflect`, `java.base/java.io`
+and `java.base/java.util`, all targeting `ALL-UNNAMED`.
+The probe does not validate those eight additional grants. In particular,
+opening `com.sun.tools.javac` does not export its distinct `com.sun.tools.javac.file`
+package. The guide's `--add-exports=...` spelling and the diagnostic's
+`--add-exports ...` spelling are equivalent launcher forms.
+
+Run the standalone check with the same JVM options as the application.
+A `SUPPORTED` result is not a reason to remove other options recommended by
+OpenHFT: it establishes only the compiler operations exercised here.
+This is a compiler capability check, not a universal Chronicle flag profile.
+Mapping/cleaner access, native-access warnings and Unsafe policy are separate.
+Named-module deployments are explicitly reported as unavailable: a check from
+Core's module cannot establish grants to a separate runtime-compiler module.
+The same-JVM probe preserves effective grants from agents and launcher options;
+it does not attempt to reproduce them in a second JVM.
+
+A successful probe does not prove that Chronicle Wire selected a generated
+method reader, nor that its handling of unknown method IDs matches a fallback
+reader. Check those behaviours in the application's Wire integration tests.
+No Wire or Java-Runtime-Compiler dependency is added by this feature. Applications
+which do not require a compiler should leave the check off.
+
+== Logging providers and the stderr fallback
+
+Applications should configure exactly one SLF4J provider compatible with their
+resolved `slf4j-api` version. Core supplies the API, not an application logging
+provider. Verify that a known warning reaches the intended destination: SLF4J's
+missing-provider banner does not mean that application warnings are being logged.
+Do not infer provider absence from a disabled log level; a real provider may
+intentionally filter a category.
+
+The stderr fallback is enabled by default. To disable it, set:
+
+[source,shell]
+----
+-Dchronicle.logging.disableStderrFallback=true
+----
+
+A bare `-Dchronicle.logging.disableStderrFallback` also disables the fallback,
+following `Jvm.getBoolean` conventions (an empty value means true; trimmed
+`true`, `yes`, `t` and `y` are recognised case-insensitively).
+Unlike `Jvm.getBoolean`, this check reads `System.getProperty` directly and
+does not initialise `Jvm` or load `system.properties`. Set the property on the
+JVM command line to reliably disable the fallback from the first logging event;
+do not rely on a `system.properties` entry for early logging. If `Jvm` later
+loads that file into the JVM system properties, or application code sets the
+property, subsequent events see the updated value.
+
+The disable property defaults to false. Unless disabled, `Slf4jExceptionHandler.WARN` and `.ERROR`
+write to `System.err` only if both the supplied logger and the active SLF4J
+factory are NOP implementations. This covers the default `Jvm.warn()` and
+`Jvm.error()` handlers, but not direct calls to SLF4J loggers, such as some
+class-initialisation diagnostics. Application-installed handlers are not replaced.
+INFO/PERF and DEBUG are not promoted to stderr. A real provider's filtering
+is respected, and its events are not duplicated.
+
+The default fallback also overrides an intentionally installed NOP provider such as
+`slf4j-nop`. Set the disable property to true if that provider is intended to silence
+these diagnostics. The property is read for each WARN/ERROR event, without
+initialising `Jvm` from the logging implementation.
+
+The fallback prints one explanatory notice per loaded Core classloader, then
+every warning/error with its level, source and original throwable stack trace.
+Only the notice is limited to once; repeated or concurrent errors are not
+suppressed. Each event and its stack trace are written together under the stderr
+stream's lock. Nothing is written to stdout, and the fallback retains no source
+classes, messages or throwables. A directly supplied NOP logger has the source
+name supplied by SLF4J (typically `NOP`); the class overload preserves the source
+class name.
+
+This is synchronous diagnostic output and can block on stderr; it is not a
+low-latency logging replacement. High-volume applications should install and
+configure a suitable provider. The pre-existing stderr reporting when a logger
+throws remains in place, independently of this disable property.
+
 == About Chronicle-Core
 
 Chronicle-Core is an advanced low-level library that equips developers with powerful tools to interact with the operating system, manage memory, handle resources, and more.
@@ -636,3 +754,11 @@ JLBH has moved home and now lives in its own project, see https://github.com/Ope
 The tool to summarise the thread stack traces is here.
 
 `net.openhft.chronicle.core.threads.MonitorProfileAnalyserMain`
+
+== Building on Windows
+
+Use a full JDK and Maven, and set `JAVA_HOME` to the JDK installation directory.
+Run `mvn clean verify` from the repository root.
+Windows CPU-model detection uses Windows PowerShell with `Get-CimInstance Win32_Processor`.
+It does not require the optional legacy `wmic` executable.
+If CPU information cannot be queried, detection falls back to `os.arch`.

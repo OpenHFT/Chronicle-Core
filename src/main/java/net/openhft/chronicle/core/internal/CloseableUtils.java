@@ -372,7 +372,11 @@ public final class CloseableUtils {
 
         } else if (o instanceof HttpURLConnection) {
             HttpURLConnection connection = (HttpURLConnection) o;
-            connection.disconnect();
+            try {
+                connection.disconnect();
+            } catch (Throwable e) {
+                logErrorOnClose(e);
+            }
         }
     }
 

@@ -34,14 +34,14 @@ public class BackgroundResourceReleaserMain {
 
     private void runResourcesCleanedUpManually() throws IllegalAccessException {
         assertNull(getReleaserThread());
+        assertTrue(BackgroundResourceReleaser.BG_RELEASER);
         int count = 20;
         for (int i = 0; i < count - 1; i++) {
             new BGCloseable().close();
             new BGReferenceCounted().releaseLast();
         }
-        int expectedCount = BackgroundResourceReleaser.BG_RELEASER ? 2 : count;
-        assertEquals(expectedCount, closed.get(), 2);
-        assertEquals(expectedCount, released.get(), 2);
+        assertEquals(0, closed.get());
+        assertEquals(0, released.get());
         BGCloseable bgc = new BGCloseable();
         bgc.close();
         assertTrue(bgc.isClosing());

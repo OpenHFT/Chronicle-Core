@@ -11,7 +11,6 @@ public final class AssertUtil {
      * remove the assertion byte code from the target jar(s).
      * <p>
      * Here is an original class:
-     * <p>
      * <blockquote><pre>
      * import static net.openhft.chronicle.core.util.AssertUtil.SKIP_ASSERTIONS;
      * import static net.openhft.chronicle.core.util.Ints.*;
@@ -34,7 +33,6 @@ public final class AssertUtil {
      * </pre></blockquote>
      * <p>
      * It has the following byte code with {@code SKIP_ASSERTIONS = false}:
-     * <p>
      * <blockquote><pre>
      * % javap -c  target/test-classes/net/openhft/chronicle/core/util/AssertTest.class
      * Compiled from "AssertTest.java"
@@ -44,7 +42,7 @@ public final class AssertUtil {
      *   public net.openhft.chronicle.core.util.AssertTest();
      *     Code:
      *        0: aload_0
-     *        1: invokespecial #2                  // Method java/lang/Object."<init>":()V
+     *        1: invokespecial #2                  // Method java/lang/Object."&lt;init&gt;":()V
      *        4: return
      *
      *   public static void testWithAssertDirectly(int);
@@ -55,7 +53,7 @@ public final class AssertUtil {
      *        7: ifge          18
      *       10: new           #4                  // class java/lang/AssertionError
      *       13: dup
-     *       14: invokespecial #5                  // Method java/lang/AssertionError."<init>":()V
+     *       14: invokespecial #5                  // Method java/lang/AssertionError."&lt;init&gt;":()V
      *       17: athrow
      *       18: return
      *
@@ -69,7 +67,7 @@ public final class AssertUtil {
      *       13: ifne          24
      *       16: new           #4                  // class java/lang/AssertionError
      *       19: dup
-     *       20: invokespecial #5                  // Method java/lang/AssertionError."<init>":()V
+     *       20: invokespecial #5                  // Method java/lang/AssertionError."&lt;init&gt;":()V
      *       23: athrow
      *       24: return
      *
@@ -95,7 +93,6 @@ public final class AssertUtil {
      * </pre></blockquote>
      * <p>
      * But it has the following byte code with {@code SKIP_ASSERTIONS = true}:
-     * <p>
      * <blockquote><pre>
      * javap -c  target/test-classes/net/openhft/chronicle/core/util/AssertTest.class
      * Compiled from "AssertTest.java"
@@ -103,7 +100,7 @@ public final class AssertUtil {
      *   public net.openhft.chronicle.core.util.AssertTest();
      *     Code:
      *        0: aload_0
-     *        1: invokespecial #2                  // Method java/lang/Object."<init>":()V
+     *        1: invokespecial #2                  // Method java/lang/Object."&lt;init&gt;":()V
      *        4: return
      *
      *   public static void testWithAssertDirectly(int);
