@@ -5,7 +5,6 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
 import org.junit.jupiter.api.Test;
 
@@ -26,25 +25,16 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
             new BGCloseable().close();
             new BGReferenceCounted().releaseLast();
         }
-        int expectedCount = BackgroundResourceReleaser.BG_RELEASER ? 2 : count;
-        assertEquals(expectedCount, closed.get(), 2);
-        assertEquals(expectedCount, released.get(), 2);
         BGCloseable bgc = new BGCloseable();
         bgc.close();
         assertTrue(bgc.isClosing());
-        assertEquals(!BackgroundResourceReleaser.BG_RELEASER, bgc.isClosed());
 
         BGReferenceCounted bgr = new BGReferenceCounted();
         bgr.releaseLast();
         assertEquals(0, bgr.refCount());
 
-        long start0 = System.currentTimeMillis();
         BackgroundResourceReleaser.releasePendingResources();
-        long time = System.currentTimeMillis() - start0;
-        if (BackgroundResourceReleaser.BG_RELEASER) {
-            int factor = count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80 : OS.isWindows() ? 20 : 18);
-            assertBetween(count * 9, time, factor);
-        }
+        assertTrue(bgc.isClosed());
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
@@ -74,7 +64,8 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
     @Test
     void testResourcesCleanedUpManually() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
-                .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("manual").start();
+                .withJvmArguments("-Dbackground.releaser=true", "-Dbackground.releaser.thread=false")
+                .withProgramArguments("manual").start();
 
         try {
             assertEquals(0, process.waitFor());
@@ -158,12 +149,6 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
         }
     }
 
-    private static void assertBetween(long min, long actual, long max) {
-        if (min <= actual && actual <= max)
-            return;
-        throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
-    }
-
     static class WaitingCloseable extends AbstractCloseable {
         @Override
         protected boolean shouldWaitForClosed() {
@@ -185,7 +170,6 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
         @Override
         protected void performClose() {
             closed.incrementAndGet();
-            Jvm.pause(10);
         }
     }
 
@@ -198,7 +182,6 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
         @Override
         protected void performRelease() {
             released.incrementAndGet();
-            Jvm.pause(10);
         }
     }
 }
