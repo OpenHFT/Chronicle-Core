@@ -1,0 +1,15 @@
+= Native mapping class loading
+
+Native dispatcher lookup uses Core's defining class loader, without initialising
+the dispatcher early. Mapping and unmapping must not depend on the calling
+thread's context class loader.
+
+JDK cleaner threads can have a null context class loader. On Java 20 and later,
+the first unmap resolves the native dispatcher through a lazy method-handle
+holder. A null-pointer exception during that lookup prevents the holder from
+initialising and also breaks later unmaps in the same JVM.
+
+`NativeMappingClassLoaderTest` starts a fresh JVM for each case so an earlier
+mapping or unmap cannot conceal the failure. It checks a null context loader
+before the first mapping, before the first unmap, and ordinary mapping and
+unmapping. Each case writes and reads mapped memory before releasing it.
