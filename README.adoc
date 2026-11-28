@@ -30,6 +30,71 @@ mvn clean install
 
 The most recent runs completed successfully; see `build-java8.log` and `build-java21.log` in the repository root for full output and warnings.
 
+== Optional runtime-compiler startup check
+
+For classpath applications that require runtime compilation, set
+`-Dchronicle.jvm.args.check=warn` or `-Dchronicle.jvm.args.check=fail` before
+Chronicle Core's `Jvm` class is first initialised. The default is `off`.
+`warn` prints a failed check to standard error and continues; `fail` throws
+from `Jvm` initialisation, preventing that initialisation from completing.
+An invalid mode is rejected. A successful startup check is silent.
+Properties loaded from `system.properties` are considered, with explicit
+`-D` values taking precedence. Existing JVMs are not reconfigured by changing
+this property after `Jvm` has initialised.
+
+The check attempts javac file-manager access and a small in-memory compilation,
+with annotation processing disabled. It uses the current JVM's effective access,
+including inherited options, rather than searching argument strings. Normal
+startup with the check off does not load the compiler probe. The probe does not
+write class files, but it does initialise compiler machinery when opted in.
+
+A standalone check can be run with Core and its dependencies on the classpath:
+
+[source,shell]
+----
+java -cp "$CLASSPATH" net.openhft.chronicle.core.JvmArgs --check
+----
+
+The CLI writes one result to standard error: `SUPPORTED`, `DENIED`, `UNAVAILABLE`
+or `FAILED`. Exit codes are 0 for supported, 1 for an unsuccessful check, and
+2 for incorrect CLI usage. An unavailable compiler is not diagnosed as a missing
+export. On Java 9+ a denied classpath javac file-manager operation suggests
+`--add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED` for this JVM
+and compiler-using child JVMs. Java 8 does not accept module flags.
+
+For production classpath deployments, follow the
+https://github.com/OpenHFT/OpenHFT/blob/ea/docs/Java-Version-Support.adoc[OpenHFT Java Version Support recommendations].
+The guide recommends the same nine module options for Java 11, 17, 21 and 25,
+even where a particular JDK or application does not strictly need all of them.
+Java 8 needs none of these module options.
+
+The suggested `jdk.compiler/com.sun.tools.javac.file` export is one of those
+nine options. The guide additionally recommends exports for
+`java.base/jdk.internal.ref`, `java.base/sun.nio.ch` and
+`jdk.unsupported/sun.misc`, and opens for `jdk.compiler/com.sun.tools.javac`
+and `java.base/java.lang`, `java.base/java.lang.reflect`, `java.base/java.io`
+and `java.base/java.util`, all targeting `ALL-UNNAMED`.
+The probe does not validate those eight additional grants. In particular,
+opening `com.sun.tools.javac` does not export its distinct `com.sun.tools.javac.file`
+package. The guide's `--add-exports=...` spelling and the diagnostic's
+`--add-exports ...` spelling are equivalent launcher forms.
+
+Run the standalone check with the same JVM options as the application.
+A `SUPPORTED` result is not a reason to remove other options recommended by
+OpenHFT: it establishes only the compiler operations exercised here.
+This is a compiler capability check, not a universal Chronicle flag profile.
+Mapping/cleaner access, native-access warnings and Unsafe policy are separate.
+Named-module deployments are explicitly reported as unavailable: a check from
+Core's module cannot establish grants to a separate runtime-compiler module.
+The same-JVM probe preserves effective grants from agents and launcher options;
+it does not attempt to reproduce them in a second JVM.
+
+A successful probe does not prove that Chronicle Wire selected a generated
+method reader, nor that its handling of unknown method IDs matches a fallback
+reader. Check those behaviours in the application's Wire integration tests.
+No Wire or Java-Runtime-Compiler dependency is added by this feature. Applications
+which do not require a compiler should leave the check off.
+
 == About Chronicle-Core
 
 Chronicle-Core is an advanced low-level library that equips developers with powerful tools to interact with the operating system, manage memory, handle resources, and more.
